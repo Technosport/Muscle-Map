@@ -101,7 +101,15 @@
     color: var(--fg);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+  }
+  .topbar-title .brand-logo {
+    height: 20px;
+    width: auto;
+    max-width: 85px;
+    object-fit: contain;
+    display: inline-block;
+    flex-shrink: 0;
   }
   .topbar-title .tag {
     font-size: 11px;
@@ -215,7 +223,15 @@
     letter-spacing: -0.01em;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+  }
+  .brand-logo {
+    height: 22px;
+    width: auto;
+    max-width: 95px;
+    object-fit: contain;
+    display: inline-block;
+    flex-shrink: 0;
   }
   .brand-title .tag {
     font-size: 11px;
@@ -1218,6 +1234,7 @@
     <span class="label-text" data-i18n="navControls">Paramètres</span>
   </button>
   <div class="topbar-title">
+    <img src="/*TECHNOSPORT_LOGO_SRC*/" alt="Technosport" class="brand-logo">
     <span>Muscle Map</span>
   </div>
   <button type="button" class="topbar-btn" id="btnOpenRight" aria-label="Ouvrir la liste des muscles">
@@ -1237,6 +1254,7 @@
   <!-- EN-TETE : TITRE + COMMUTATEUR DE LANGUE -->
   <div class="panel-header">
     <div class="brand-title">
+      <img src="/*TECHNOSPORT_LOGO_SRC*/" alt="Technosport" class="brand-logo">
       <span>Muscle Map</span>
     </div>
     <div style="display:flex; align-items:center; gap:8px;">
@@ -1366,7 +1384,7 @@
   </section>
 
   <footer id="footerText" data-i18n="footer">
-    Muscle Map — Développé par Jean PANCHAIRI • Cartographie vectorielle anatomique sEMG dérivée de BodyParts3D (DBCLS CC BY-SA 2.1 Japan).
+    Muscle Map — Développé par Jean PANCHAIRI • Technosport amU · D'après BodyParts3D (DBCLS, CC BY-SA 2.1 JP).
   </footer>
 </aside>
 
@@ -1716,7 +1734,8 @@ const I18N = {
     selectedSingle: 'sélectionné',
     selectedPlural: 'sélectionnés',
     noMuscle: 'Aucun muscle ne correspond aux critères.',
-    footer: 'Muscle Map — Développé par Jean PANCHAIRI • Cartographie vectorielle anatomique sEMG dérivée de BodyParts3D (DBCLS CC BY-SA 2.1 Japan).',
+    footer: "Muscle Map — Développé par Jean PANCHAIRI • Technosport amU · D'après BodyParts3D (DBCLS, CC BY-SA 2.1 JP).",
+    imageLicense: "Technosport amU · Based on BodyParts3D (DBCLS, CC BY-SA 2.1 JP).",
     scaleTitle: '% CMLV (Contraction Maximale Volontaire)',
     unitBadge: '% CMLV',
     activeTag: 'Actif',
@@ -1826,7 +1845,8 @@ const I18N = {
     selectedSingle: 'selected',
     selectedPlural: 'selected',
     noMuscle: 'No muscle matches the search criteria.',
-    footer: 'Muscle Map — Developed by Jean PANCHAIRI • Vector sEMG anatomical mapping derived from BodyParts3D (DBCLS CC BY-SA 2.1 Japan).',
+    footer: "Muscle Map — Developed by Jean PANCHAIRI • Technosport amU · Based on BodyParts3D (DBCLS, CC BY-SA 2.1 JP).",
+    imageLicense: "Technosport amU · Based on BodyParts3D (DBCLS, CC BY-SA 2.1 JP).",
     scaleTitle: '% MVC (Maximal Voluntary Contraction)',
     unitBadge: '% MVC',
     activeTag: 'Active',
@@ -2260,7 +2280,7 @@ function buildSVG(interactive) {
   }
 
   // LICENCE EN SEMI-TRANSPARENCE POSITIONNÉE DE FAÇON HARMONIEUSE SOUS LE CONTENU
-  const licenseSvg = `<text x="${f1(targetW / 2)}" y="${f1(licenseY)}" font-size="9.5" text-anchor="middle" fill="${t.textColor}" fill-opacity="0.4" font-family='${FONT}' letter-spacing="0.02em">CC BY-SA 2.1 Japan · BodyParts3D (DBCLS)</text>`;
+  const licenseSvg = `<text x="${f1(targetW / 2)}" y="${f1(licenseY)}" font-size="9.5" text-anchor="middle" fill="${t.textColor}" fill-opacity="0.4" font-family='${FONT}' letter-spacing="0.02em">${dict.imageLicense}</text>`;
 
   let body = '';
   if (state.bg !== 'transparent') {
@@ -2367,7 +2387,7 @@ function buildSVG(interactive) {
   const label = state.view === 'both' ? dict.metaDuo : (state.view === 'front' ? dict.metaFront : dict.metaBack);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${f1(targetW)} ${f1(targetH)}" width="100%" height="100%" font-family='${FONT}'>` +
     `<title>Muscle Map (${label})</title>` +
-    `<metadata>Muscle Map — Jean PANCHAIRI • Dérivé de BodyParts3D (DBCLS CC BY-SA 2.1 Japan).</metadata>` +
+    `<metadata>Muscle Map — Jean PANCHAIRI • ${dict.imageLicense}</metadata>` +
     body + '</svg>';
   return { svg, width: targetW, height: targetH, count: selected.length, heat };
 }
