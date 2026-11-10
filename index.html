@@ -676,13 +676,15 @@
     font-weight: 600;
     color: var(--muted);
     background: #e2e8f0;
-    padding: 1.5px 6.5px;
+    padding: 1.5px 7px;
     border-radius: 9999px;
+    transition: all 0.15s ease;
   }
-  .selection-status {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--accent);
+  .count-tag.active {
+    color: #1d4ed8;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    font-weight: 700;
   }
   .btn-toggle-all {
     display: inline-flex;
@@ -766,6 +768,17 @@
     background: #f1f5f9;
     padding: 1px 6px;
     border-radius: 4px;
+    transition: all 0.12s ease;
+  }
+  .m-group-count.has-selected {
+    color: #1d4ed8;
+    background: #eff6ff;
+    font-weight: 700;
+  }
+  .m-group-count.all-selected {
+    color: #047857;
+    background: #ecfdf5;
+    font-weight: 700;
   }
   .m-card {
     display: flex;
@@ -1463,12 +1476,13 @@
           <path d="M4 6h12M4 10h12M4 14h8"/>
         </svg>
         <span data-i18n="modeClassic">Mode Classique</span>
+        <span id="tabClassicBadge" class="tab-count-badge" style="display:none">0</span>
       </button>
       <button type="button" class="mode-tab-btn" id="tabMvc" data-tab="mvc">
         <svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor">
           <path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.381z"/>
         </svg>
-        <span data-i18n="modeMvc">Mode % MVC</span>
+        <span data-i18n="modeMvc">Mode % CMV</span>
         <span id="tabMvcBadge" class="tab-count-badge" style="display:none">0</span>
       </button>
     </div>
@@ -1488,10 +1502,9 @@
       <div class="muscle-list-header">
         <div class="list-title">
           <span data-i18n="musclesTitle">Muscles</span>
-          <span id="muscleCountLabel" class="count-tag">0</span>
+          <span id="muscleCountLabel" class="count-tag">0 / 63</span>
         </div>
         <div style="display:flex; align-items:center; gap:6px;">
-          <div id="selectionStatus" class="selection-status"></div>
           <button type="button" id="btnToggleSelectAll" class="btn-toggle-all" title="Tout sélectionner / désélectionner">
             <svg id="btnToggleSelectAllIcon" viewBox="0 0 20 20" width="12" height="12" fill="none">
               <rect x="3" y="3" width="14" height="14" rx="3" stroke="currentColor" stroke-width="2"/>
@@ -2579,6 +2592,7 @@ function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 // --- APPLICATION DE LA LANGUE (I18N) ---
 let activeGroupFilter = 'all';
 let searchQuery = '';
+let totalVisibleSearch = 63;
 
 function applyI18n() {
   const dict = I18N[state.lang] || I18N.fr;
@@ -2677,26 +2691,40 @@ function renderMuscleCards() {
       </div>`;
     }).join('');
 
+    const countClass = selectedInGroup === 0 ? '' : (selectedInGroup === muscles.length ? 'all-selected' : 'has-selected');
     return `<div class="m-group-header">
       <span>${esc(groupName)}</span>
-      <span class="m-group-count">${selectedInGroup} / ${muscles.length}</span>
+      <span class="m-group-count ${countClass}">${selectedInGroup} / ${muscles.length}</span>
     </div>${cardsHtml}`;
   }).join('');
 
-  $('muscleCountLabel').textContent = `${totalVisible} / ${ATLAS.muscles.length}`;
+  totalVisibleSearch = totalVisible;
   cardList.innerHTML = html || `<p style="padding:14px 8px; color:var(--muted); font-size:11px; text-align:center;">${dict.noMuscle}</p>`;
 }
 
 function updateStatus() {
   const dict = I18N[state.lang] || I18N.fr;
   const { entries } = parseList(state.text);
-  const statusEl = $('selectionStatus');
   const count = entries.length;
   const total = (ATLAS && ATLAS.muscles) ? ATLAS.muscles.length : 63;
   const isAll = (count >= total && total > 0);
 
-  if (statusEl) {
-    statusEl.textContent = `${count} ${count > 1 ? dict.selectedPlural : dict.selectedSingle}`;
+  // Compteur principal de sélection (ex: 61 / 63)
+  const countLabel = $('muscleCountLabel');
+  if (countLabel) {
+    if (searchQuery) {
+      countLabel.textContent = `${count} / ${total} (${totalVisibleSearch || 0} vis.)`;
+    } else {
+      countLabel.textContent = `${count} / ${total}`;
+    }
+    countLabel.classList.toggle('active', count > 0);
+  }
+
+  // Badge sur l'onglet Mode Classique
+  const tabClassicBadge = $('tabClassicBadge');
+  if (tabClassicBadge) {
+    tabClassicBadge.textContent = count;
+    tabClassicBadge.style.display = count > 0 ? 'inline-flex' : 'none';
   }
 
   const btnToggle = $('btnToggleSelectAll');
@@ -2725,6 +2753,8 @@ function updateStatus() {
   if (btnClear) {
     btnClear.style.display = (count > 0 && !isAll) ? 'inline-flex' : 'none';
   }
+
+  updateMobileBadges();
 }
 
 function render() {
@@ -2954,12 +2984,14 @@ $('muscleSearch').addEventListener('input', e => {
   searchQuery = e.target.value.trim();
   $('btnClearSearch').style.display = searchQuery ? 'block' : 'none';
   renderMuscleCards();
+  updateStatus();
 });
 $('btnClearSearch').addEventListener('click', () => {
   $('muscleSearch').value = '';
   searchQuery = '';
   $('btnClearSearch').style.display = 'none';
   renderMuscleCards();
+  updateStatus();
   $('muscleSearch').focus();
 });
 
