@@ -2109,7 +2109,7 @@ function buildSVG(interactive) {
   const heat = selected.some(e => e.value !== null);
   const views = state.view === 'both' ? ['front', 'back'] : [state.view];
   const [yMin, yMax] = zoneRange(state.zone);
-  const size = 14, pad = 16, gapLabel = 7, panelGap = 36;
+  const size = 16, pad = 16, gapLabel = 8, panelGap = 36;
   const showLabels = state.labels !== 'none';
   const [bx0, , bx1] = ATLAS.views.front.bbox;
 
@@ -2166,7 +2166,7 @@ function buildSVG(interactive) {
 
   // Calcul stable de la marge latérale pour les étiquettes
   const maxLabelW = Math.max(0, ...panels.flatMap(p => p.labels.map(l => l.width || 0)));
-  const labelMargin = showLabels ? Math.max(state.labels === 'numbers' ? 36 : 124, maxLabelW + 10) : 20;
+  const labelMargin = showLabels ? Math.max(state.labels === 'numbers' ? 40 : 138, maxLabelW + 12) : 20;
   const centerGap = 32;
 
   let contentW;
@@ -2352,11 +2352,11 @@ function buildSVG(interactive) {
       // Si l'étiquette est décalée verticalement par rapport à la zone visible du muscle, on trace une ligne brisée propre
       if (Math.abs(targetY - l.y) > 1.0) {
         const midX = left ? (edge + l.ax) * 0.45 : (edge + l.ax) * 0.55;
-        g += `<polyline points="${f1(edge)},${f1(l.y)} ${f1(midX)},${f1(l.y)} ${f1(l.ax)},${f1(targetY)}" fill="none" stroke="${t.textColor}" stroke-width="0.55" stroke-linejoin="round"/>`;
+        g += `<polyline points="${f1(edge)},${f1(l.y)} ${f1(midX)},${f1(l.y)} ${f1(l.ax)},${f1(targetY)}" fill="none" stroke="${t.textColor}" stroke-width="0.8" stroke-linejoin="round"/>`;
       } else {
-        g += `<line x1="${f1(edge)}" y1="${f1(l.y)}" x2="${f1(l.ax)}" y2="${f1(targetY)}" stroke="${t.textColor}" stroke-width="0.55"/>`;
+        g += `<line x1="${f1(edge)}" y1="${f1(l.y)}" x2="${f1(l.ax)}" y2="${f1(targetY)}" stroke="${t.textColor}" stroke-width="0.8"/>`;
       }
-      g += `<circle cx="${f1(l.ax)}" cy="${f1(targetY)}" r="1.3" fill="${t.textColor}"/>`;
+      g += `<circle cx="${f1(l.ax)}" cy="${f1(targetY)}" r="1.8" fill="${t.textColor}"/>`;
       g += `<text x="${f1(tx)}" y="${f1(l.y + size * 0.33)}" font-size="${size}" font-family='${FONT}' text-anchor="${left ? 'end' : 'start'}" fill="${t.textColor}">${esc(l.text)}</text>`;
     });
 
