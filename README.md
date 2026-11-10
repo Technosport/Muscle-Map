@@ -16,13 +16,11 @@
 ## 🚀 Démarrage
 
 ### Accès en ligne (GitHub Pages)
-Accessible instantanément depuis n'importe quel navigateur (PC, Mac, tablette, smartphone) sans installation :
 - **Accès direct (Web)** : **[technosport.github.io/Muscle-Map](https://technosport.github.io/Muscle-Map/)**
 
-### Utilisation locale (Postes d'acquisition hors-ligne)
-Sur un poste de laboratoire d'acquisition (Noraxon, Delsys, etc.) non connecté à Internet :
+### Utilisation locale
 1. Télécharger ou cloner ce dépôt sur la machine.
-2. Double-cliquer sur le fichier **`index.html`** dans un navigateur moderne (Chrome, Edge, Firefox, Safari).
+2. Double-cliquer sur le fichier **`index.html`** dans un navigateur (Chrome, Edge, Firefox, Safari).
 
 > [!NOTE]
 > L'application est 100% autonome (~1.5 Mo) : elle fonctionne intégralement hors-ligne, sans dépendance externe, sans appel CDN et sans serveur web local requis.
