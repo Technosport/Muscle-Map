@@ -102,8 +102,9 @@ Le script réinjecte les données dans `index.html` en une fraction de seconde.
 
 ---
 
-## 📚 Référence anatomique & Crédits
+## 📚 Référence anatomique, Auteur & Crédits
 
-- Tracés anatomiques issus de la projection des maillages **BodyParts3D 3.0** (Database Center for Life Science - DBCLS).
-- Licence : [Creative Commons Attribution-ShareAlike 2.1 Japan (CC BY-SA 2.1 JP)](https://creativecommons.org/licenses/by-sa/2.1/jp/).
+- **Conception & Développement** : Jean PANCHAIRI
+- **Tracés anatomiques** : Issus de la projection des maillages **BodyParts3D 3.0** (Database Center for Life Science - DBCLS).
+- **Licence** : [Creative Commons Attribution-ShareAlike 2.1 Japan (CC BY-SA 2.1 JP)](https://creativecommons.org/licenses/by-sa/2.1/jp/).
 - Application conçue pour la recherche et l'enseignement en biomécanique, ergonomie et physiologie du sport.

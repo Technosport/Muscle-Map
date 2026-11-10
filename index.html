@@ -1366,7 +1366,7 @@
   </section>
 
   <footer id="footerText" data-i18n="footer">
-    Muscle Map — Cartographie vectorielle anatomique sEMG dérivée de BodyParts3D (DBCLS CC BY-SA 2.1 Japan).
+    Muscle Map — Développé par Jean PANCHAIRI • Cartographie vectorielle anatomique sEMG dérivée de BodyParts3D (DBCLS CC BY-SA 2.1 Japan).
   </footer>
 </aside>
 
@@ -1716,7 +1716,7 @@ const I18N = {
     selectedSingle: 'sélectionné',
     selectedPlural: 'sélectionnés',
     noMuscle: 'Aucun muscle ne correspond aux critères.',
-    footer: 'Muscle Map — Cartographie vectorielle anatomique sEMG dérivée de BodyParts3D (DBCLS CC BY-SA 2.1 Japan).',
+    footer: 'Muscle Map — Développé par Jean PANCHAIRI • Cartographie vectorielle anatomique sEMG dérivée de BodyParts3D (DBCLS CC BY-SA 2.1 Japan).',
     scaleTitle: '% CMLV (Contraction Maximale Volontaire)',
     unitBadge: '% CMLV',
     activeTag: 'Actif',
@@ -1826,7 +1826,7 @@ const I18N = {
     selectedSingle: 'selected',
     selectedPlural: 'selected',
     noMuscle: 'No muscle matches the search criteria.',
-    footer: 'Muscle Map — Vector sEMG anatomical mapping derived from BodyParts3D (DBCLS CC BY-SA 2.1 Japan).',
+    footer: 'Muscle Map — Developed by Jean PANCHAIRI • Vector sEMG anatomical mapping derived from BodyParts3D (DBCLS CC BY-SA 2.1 Japan).',
     scaleTitle: '% MVC (Maximal Voluntary Contraction)',
     unitBadge: '% MVC',
     activeTag: 'Active',
@@ -2367,7 +2367,7 @@ function buildSVG(interactive) {
   const label = state.view === 'both' ? dict.metaDuo : (state.view === 'front' ? dict.metaFront : dict.metaBack);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${f1(targetW)} ${f1(targetH)}" width="100%" height="100%" font-family='${FONT}'>` +
     `<title>Muscle Map (${label})</title>` +
-    `<metadata>Muscle Map — Dérivé de BodyParts3D (DBCLS CC BY-SA 2.1 Japan).</metadata>` +
+    `<metadata>Muscle Map — Jean PANCHAIRI • Dérivé de BodyParts3D (DBCLS CC BY-SA 2.1 Japan).</metadata>` +
     body + '</svg>';
   return { svg, width: targetW, height: targetH, count: selected.length, heat };
 }
