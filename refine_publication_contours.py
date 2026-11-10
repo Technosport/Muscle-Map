@@ -2,9 +2,10 @@ import cv2
 import numpy as np
 import json
 import sys
+import os
 from scipy.ndimage import gaussian_filter1d
 
-sys.path.insert(0, 'MuscleAtlas')
+sys.path.insert(0, '.')
 import build_atlas_data as bad
 
 PX_PER_UNIT = 600
@@ -15,7 +16,7 @@ WIDTH = int((X_RANGE[1] - X_RANGE[0]) * PX_PER_UNIT)   # 1740
 HEIGHT = int((Y_RANGE[1] - Y_RANGE[0]) * PX_PER_UNIT) # 4080
 SCALE = OUT_PER_UNIT / PX_PER_UNIT                     # 1/6
 
-WORKSPACE_HAND_REFINED = 'MuscleAtlas/hand_nano_refined.jpg'
+WORKSPACE_HAND_REFINED = 'hand_nano_refined.jpg' if os.path.exists('hand_nano_refined.jpg') else '../AQ-Tech/MuscleAtlas/hand_nano_refined.jpg'
 
 print("Loading BodyParts3D 3.0 meshes from muscles.glb...")
 meshes = bad.load_meshes()
@@ -113,7 +114,8 @@ print("Building final silhouette...")
 mask_front = build_final_silhouette(v1_front)
 mask_back  = np.fliplr(mask_front)
 
-with open('MuscleAtlas/atlas_data.json', 'r', encoding='utf-8') as f:
+data_file = 'muscle_map_data.json' if os.path.exists('muscle_map_data.json') else 'atlas_data.json'
+with open(data_file, 'r', encoding='utf-8') as f:
     atlas = json.load(f)
 
 atlas['views']['front']['body'] = vectorize_mask(mask_front)
@@ -160,7 +162,7 @@ for m_entry in atlas['muscles']:
     for vk in list(m_entry['views'].keys()):
         m_entry['views'][vk].pop('d_v1', None)
 
-with open('MuscleAtlas/atlas_data.json', 'w', encoding='utf-8') as f:
+with open(data_file, 'w', encoding='utf-8') as f:
     json.dump(atlas, f, ensure_ascii=False, separators=(',', ':'))
 
-print("Restored smooth foot and updated MuscleAtlas/atlas_data.json!")
+print(f"Contours et pieds lissés mis à jour dans {data_file} !")

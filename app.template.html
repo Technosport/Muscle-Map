@@ -3,7 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Muscle Map • Cartographie Anatomique</title>
+<title>Muscle Map • Cartographie Anatomique sEMG</title>
+<meta name="description" content="Muscle Map — Cartographie anatomique vectorielle 2D pour le positionnement sEMG et la visualisation des activations (% MVC).">
+<meta name="theme-color" content="#2563eb">
+<meta property="og:title" content="Muscle Map">
+<meta property="og:description" content="Cartographie anatomique vectorielle sEMG interactive 2D">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%232563eb'/%3E%3Cpath d='M30 65 L45 35 L55 55 L70 35' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
   :root {
     --bg: #f8fafc;
@@ -1364,7 +1370,7 @@
   </footer>
 </aside>
 
-<!-- 2. SCÈNE CENTRALE : ATLAS DANS UN CARRÉ STRICT ET FIXE (PLOTLY-STYLE ZOOM) -->
+<!-- 2. SCÈNE CENTRALE : CARTE MUSCLE MAP (PLOTLY-STYLE ZOOM) -->
 <main id="stage-wrapper">
 
 
@@ -1504,7 +1510,8 @@
 </div><!-- Fin #app-container -->
 
 <script>
-const ATLAS = /*ATLAS_JSON*/;
+const MUSCLE_MAP_DATA = /*ATLAS_JSON*/;
+const ATLAS = MUSCLE_MAP_DATA; // Rétro-compatibilité interne
 const TECHNOSPORT_COLORS = {
   "frontalis": "#9174f3",
   "temporalis": "#a67ba2",
@@ -1600,7 +1607,7 @@ const defaults = {
 
 function loadState() {
   try {
-    const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || localStorage.getItem('muscleatlas.pro.v4') || '{}');
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || localStorage.getItem('musclemap.v1') || localStorage.getItem('muscleatlas.pro.v4') || '{}');
     delete s.contour;
     s.layer = 'all';
     return s;

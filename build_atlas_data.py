@@ -1,7 +1,7 @@
-"""Projette les maillages BodyParts3D (face / dos) en tracés vectoriels lissés pour l'atlas sEMG.
+"""Projette les maillages BodyParts3D (face / dos) en tracés vectoriels lissés pour Muscle Map.
 
-Sortie : MuscleAtlas/atlas_data.json (contour du corps + un tracé par muscle et par vue).
-Usage : python MuscleAtlas/build_atlas_data.py   (depuis la racine du projet)
+Sortie : muscle_map_data.json (contour du corps + un tracé par muscle et par vue).
+Usage : python build_atlas_data.py
 """
 import os
 import json
@@ -10,8 +10,8 @@ import cv2
 from scipy.ndimage import gaussian_filter1d
 import trimesh
 
-GLB = "MuscleStudio/muscles.glb"
-OUT = "MuscleAtlas/atlas_data.json"
+GLB = "muscles.glb" if os.path.exists("muscles.glb") else "../AQ-Tech/MuscleStudio/muscles.glb"
+OUT = "muscle_map_data.json"
 
 PX_PER_UNIT = 600      # résolution de rasterisation
 OUT_PER_UNIT = 100     # unités du viewBox SVG par unité du modèle
@@ -279,12 +279,13 @@ def body_silhouette_v1(union):
 
 def extract_human_contour(view, margin_px=0):
     """Extrait la silhouette humaine anatomique réaliste avec vraies mains (5 doigts), vrais pieds (talon, orteils),
-    calée avec exactitude sur le repère de l'atlas sEMG, avec une marge respirante optionnelle."""
-    mask_path = f"MuscleAtlas/realistic_{view}_mask.png"
+    calée avec exactitude sur le repère de Muscle Map, avec une marge respirante optionnelle."""
+    mask_path = f"realistic_{view}_mask.png" if os.path.exists(f"realistic_{view}_mask.png") else f"../AQ-Tech/MuscleAtlas/realistic_{view}_mask.png"
     if os.path.exists(mask_path):
         solid = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
     else:
-        img = cv2.imread(f"MuscleStudio/outlines/{view}.png", cv2.IMREAD_UNCHANGED)
+        outline_path = f"outlines/{view}.png" if os.path.exists(f"outlines/{view}.png") else f"../AQ-Tech/MuscleStudio/outlines/{view}.png"
+        img = cv2.imread(outline_path, cv2.IMREAD_UNCHANGED)
         alpha = (img[:, :, 3] > 60).astype(np.uint8) * 255
         closed = cv2.morphologyEx(alpha, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
         flood = cv2.bitwise_not(closed)
@@ -338,8 +339,9 @@ def extract_human_contour(view, margin_px=0):
 
 
 def ai_outline(view, union):
-    """Contour historique de MuscleStudio."""
-    img = cv2.imread(f"MuscleStudio/outlines/{view}.png", cv2.IMREAD_UNCHANGED)
+    """Contour de silhouette pour Muscle Map."""
+    outline_path = f"outlines/{view}.png" if os.path.exists(f"outlines/{view}.png") else f"../AQ-Tech/MuscleStudio/outlines/{view}.png"
+    img = cv2.imread(outline_path, cv2.IMREAD_UNCHANGED)
     mask = (img[:, :, 3] > 100).astype(np.uint8) * 255
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, ellipse(9))
     flood = cv2.bitwise_not(mask)
