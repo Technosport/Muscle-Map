@@ -15,3 +15,23 @@ ENV/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# 3D assets and large meshes
+*.obj
+*.npz
+*.stl
+*.ply
+
+# Scratch and preview files
+*_demo.py
+test_*.py
+inspect_*.py
+process_*.py
+*showcase*.html
+*preview*.png
+real_*
+finish_deploy.py
+
+# Temporary files
+tmp/
+temp/

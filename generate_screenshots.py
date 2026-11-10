@@ -43,7 +43,7 @@ async def main():
                 'vastus-lateralis',
                 'vastus-medialis',
                 'rectus-femoris',
-                'biceps-femoris',
+                'biceps-femoris-long',
                 'semitendinosus',
                 'tibialis-anterior',
                 'gastrocnemius-medial',

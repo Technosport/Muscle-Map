@@ -5,6 +5,7 @@ Usage : python build_atlas_data.py
 """
 import os
 import json
+from pathlib import Path
 import numpy as np
 import cv2
 from scipy.ndimage import gaussian_filter1d
@@ -48,11 +49,16 @@ LAYOUT = {
     "multifidus": ("Tronc", ["back"], "Multifide", "Multifidus", "MULT", "deep", "#1E293B"),
 
     # Épaule et bras
-    "deltoid": ("Épaule et bras", ["front", "back"], "Deltoïde", "Deltoid", "DEL", "superficial", "#F97316"),
-    "biceps-brachii": ("Épaule et bras", ["front"], "Biceps brachial", "Biceps brachii", "BB", "superficial", "#2563EB"),
+    "deltoid-anterior": ("Épaule et bras", ["front"], "Deltoïde antérieur", "Anterior deltoid", "AD", "superficial", "#F97316"),
+    "deltoid-middle": ("Épaule et bras", ["front", "back"], "Deltoïde moyen", "Middle deltoid", "MD", "superficial", "#FB923C"),
+    "deltoid-posterior": ("Épaule et bras", ["back"], "Deltoïde postérieur", "Posterior deltoid", "PD", "superficial", "#EA580C"),
+    "biceps-brachii-long": ("Épaule et bras", ["front"], "Biceps brachial (chef long)", "Biceps brachii (long head)", "BBL", "superficial", "#2563EB"),
+    "biceps-brachii-short": ("Épaule et bras", ["front"], "Biceps brachial (chef court)", "Biceps brachii (short head)", "BBS", "superficial", "#3B82F6"),
     "infraspinatus": ("Épaule et bras", ["back"], "Infra-épineux", "Infraspinatus", "INF", "intermediate", "#9333EA"),
     "teres-major": ("Épaule et bras", ["back"], "Grand rond", "Teres major", "TMAJ", "intermediate", "#C026D3"),
-    "triceps-brachii": ("Épaule et bras", ["back"], "Triceps brachial", "Triceps brachii", "TB", "superficial", "#7C3AED"),
+    "triceps-brachii-long": ("Épaule et bras", ["back"], "Triceps brachial (chef long)", "Triceps brachii (long head)", "TBL", "superficial", "#7C3AED"),
+    "triceps-brachii-lateral": ("Épaule et bras", ["back"], "Triceps brachial (chef latéral)", "Triceps brachii (lateral head)", "TBLat", "superficial", "#6D28D9"),
+    "triceps-brachii-medial": ("Épaule et bras", ["back"], "Triceps brachial (chef médial)", "Triceps brachii (medial head)", "TBM", "intermediate", "#8B5CF6"),
 
     # Avant-bras et main
     "brachioradialis": ("Avant-bras et main", ["front"], "Brachio-radial", "Brachioradialis", "BR", "superficial", "#0891B2"),
@@ -80,7 +86,8 @@ LAYOUT = {
     "gluteus-maximus": ("Hanche et cuisse", ["back"], "Grand fessier", "Gluteus maximus", "GMAX", "superficial", "#B91C1C"),
     "gluteus-medius": ("Hanche et cuisse", ["back"], "Moyen fessier", "Gluteus medius", "GMED", "intermediate", "#C026D3"),
     "gluteus-minimus": ("Hanche et cuisse", ["back"], "Petit fessier", "Gluteus minimus", "GMIN", "deep", "#A21CAF"),
-    "biceps-femoris": ("Hanche et cuisse", ["back"], "Biceps fémoral", "Biceps femoris", "BF", "superficial", "#7C3AED"),
+    "biceps-femoris-long": ("Hanche et cuisse", ["back"], "Biceps fémoral (chef long)", "Biceps femoris (long head)", "BFL", "superficial", "#7C3AED"),
+    "biceps-femoris-short": ("Hanche et cuisse", ["back"], "Biceps fémoral (chef court)", "Biceps femoris (short head)", "BFS", "intermediate", "#9333EA"),
     "semitendinosus": ("Hanche et cuisse", ["back"], "Semi-tendineux", "Semitendinosus", "ST", "intermediate", "#0284C7"),
     "semimembranosus": ("Hanche et cuisse", ["back"], "Semi-membraneux", "Semimembranosus", "SM", "deep", "#4338CA"),
     "adductor-magnus": ("Hanche et cuisse", ["back"], "Grand adducteur", "Adductor magnus", "ADM", "deep", "#7E22CE"),
@@ -96,9 +103,6 @@ LAYOUT = {
     "soleus": ("Jambe et pied", ["back"], "Soléaire", "Soleus", "SOL", "intermediate", "#CA8A04")
 }
 SECTIONS = ["Tête et cou", "Tronc", "Épaule et bras", "Avant-bras et main", "Hanche et cuisse", "Jambe et pied"]
-
-# Découpage géométrique approximatif du trapèze (altitude du centroïde de chaque triangle, repère du modèle)
-TRAPEZIUS_CUTS = (1.95, 1.45)
 
 WIDTH = int((X_RANGE[1] - X_RANGE[0]) * PX_PER_UNIT)
 HEIGHT = int((Y_RANGE[1] - Y_RANGE[0]) * PX_PER_UNIT)
@@ -128,25 +132,99 @@ def merge(components):
 def derive_parts(meshes):
     parts = {k: v for k, v in meshes.items() if k in LAYOUT}
 
-    # Gastrocnémien : composantes connexes ; médial = plus proche du plan sagittal x = 0
-    verts, faces = meshes["gastrocnemius"]
-    components = trimesh.Trimesh(verts, faces, process=False).split(only_watertight=False)
+    def split_mesh(name, min_faces=20):
+        verts, faces = meshes[name]
+        return [c for c in trimesh.Trimesh(verts, faces, process=False).split(only_watertight=False) if len(c.faces) > min_faces]
+
+    # 1. Gastrocnémien : médial = plus proche du plan sagittal x = 0, latéral = plus éloigné
+    comps = split_mesh("gastrocnemius")
     medial, lateral = [], []
     for side in (-1, 1):
-        side_components = [c for c in components if np.sign(c.vertices[:, 0].mean()) == side]
-        side_components.sort(key=lambda c: abs(c.vertices[:, 0].mean()))
-        assert len(side_components) >= 2, "gastrocnémien : chefs introuvables"
-        medial.append(side_components[0])
-        lateral.append(side_components[-1])
+        side_comps = [c for c in comps if np.sign(c.vertices[:, 0].mean()) == side]
+        side_comps.sort(key=lambda c: abs(c.vertices[:, 0].mean()))
+        assert len(side_comps) >= 2, "gastrocnémien : chefs introuvables"
+        medial.append(side_comps[0])
+        lateral.append(side_comps[-1])
     parts["gastrocnemius-medial"] = merge(medial)
     parts["gastrocnemius-lateral"] = merge(lateral)
 
-    verts, faces = meshes["trapezius"]
-    centroid_y = verts[faces].mean(axis=1)[:, 1]
-    upper_cut, lower_cut = TRAPEZIUS_CUTS
-    parts["trapezius-upper"] = (verts, faces[centroid_y >= upper_cut])
-    parts["trapezius-middle"] = (verts, faces[(centroid_y < upper_cut) & (centroid_y >= lower_cut)])
-    parts["trapezius-lower"] = (verts, faces[centroid_y < lower_cut])
+    # 2. Trapèze : 3 composantes connexes natives (triées par altitude Y croissante : inférieur, moyen, supérieur)
+    comps = split_mesh("trapezius")
+    trap_low, trap_mid, trap_up = [], [], []
+    for side in (-1, 1):
+        side_comps = [c for c in comps if np.sign(c.vertices[:, 0].mean()) == side]
+        side_comps.sort(key=lambda c: c.vertices[:, 1].mean())
+        assert len(side_comps) == 3, f"trapèze : 3 composantes attendues par côté, obtenu {len(side_comps)}"
+        trap_low.append(side_comps[0])
+        trap_mid.append(side_comps[1])
+        trap_up.append(side_comps[2])
+    parts["trapezius-lower"] = merge(trap_low)
+    parts["trapezius-middle"] = merge(trap_mid)
+    parts["trapezius-upper"] = merge(trap_up)
+
+    # 3. Deltoïde : 3 chefs (antérieur AD, moyen / latéral MD, postérieur PD)
+    # Tri sagittal Z : Z min = postérieur, Z max = antérieur, intermédiaire = moyen (|X| max)
+    comps = split_mesh("deltoid")
+    delt_ant, delt_mid, delt_post = [], [], []
+    for side in (-1, 1):
+        side_comps = [c for c in comps if np.sign(c.vertices[:, 0].mean()) == side]
+        assert len(side_comps) == 3, f"deltoïde : 3 composantes attendues par côté, obtenu {len(side_comps)}"
+        side_comps.sort(key=lambda c: c.vertices[:, 2].mean())
+        delt_post.append(side_comps[0])
+        delt_mid.append(side_comps[1])
+        delt_ant.append(side_comps[2])
+    parts["deltoid-anterior"] = merge(delt_ant)
+    parts["deltoid-middle"] = merge(delt_mid)
+    parts["deltoid-posterior"] = merge(delt_post)
+
+    # 4. Biceps fémoral : 2 chefs (chef long BFL et chef court BFS)
+    # Tri par hauteur / étendue verticale : le chef long naît sur l'ischion (plus haut, plus étendu)
+    comps = split_mesh("biceps-femoris")
+    bf_long, bf_short = [], []
+    for side in (-1, 1):
+        side_comps = [c for c in comps if np.sign(c.vertices[:, 0].mean()) == side]
+        assert len(side_comps) == 2, f"biceps fémoral : 2 composantes attendues par côté, obtenu {len(side_comps)}"
+        side_comps.sort(key=lambda c: (c.vertices[:, 1].max() - c.vertices[:, 1].min()))
+        bf_short.append(side_comps[0])
+        bf_long.append(side_comps[1])
+    parts["biceps-femoris-long"] = merge(bf_long)
+    parts["biceps-femoris-short"] = merge(bf_short)
+
+    # 5. Triceps brachial : 3 chefs (long TBL, latéral TBLat, médial TBM)
+    # Le chef médial naît plus bas sur l'humérus (Y moyen le plus bas).
+    # Entre le long et le latéral : le latéral a le plus grand |X|, le long s'attache sur la scapula.
+    comps = split_mesh("triceps-brachii")
+    tb_long, tb_lat, tb_med = [], [], []
+    for side in (-1, 1):
+        side_comps = [c for c in comps if np.sign(c.vertices[:, 0].mean()) == side]
+        assert len(side_comps) == 3, f"triceps brachial : 3 composantes attendues par côté, obtenu {len(side_comps)}"
+        side_comps.sort(key=lambda c: c.vertices[:, 1].mean())
+        med = side_comps[0]
+        rem = side_comps[1:]
+        rem.sort(key=lambda c: abs(c.vertices[:, 0].mean()))
+        lon = rem[0]
+        lat = rem[1]
+        tb_med.append(med)
+        tb_long.append(lon)
+        tb_lat.append(lat)
+    parts["triceps-brachii-long"] = merge(tb_long)
+    parts["triceps-brachii-lateral"] = merge(tb_lat)
+    parts["triceps-brachii-medial"] = merge(tb_med)
+
+    # 6. Biceps brachial : 2 chefs (chef long BBL et chef court BBS)
+    # Le chef court naît sur le processus coracoïde (médial, |X| plus faible).
+    # Le chef long passe dans le sillon intertuberculaire (latéral, |X| plus élevé, tendon plus haut).
+    comps = split_mesh("biceps-brachii")
+    bb_long, bb_short = [], []
+    for side in (-1, 1):
+        side_comps = [c for c in comps if np.sign(c.vertices[:, 0].mean()) == side]
+        assert len(side_comps) == 2, f"biceps brachial : 2 composantes attendues par côté, obtenu {len(side_comps)}"
+        side_comps.sort(key=lambda c: abs(c.vertices[:, 0].mean()))
+        bb_short.append(side_comps[0])
+        bb_long.append(side_comps[1])
+    parts["biceps-brachii-long"] = merge(bb_long)
+    parts["biceps-brachii-short"] = merge(bb_short)
+
     return parts
 
 
@@ -230,27 +308,98 @@ def anchors(mask, center_x):
     return result
 
 
-def contour_path_v1(mask, min_area=30, epsilon=0.9):
-    """Tracé de la 1re version : polygone simplifié + courbes quadratiques par points milieux."""
+WORKSPACE_HAND_REFINED = 'hand_nano_refined.jpg' if os.path.exists('hand_nano_refined.jpg') else '../AQ-Tech/MuscleAtlas/hand_nano_refined.jpg'
+
+
+def draw_tapered_capsule(mask, p0, p1, r0, r1, val=255):
+    p0, p1 = np.array(p0, dtype=float), np.array(p1, dtype=float)
+    for t in np.linspace(0.0, 1.0, 100):
+        p = p0 * (1 - t) + p1 * t
+        r = r0 * (1 - t) + r1 * t
+        cv2.circle(mask, (int(round(p[0] * 16)), int(round(p[1] * 16))), int(round(r * 16)), val, -1, lineType=cv2.LINE_AA, shift=4)
+
+
+def build_final_silhouette(base_mask):
+    """Silhouette corporelle anatomique de référence avec mains 5 doigts haute définition et pieds réalistes."""
+    m = base_mask.copy()
+
+    # 1. MAINS : mains 5 doigts haute définition (hand_nano_refined.jpg)
+    if os.path.exists(WORKSPACE_HAND_REFINED):
+        refined_img = cv2.imread(WORKSPACE_HAND_REFINED)
+        gray_ref = cv2.cvtColor(refined_img, cv2.COLOR_BGR2GRAY)
+        mask_ref_1000 = (gray_ref < 250).astype(np.uint8) * 255
+        cnts, _ = cv2.findContours(mask_ref_1000, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        main_c = max(cnts, key=cv2.contourArea)
+        filled_1000 = np.zeros_like(mask_ref_1000)
+        cv2.drawContours(filled_1000, [main_c], -1, 255, -1)
+        filled_1000 = cv2.erode(filled_1000, np.ones((3, 3), np.uint8), iterations=2)
+
+        mask_ref_500 = cv2.resize(filled_1000, (500, 500), interpolation=cv2.INTER_AREA)
+        mask_ref_500 = (mask_ref_500 > 127).astype(np.uint8) * 255
+
+        m[2000:2450, 20:430] = 0
+
+        for sy in range(50, 500):
+            dy = 1950 + sy
+            for sx in range(410):
+                if mask_ref_500[sy, sx] > 0:
+                    dx = 20 + sx
+                    m[dy, dx] = 255
+
+        hand_band = m[1985:2450, :870].astype(np.float32)
+        hand_band = cv2.GaussianBlur(hand_band, (9, 9), 2.0)
+        m[1985:2450, :870] = (hand_band > 127).astype(np.uint8) * 255
+
+    # 2. PIEDS : arche médiale et cascade anatomique des orteils D1 -> D5 (côté gauche)
+    draw_tapered_capsule(m, (722, 3800), (730, 4005), 11.0, 20.0, 255)  # Hallux (D1)
+    draw_tapered_capsule(m, (728, 4006), (674, 4008), 20.0, 18.5, 255)  # Hallux -> D2
+    draw_tapered_capsule(m, (674, 4008), (618, 4004), 18.5, 16.0, 255)  # D2 -> D3
+    draw_tapered_capsule(m, (618, 4004), (554, 3997), 16.0, 15.0, 255)  # D3 -> arrondi D5
+
+    foot_band = m[3660:4060, :870].astype(np.float32)
+    foot_band = cv2.GaussianBlur(foot_band, (21, 21), 4.5)
+    m[3660:4060, :870] = (foot_band > 127).astype(np.uint8) * 255
+
+    # 3. SYMÉTRIE BILATÉRALE PARFAITE : le côté droit est la réflexion mathématique exacte du côté gauche
+    m[:, 870:] = np.fliplr(m[:, :870])
+    return m
+
+
+def vectorize_body_mask(mask):
+    """Vectorisation continue haute résolution avec courbes de Bézier cubiques régulières."""
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    pieces = []
-    for contour in contours:
-        if cv2.contourArea(contour) < min_area:
-            continue
-        points = cv2.approxPolyDP(contour, epsilon, True)[:, 0, :].astype(float) * SCALE
-        if len(points) < 3:
-            continue
-        mids = (points + np.roll(points, -1, axis=0)) / 2
-        d = [f"M{mids[-1][0]:.1f} {mids[-1][1]:.1f}"]
-        for p, m in zip(points, mids):
-            d.append(f"Q{p[0]:.1f} {p[1]:.1f} {m[0]:.1f} {m[1]:.1f}")
-        pieces.append("".join(d) + "Z")
-    return "".join(pieces)
+    main_c = max(contours, key=cv2.contourArea)
+    approx = cv2.approxPolyDP(main_c, 0.80, True)[:, 0, :].astype(float)
+
+    diffs = np.diff(approx, axis=0, append=approx[:1])
+    dists = np.hypot(diffs[:, 0], diffs[:, 1])
+    total_len = dists.sum()
+    n_samples = int(total_len / 2.6)
+    cum_dists = np.concatenate([[0], np.cumsum(dists)])
+    sample_dists = np.linspace(0, total_len, n_samples, endpoint=False)
+
+    pts_x = np.interp(sample_dists, cum_dists, np.concatenate([approx[:, 0], [approx[0, 0]]]))
+    pts_y = np.interp(sample_dists, cum_dists, np.concatenate([approx[:, 1], [approx[0, 1]]]))
+    uniform_pts = np.column_stack([pts_x, pts_y])
+
+    smoothed = gaussian_filter1d(uniform_pts, sigma=1.35, axis=0, mode='wrap')
+    pts_svg = (smoothed * SCALE)[::2]
+
+    n = len(pts_svg)
+    d = [f"M{pts_svg[0][0]:.2f} {pts_svg[0][1]:.2f}"]
+    for i in range(n):
+        p0, p1, p2, p3 = pts_svg[(i - 1) % n], pts_svg[i], pts_svg[(i + 1) % n], pts_svg[(i + 2) % n]
+        c1 = p1 + (p2 - p0) / 6.0
+        c2 = p2 - (p3 - p1) / 6.0
+        d.append(f"C{c1[0]:.2f} {c1[1]:.2f} {c2[0]:.2f} {c2[1]:.2f} {p2[0]:.2f} {p2[1]:.2f}")
+    return "".join(d) + "Z"
 
 
 def body_union(meshes, view):
     union = np.zeros((HEIGHT, WIDTH), np.uint8)
-    for verts, faces in meshes.values():
+    for k, (verts, faces) in meshes.items():
+        if k in ('tibialis-posterior', 'flexor-digitorum-longus'):
+            continue
         union = cv2.bitwise_or(union, rasterize(verts, faces, view))
     return union
 
@@ -261,98 +410,12 @@ def fill_holes(mask):
     return cv2.bitwise_or(mask, flood)
 
 
-def body_silhouette(union):
-    union = cv2.morphologyEx(union, cv2.MORPH_CLOSE, ellipse(5))
-    union = fill_holes(union)
-    union = smooth_mask(union, close=0, sigma=5)
-    union = cv2.dilate(union, ellipse(9))
-    return smooth_mask(union, close=0, sigma=4)
-
-
-def body_silhouette_v1(union):
+def body_silhouette_base(union):
     union = cv2.morphologyEx(union, cv2.MORPH_CLOSE, ellipse(13))
     union = fill_holes(union)
     union = smooth_mask(union, close=0, sigma=5)
     union = cv2.dilate(union, ellipse(9))
     return smooth_mask(union, close=0, sigma=4)
-
-
-def extract_human_contour(view, margin_px=0):
-    """Extrait la silhouette humaine anatomique réaliste avec vraies mains (5 doigts), vrais pieds (talon, orteils),
-    calée avec exactitude sur le repère de Muscle Map, avec une marge respirante optionnelle."""
-    mask_path = f"realistic_{view}_mask.png" if os.path.exists(f"realistic_{view}_mask.png") else f"../AQ-Tech/MuscleAtlas/realistic_{view}_mask.png"
-    if os.path.exists(mask_path):
-        solid = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
-    else:
-        outline_path = f"outlines/{view}.png" if os.path.exists(f"outlines/{view}.png") else f"../AQ-Tech/MuscleStudio/outlines/{view}.png"
-        img = cv2.imread(outline_path, cv2.IMREAD_UNCHANGED)
-        alpha = (img[:, :, 3] > 60).astype(np.uint8) * 255
-        closed = cv2.morphologyEx(alpha, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
-        flood = cv2.bitwise_not(closed)
-        h, w = flood.shape
-        cv2.floodFill(flood, np.zeros((h + 2, w + 2), np.uint8), (0, 0), 0)
-        solid = cv2.bitwise_or(closed, flood)
-    
-    if margin_px > 0:
-        # Dilatation intelligente : donne la marge respirante au tronc et membres tout en préservant 100% de la découpe des doigts et orteils
-        body_core = solid.copy()
-        body_core[1160:, :235] = 0
-        body_core[1160:, 733:] = 0
-        body_core[2280:, :] = 0
-        k = margin_px * 2 + 1
-        dilated_core = cv2.dilate(body_core, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))
-        
-        extremities = solid.copy()
-        extremities[:1160, :] = 0
-        extremities[1400:2280, :] = 0
-        
-        solid = cv2.bitwise_or(dilated_core, extremities)
-        smoothed = cv2.GaussianBlur(solid.astype(np.float32), (3, 3), 0.7)
-        solid = (smoothed > 127).astype(np.uint8) * 255
-        
-    contours, _ = cv2.findContours(solid, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    main_c = max(contours, key=cv2.contourArea)[:, 0, :].astype(float)
-    
-    y_min, y_max = main_c[:, 1].min(), main_c[:, 1].max()
-    cx = (main_c[:, 0].min() + main_c[:, 0].max()) / 2.0
-    
-    # Calage anatomique sur l'axe sagittal et la hauteur tête-pieds de l'atlas
-    scale_y = (669.8 - 10.0) / (y_max - y_min)
-    scale_x = scale_y
-    
-    pts = np.zeros_like(main_c)
-    pts[:, 1] = 10.0 + (main_c[:, 1] - y_min) * scale_y
-    pts[:, 0] = 145.0 + (main_c[:, 0] - cx) * scale_x
-    
-    # Lissage doux (sigma=1.2) pour conserver 100% du détail des doigts et des orteils
-    pts = gaussian_filter1d(pts, 1.2, axis=0, mode='wrap')
-    pts = pts[::2]
-    
-    n = len(pts)
-    d = [f"M{pts[0][0]:.1f} {pts[0][1]:.1f}"]
-    for i in range(n):
-        p0, p1, p2, p3 = pts[(i - 1) % n], pts[i], pts[(i + 1) % n], pts[(i + 2) % n]
-        c1 = p1 + (p2 - p0) / 6
-        c2 = p2 - (p3 - p1) / 6
-        d.append(f"C{c1[0]:.1f} {c1[1]:.1f} {c2[0]:.1f} {c2[1]:.1f} {p2[0]:.1f} {p2[1]:.1f}")
-    return "".join(d) + "Z"
-
-
-def ai_outline(view, union):
-    """Contour de silhouette pour Muscle Map."""
-    outline_path = f"outlines/{view}.png" if os.path.exists(f"outlines/{view}.png") else f"../AQ-Tech/MuscleStudio/outlines/{view}.png"
-    img = cv2.imread(outline_path, cv2.IMREAD_UNCHANGED)
-    mask = (img[:, :, 3] > 100).astype(np.uint8) * 255
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, ellipse(9))
-    flood = cv2.bitwise_not(mask)
-    cv2.floodFill(flood, np.zeros((mask.shape[0] + 2, mask.shape[1] + 2), np.uint8), (0, 0), 0)
-    mask = cv2.bitwise_or(mask, flood)
-    uy, ux = np.nonzero(union)
-    x0, x1, y0, y1 = ux.min() * SCALE, (ux.max() + 1) * SCALE, uy.min() * SCALE, (uy.max() + 1) * SCALE
-    pad_x, pad_y = (x1 - x0) * 0.012, (y1 - y0) * 0.012
-    x0, x1, y0, y1 = x0 - pad_x, x1 + pad_x, y0 - pad_y, y1 + pad_y
-    h, w = mask.shape
-    return contour_path(mask, min_area=5000, sigma=22, step=14, transform=((x1 - x0) / w, (y1 - y0) / h, x0, y0))
 
 
 def main():
@@ -375,26 +438,76 @@ def main():
     except Exception:
         pass
 
+    # Génération officielle de la silhouette corporelle haute définition
+    u_front = body_union(meshes, "front")
+    base_front = body_silhouette_base(u_front)
+    mask_front = build_final_silhouette(base_front)
+    mask_back = np.fliplr(mask_front)
+    body_paths = {
+        "front": vectorize_body_mask(mask_front),
+        "back": vectorize_body_mask(mask_back),
+    }
+
     for view in ("front", "back"):
-        union = body_union(meshes, view)
-        silhouette = body_silhouette(union)
-        silhouette_v1 = body_silhouette_v1(union)
-        ys = np.flatnonzero(silhouette.any(axis=1))
-        xs = np.flatnonzero(silhouette.any(axis=0))
+        mask_view = mask_front if view == "front" else mask_back
+        ys = np.flatnonzero(mask_view.any(axis=1))
+        xs = np.flatnonzero(mask_view.any(axis=0))
         # Entrejambe : première ligne (depuis le bas) où la zone centrale ne forme plus qu'une plage
         half = int(0.45 * PX_PER_UNIT)
-        band = silhouette[:, WIDTH // 2 - half: WIDTH // 2 + half] > 0
+        band = mask_view[:, WIDTH // 2 - half: WIDTH // 2 + half] > 0
         crotch = next((r for r in range(ys[-1], ys[0], -1)
                        if band[r].any() and (np.diff(np.flatnonzero(band[r])) > 1).sum() == 0), None)
         data["views"][view] = {
-            "human_margin": extract_human_contour(view, margin_px=9),
-            "human": extract_human_contour(view, margin_px=0),
-            "body": contour_path(silhouette, min_area=2000, sigma=5, step=5),
-            "body_v1": contour_path_v1(silhouette_v1, min_area=2000, epsilon=1.2),
-            "ai": ai_outline(view, union),
+            "body": body_paths[view],
             "bbox": [round(xs[0] * SCALE, 1), round(ys[0] * SCALE, 1), round(xs[-1] * SCALE, 1), round(ys[-1] * SCALE, 1)],
             "crotch": round(crotch * SCALE, 1) if crotch else None,
         }
+
+    # Pré-calcul des masques et intersections 2D (overlaps) pour chaque vue
+    muscle_masks = {"front": {}, "back": {}}
+    for key, (section, views, fr, en, abbr, layer, color) in LAYOUT.items():
+        verts, faces = parts[key]
+        for view in views:
+            mask = smooth_mask(rasterize(verts, faces, view), close=5, sigma=3.5)
+            if key == 'extensor-digitorum-brevis' and view == 'front' and 'extensor-hallucis-brevis' in meshes:
+                v2, f2 = meshes['extensor-hallucis-brevis']
+                mask = cv2.bitwise_or(mask, smooth_mask(rasterize(v2, f2, 'front'), close=5, sigma=3.5))
+            elif key == 'extensor-digitorum-longus' and view == 'front' and 'extensor-hallucis-longus' in meshes:
+                v2, f2 = meshes['extensor-hallucis-longus']
+                mask = cv2.bitwise_or(mask, smooth_mask(rasterize(v2, f2, 'front'), close=5, sigma=3.5))
+            elif key in ('flexor-digitorum-superficialis', 'extensor-digitorum'):
+                view_k = 'front' if key == 'flexor-digitorum-superficialis' else 'back'
+                if view == view_k:
+                    m_comb = mask.copy()
+                    for is_right in [False, True]:
+                        def tx_t(x):
+                            return (1739.0 - x) if is_right else x
+                        poly_t_clear = np.array([
+                            [int(tx_t(110)), 2280], [int(tx_t(355)), 2280],
+                            [int(tx_t(355)), 2420], [int(tx_t(110)), 2420]
+                        ], dtype=np.int32)
+                        cv2.fillPoly(m_comb, [poly_t_clear], 0)
+                        tendons = [
+                            ((tx_t(169), 2245), (tx_t(148), 2348), 3.4, 2.5),
+                            ((tx_t(218), 2245), (tx_t(203), 2374), 3.6, 2.6),
+                            ((tx_t(268), 2245), (tx_t(260), 2365), 3.4, 2.5),
+                            ((tx_t(314), 2240), (tx_t(322), 2330), 3.0, 2.2),
+                        ]
+                        for p0, p1, r0, r1 in tendons:
+                            draw_tapered_capsule(m_comb, p0, p1, r0, r1, 255)
+                    mask = smooth_mask(m_comb, close=5, sigma=3.5)
+            muscle_masks[view][key] = mask
+
+    overlaps = {"front": {}, "back": {}}
+    for view in ("front", "back"):
+        keys_in_view = list(muscle_masks[view].keys())
+        small_masks = {
+            k: (cv2.resize(muscle_masks[view][k], (0, 0), fx=0.25, fy=0.25, interpolation=cv2.INTER_NEAREST) > 0)
+            for k in keys_in_view
+        }
+        for k1 in keys_in_view:
+            m1 = small_masks[k1]
+            overlaps[view][k1] = [k2 for k2 in keys_in_view if k1 != k2 and np.logical_and(m1, small_masks[k2]).any()]
 
     for key, (section, views, fr, en, abbr, layer, color) in LAYOUT.items():
         entry = {
@@ -410,7 +523,7 @@ def main():
         }
         verts, faces = parts[key]
         for view in views:
-            mask = smooth_mask(rasterize(verts, faces, view), close=5, sigma=3.5)
+            mask = muscle_masks[view][key]
             path = contour_path(mask)
             if not path:
                 continue
@@ -418,9 +531,9 @@ def main():
             depth = float((sign * verts[:, 2])[np.unique(faces)].mean())
             entry["views"][view] = {
                 "d": path,
-                "d_v1": contour_path_v1(smooth_mask(rasterize(verts, faces, view))),
                 "depth": round(depth, 3),
                 "anchors": anchors(mask, center_x),
+                "overlaps": overlaps[view].get(key, []),
             }
         data["muscles"].append(entry)
 

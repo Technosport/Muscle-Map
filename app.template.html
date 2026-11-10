@@ -9,7 +9,11 @@
 <meta property="og:title" content="Muscle Map">
 <meta property="og:description" content="Cartographie anatomique vectorielle sEMG interactive 2D">
 <meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%232563eb'/%3E%3Cpath d='M30 65 L45 35 L55 55 L70 35' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <style>
   :root {
     --bg: #f8fafc;
@@ -838,17 +842,39 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .m-num-badge {
-    font-family: ui-monospace, SFMono-Regular, monospace;
-    font-size: 11.5px;
-    font-weight: 700;
-    color: var(--accent);
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-    padding: 1.5px 5.5px;
-    border-radius: 5px;
+  .m-sides {
+    display: inline-flex;
+    align-items: center;
+    background: #f1f5f9;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.5px;
+    gap: 2px;
+    margin-left: auto;
     flex: none;
-    letter-spacing: -0.02em;
+  }
+  .m-side-btn {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6.5px;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1.25;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+  .m-side-btn:hover {
+    color: var(--fg);
+    background: rgba(255, 255, 255, 0.85);
+  }
+  .m-side-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.25);
   }
   .m-clmv-badge {
     font-family: ui-monospace, SFMono-Regular, monospace;
@@ -858,14 +884,6 @@
     border-radius: 5px;
     border: 1px solid var(--line);
     flex: none;
-  }
-  .m-active-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--accent);
-    flex: none;
-    box-shadow: 0 0 0 2px #bfdbfe;
   }
 
   /* --- Mode MVC --- */
@@ -1360,6 +1378,13 @@
       <h3 class="panel-card-title" data-i18n="secAnatomy">Anatomie & Rendu</h3>
     </div>
     <div class="ctrl-item">
+      <span class="ctrl-label" data-i18n="symmetry">Symétrie</span>
+      <div class="seg" data-key="symmetry">
+        <button data-value="symmetric" data-i18n="symmetric">Symétrique</button>
+        <button data-value="asymmetric" data-i18n="asymmetric">Asymétrique</button>
+      </div>
+    </div>
+    <div class="ctrl-item">
       <span class="ctrl-label" data-i18n="colorMode">Coloration</span>
       <div class="seg" data-key="colorMode">
         <button data-value="palette" data-i18n="palette">Par muscle</button>
@@ -1373,6 +1398,15 @@
         <button data-value="translucent" data-i18n="contextTranslucent">Transparents</button>
         <button data-value="on" data-i18n="contextOn">Visibles</button>
         <button data-value="off" data-i18n="contextOff">Masqués</button>
+      </div>
+    </div>
+    <div class="ctrl-item">
+      <span class="ctrl-label" data-i18n="layer">Couches</span>
+      <div class="seg" data-key="layer">
+        <button data-value="all" data-i18n="all">Toutes</button>
+        <button data-value="superficial" data-i18n="superficial">Superficiel</button>
+        <button data-value="intermediate" data-i18n="intermediate">Moyen</button>
+        <button data-value="deep" data-i18n="deep">Profond</button>
       </div>
     </div>
   </section>
@@ -1502,7 +1536,7 @@
       <div class="muscle-list-header">
         <div class="list-title">
           <span data-i18n="musclesTitle">Muscles</span>
-          <span id="muscleCountLabel" class="count-tag">0 / 63</span>
+          <span id="muscleCountLabel" class="count-tag">0 / 69</span>
         </div>
         <div style="display:flex; align-items:center; gap:6px;">
           <button type="button" id="btnToggleSelectAll" class="btn-toggle-all" title="Tout sélectionner / désélectionner">
@@ -1611,10 +1645,18 @@ const TECHNOSPORT_COLORS = {
   "iliocostalis": "#58df94",
   "longissimus": "#a67ba2",
   "multifidus": "#ff8e7c",
-  "deltoid": "#6ce392",
+  "deltoid-anterior": "#6ce392",
+  "deltoid-middle": "#ffa97e",
+  "deltoid-posterior": "#ea8784",
+  "deltoid": "#ffa97e",
+  "biceps-brachii-long": "#fff884",
+  "biceps-brachii-short": "#7fe690",
   "biceps-brachii": "#fff884",
   "infraspinatus": "#c88193",
   "teres-major": "#818fda",
+  "triceps-brachii-long": "#ffc380",
+  "triceps-brachii-lateral": "#ffa97e",
+  "triceps-brachii-medial": "#f5fd86",
   "triceps-brachii": "#ffc380",
   "brachioradialis": "#9966ff",
   "pronator-teres": "#69b8b6",
@@ -1639,6 +1681,8 @@ const TECHNOSPORT_COLORS = {
   "gluteus-maximus": "#ff8e7c",
   "gluteus-medius": "#7fe690",
   "gluteus-minimus": "#566ec5",
+  "biceps-femoris-long": "#9966ff",
+  "biceps-femoris-short": "#c88193",
   "biceps-femoris": "#9966ff",
   "semitendinosus": "#799dce",
   "semimembranosus": "#f5fd86",
@@ -1672,6 +1716,7 @@ const defaults = {
   view: 'both',
   zone: 'full',
   exportRatio: 'auto',
+  symmetry: 'symmetric',
   colorMode: 'palette',
   layer: 'all',
   labels: 'numbers',
@@ -1729,6 +1774,11 @@ const I18N = {
     superficial: 'Superficiel',
     intermediate: 'Moyen',
     deep: 'Profond',
+    symmetry: 'Symétrie',
+    symmetric: 'Symétrique',
+    asymmetric: 'Asymétrique',
+    sideLeft: 'Gauche',
+    sideRight: 'Droite',
     colorMode: 'Coloration',
     palette: 'Par muscle',
     uniform: 'Rouge uni',
@@ -1843,6 +1893,11 @@ const I18N = {
     superficial: 'Superficial',
     intermediate: 'Intermediate',
     deep: 'Deep',
+    symmetry: 'Symmetry',
+    symmetric: 'Symmetric',
+    asymmetric: 'Asymmetric',
+    sideLeft: 'Left',
+    sideRight: 'Right',
     colorMode: 'Coloring',
     palette: 'Per muscle',
     uniform: 'Uniform red',
@@ -1925,8 +1980,48 @@ const I18N = {
   }
 };
 
-// DÉFINITION DES GROUPES MUSCULAIRES ANATOMIQUES
+// DÉFINITION DES GROUPES MUSCULAIRES ANATOMIQUES (ORDRE CRÂNIO-CAUDAL : TÊTE, TRONC, BRAS, CUISSES, JAMBES)
 const MUSCLE_GROUPS = [
+  {
+    id: 'head_neck',
+    name_fr: 'Tête & Cou',
+    name_en: 'Head & Neck',
+    pill_fr: 'Tête & Cou',
+    pill_en: 'Head & Neck',
+    muscles: ['frontalis', 'temporalis', 'masseter', 'orbicularis-oculi', 'orbicularis-oris', 'zygomaticus-major', 'platysma', 'sternocleidomastoid', 'splenius-capitis']
+  },
+  {
+    id: 'torso_abs',
+    name_fr: 'Thorax & Abdomen',
+    name_en: 'Chest & Abdomen',
+    pill_fr: 'Tronc & Abdos',
+    pill_en: 'Torso & Abs',
+    muscles: ['pectoralis-major', 'serratus-anterior', 'rectus-abdominis', 'external-oblique', 'internal-oblique']
+  },
+  {
+    id: 'back_spine',
+    name_fr: 'Dos, Scapula & Rachis',
+    name_en: 'Back, Scapula & Spine',
+    pill_fr: 'Dos & Rachis',
+    pill_en: 'Back & Spine',
+    muscles: ['trapezius-upper', 'trapezius-middle', 'trapezius-lower', 'latissimus-dorsi', 'rhomboid-major', 'levator-scapulae', 'iliocostalis', 'longissimus', 'multifidus']
+  },
+  {
+    id: 'shoulder_arm',
+    name_fr: 'Épaule & Bras',
+    name_en: 'Shoulder & Arm',
+    pill_fr: 'Épaule & Bras',
+    pill_en: 'Shoulder & Arm',
+    muscles: ['deltoid-anterior', 'deltoid-middle', 'deltoid-posterior', 'biceps-brachii-long', 'biceps-brachii-short', 'triceps-brachii-long', 'triceps-brachii-lateral', 'triceps-brachii-medial', 'infraspinatus', 'teres-major']
+  },
+  {
+    id: 'forearm_hand',
+    name_fr: 'Avant-bras & Main',
+    name_en: 'Forearm & Hand',
+    pill_fr: 'Avant-bras & Main',
+    pill_en: 'Forearm & Hand',
+    muscles: ['brachioradialis', 'pronator-teres', 'flexor-carpi-radialis', 'palmaris-longus', 'flexor-carpi-ulnaris', 'flexor-digitorum-superficialis', 'extensor-carpi-radialis-longus', 'extensor-carpi-radialis-brevis', 'extensor-digitorum', 'extensor-carpi-ulnaris', 'abductor-pollicis-brevis', 'abductor-digiti-minimi-hand', 'dorsal-interossei-hand']
+  },
   {
     id: 'quadriceps_hip',
     name_fr: 'Quadriceps & Fléchisseurs de cuisse',
@@ -1941,7 +2036,7 @@ const MUSCLE_GROUPS = [
     name_en: 'Hamstrings & Gluteals',
     pill_fr: 'Ischios & Fessiers',
     pill_en: 'Hamstrings & Glutes',
-    muscles: ['biceps-femoris', 'semitendinosus', 'semimembranosus', 'gluteus-maximus', 'gluteus-medius', 'gluteus-minimus']
+    muscles: ['gluteus-maximus', 'gluteus-medius', 'gluteus-minimus', 'biceps-femoris-long', 'biceps-femoris-short', 'semitendinosus', 'semimembranosus']
   },
   {
     id: 'adductors',
@@ -1966,46 +2061,6 @@ const MUSCLE_GROUPS = [
     pill_fr: 'Jambe & Pied',
     pill_en: 'Leg & Foot',
     muscles: ['tibialis-anterior', 'fibularis-longus', 'extensor-digitorum-longus', 'extensor-digitorum-brevis', 'abductor-hallucis']
-  },
-  {
-    id: 'torso_abs',
-    name_fr: 'Thorax & Abdomen',
-    name_en: 'Chest & Abdomen',
-    pill_fr: 'Tronc & Abdos',
-    pill_en: 'Torso & Abs',
-    muscles: ['pectoralis-major', 'serratus-anterior', 'rectus-abdominis', 'external-oblique', 'internal-oblique']
-  },
-  {
-    id: 'back_spine',
-    name_fr: 'Dos, Scapula & Rachis',
-    name_en: 'Back, Scapula & Spine',
-    pill_fr: 'Dos & Rachis',
-    pill_en: 'Back & Spine',
-    muscles: ['trapezius-upper', 'trapezius-middle', 'trapezius-lower', 'latissimus-dorsi', 'rhomboid-major', 'levator-scapulae', 'iliocostalis', 'longissimus', 'multifidus']
-  },
-  {
-    id: 'shoulder_arm',
-    name_fr: 'Épaule & Bras',
-    name_en: 'Shoulder & Arm',
-    pill_fr: 'Épaule & Bras',
-    pill_en: 'Shoulder & Arm',
-    muscles: ['deltoid', 'biceps-brachii', 'triceps-brachii', 'infraspinatus', 'teres-major']
-  },
-  {
-    id: 'forearm_hand',
-    name_fr: 'Avant-bras & Main',
-    name_en: 'Forearm & Hand',
-    pill_fr: 'Avant-bras & Main',
-    pill_en: 'Forearm & Hand',
-    muscles: ['brachioradialis', 'pronator-teres', 'flexor-carpi-radialis', 'palmaris-longus', 'flexor-carpi-ulnaris', 'flexor-digitorum-superficialis', 'extensor-carpi-radialis-longus', 'extensor-carpi-radialis-brevis', 'extensor-digitorum', 'extensor-carpi-ulnaris', 'abductor-pollicis-brevis', 'abductor-digiti-minimi-hand', 'dorsal-interossei-hand']
-  },
-  {
-    id: 'head_neck',
-    name_fr: 'Tête & Cou',
-    name_en: 'Head & Neck',
-    pill_fr: 'Tête & Cou',
-    pill_en: 'Head & Neck',
-    muscles: ['frontalis', 'temporalis', 'masseter', 'orbicularis-oculi', 'orbicularis-oris', 'zygomaticus-major', 'platysma', 'sternocleidomastoid', 'splenius-capitis']
   }
 ];
 
@@ -2018,11 +2073,28 @@ ATLAS.muscles.forEach(m => {
 });
 
 const ALIASES = {
-  VL:'vastus-lateralis', VM:'vastus-medialis', RF:'rectus-femoris', BF:'biceps-femoris', ST:'semitendinosus', SM:'semimembranosus',
+  VL:'vastus-lateralis', VM:'vastus-medialis', RF:'rectus-femoris',
+  BF:'biceps-femoris-long', BFL:'biceps-femoris-long', BFLH:'biceps-femoris-long', BFCL:'biceps-femoris-long',
+  BFS:'biceps-femoris-short', BFSH:'biceps-femoris-short', BFCC:'biceps-femoris-short',
+  'biceps-femoris':'biceps-femoris-long', 'biceps femoris':'biceps-femoris-long',
+  ST:'semitendinosus', SM:'semimembranosus',
   TFL:'tensor-fasciae-latae', GMAX:'gluteus-maximus', GMED:'gluteus-medius', GMIN:'gluteus-minimus', MG:'gastrocnemius-medial', LG:'gastrocnemius-lateral',
   GASM:'gastrocnemius-medial', GASL:'gastrocnemius-lateral', TA:'tibialis-anterior', SOL:'soleus', PL:'fibularis-longus', PERL:'fibularis-longus',
   EO:'external-oblique', IO:'internal-oblique', RA:'rectus-abdominis', SCM:'sternocleidomastoid', UT:'trapezius-upper', MT:'trapezius-middle', LT:'trapezius-lower',
-  LD:'latissimus-dorsi', BB:'biceps-brachii', TB:'triceps-brachii', PM:'pectoralis-major', SA:'serratus-anterior', DEL:'deltoid', BR:'brachioradialis',
+  LD:'latissimus-dorsi',
+  BB:'biceps-brachii-long', BBL:'biceps-brachii-long', BBLH:'biceps-brachii-long', BBCL:'biceps-brachii-long',
+  BBS:'biceps-brachii-short', BBSH:'biceps-brachii-short', BBCC:'biceps-brachii-short',
+  'biceps-brachii':'biceps-brachii-long', 'biceps brachial':'biceps-brachii-long',
+  TB:'triceps-brachii-long', TBL:'triceps-brachii-long', TBLH:'triceps-brachii-long', TBLONG:'triceps-brachii-long',
+  TBLAT:'triceps-brachii-lateral', TBLA:'triceps-brachii-lateral',
+  TBM:'triceps-brachii-medial', TBMED:'triceps-brachii-medial',
+  'triceps-brachii':'triceps-brachii-long', 'triceps brachial':'triceps-brachii-long',
+  PM:'pectoralis-major', SA:'serratus-anterior',
+  AD:'deltoid-anterior', DA:'deltoid-anterior', DELA:'deltoid-anterior',
+  MD:'deltoid-middle', DM:'deltoid-middle', DELM:'deltoid-middle', DELL:'deltoid-middle', 'deltoid-lateral':'deltoid-middle',
+  PD:'deltoid-posterior', DP:'deltoid-posterior', DELP:'deltoid-posterior',
+  DEL:'deltoid-middle', deltoid:'deltoid-middle', deltoide:'deltoid-middle',
+  BR:'brachioradialis',
   ECRL:'extensor-carpi-radialis-longus', ECRB:'extensor-carpi-radialis-brevis', ECU:'extensor-carpi-ulnaris', ED:'extensor-digitorum',
   FCR:'flexor-carpi-radialis', FCU:'flexor-carpi-ulnaris', FDS:'flexor-digitorum-superficialis', PT:'pronator-teres', EDL:'extensor-digitorum-longus',
   ES:'iliocostalis', IL:'iliocostalis', LONG:'longissimus', MULT:'multifidus', INF:'infraspinatus', TMAJ:'teres-major', ADL:'adductor-longus', ADM:'adductor-magnus'
@@ -2043,7 +2115,7 @@ function parseList(text) {
   text.split(/\r?\n/).forEach((raw, index) => {
     const line = raw.trim();
     if (!line || line.startsWith('#')) return;
-    let name = line, value = null;
+    let name = line, value = null, side = 'both';
     const parts = line.split(/[;\t=]/).map(s => s.trim());
     if (parts.length > 1) {
       name = parts[0];
@@ -2053,15 +2125,53 @@ function parseList(text) {
       const m = line.match(/^(.*?)[,:\s]+(-?\d+(?:[.,]\d+)?)\s*%?$/);
       if (m) { name = m[1]; value = parseFloat(m[2].replace(',', '.')); }
     }
+
+    const sideMatch = name.match(/(?:\s*\((g|d|l|r|gauche|droite|left|right)\)|\s*\[(g|d|l|r|gauche|droite|left|right)\]|[-_:]\s*(g|d|l|r|gauche|droite|left|right)|\s+(g|d|l|r|gauche|droite|left|right))\s*$/i);
+    if (sideMatch) {
+      const rawSide = (sideMatch[1] || sideMatch[2] || sideMatch[3] || sideMatch[4]).toUpperCase();
+      if (rawSide === 'G' || rawSide === 'GAUCHE' || rawSide === 'L' || rawSide === 'LEFT') side = 'L';
+      else if (rawSide === 'D' || rawSide === 'DROITE' || rawSide === 'R' || rawSide === 'RIGHT') side = 'R';
+      name = name.slice(0, sideMatch.index).trim();
+    }
+
     const key = norm(name);
     if (['muscle', 'muscles', 'nom', 'name', 'id'].includes(key.split(' ')[0]) && !NAME_INDEX.has(key)) return;
     const id = NAME_INDEX.get(key) || fuzzyMatch(key);
     if (!id) { unknown.push(raw.trim()); return; }
-    if (seen.has(id)) { entries[seen.get(id)].value = value; entries[seen.get(id)].line = index; return; }
-    seen.set(id, entries.length);
-    entries.push({ id, value, line: index });
+    const entryKey = `${id}:${side}`;
+    if (seen.has(entryKey)) {
+      const idx = seen.get(entryKey);
+      entries[idx].value = value;
+      entries[idx].line = index;
+      return;
+    }
+    seen.set(entryKey, entries.length);
+    entries.push({ id, value, side, line: index, raw: line });
   });
   return { entries, unknown };
+}
+
+function getMuscleSides(id, entries) {
+  let L = false, R = false, valL = null, valR = null;
+  entries.forEach(e => {
+    if (e.id === id) {
+      if (e.side === 'both') {
+        L = true;
+        R = true;
+        if (e.value !== null) {
+          if (valL === null) valL = e.value;
+          if (valR === null) valR = e.value;
+        }
+      } else if (e.side === 'L') {
+        L = true;
+        if (e.value !== null) valL = e.value;
+      } else if (e.side === 'R') {
+        R = true;
+        if (e.value !== null) valR = e.value;
+      }
+    }
+  });
+  return { L, R, valL, valR, active: L || R, both: L && R };
 }
 
 // Échelle graduelle heatmap 0-100 % CMV / % MVC
@@ -2124,7 +2234,17 @@ function nearestRow(rows, y) {
   return best;
 }
 
-function planLabels(view, selected, forced, yMin, yMax, size) {
+// Couches anatomiques : profond (1), intermédiaire (2), superficiel (3)
+const LAYER_WEIGHT = { 'deep': 1, 'intermediate': 2, 'superficial': 3 };
+function getMuscleDepthRank(m, view) {
+  const layerWeight = LAYER_WEIGHT[m.layer] || 2;
+  const z = (view && m.views && m.views[view] && m.views[view].depth != null)
+    ? m.views[view].depth
+    : (m.views && m.views.front && m.views.front.depth != null ? m.views.front.depth : 0);
+  return layerWeight * 100 + z;
+}
+
+function planLabels(view, selected, forced, yMin, yMax, size, gap) {
   const [bx0, , bx1] = ATLAS.views[view].bbox;
   const centerX = (bx0 + bx1) / 2;
   const items = [];
@@ -2132,42 +2252,149 @@ function planLabels(view, selected, forced, yMin, yMax, size) {
   selected.forEach(entry => {
     const data = entry.muscle.views[view];
     if (!data) return;
-    const comps = data.anchors
+    let comps = data.anchors
       .map(c => ({ ...c, y0: Math.max(c.y0, yMin + 4), y1: Math.min(c.y1, yMax - 4) }))
       .filter(c => c.y1 >= c.y0 && c.rows.some(r => r[0] >= c.y0 && r[0] <= c.y1));
+    if (entry.side === 'L' || entry.side === 'R') {
+      comps = comps.filter(c => c.side === entry.side);
+    }
     if (!comps.length) return;
     items.push({ entry, comps });
   });
-  items.sort((a, b) => a.comps[0].cy - b.comps[0].cy);
+
   items.forEach(item => {
     const sides = new Set(item.comps.map(c => c.side));
     const midline = item.comps.length === 1 && Math.abs(item.comps[0].cx - centerX) < 22;
     let side;
-    if (forced) side = forced;
-    else if (sides.size === 1 && !midline) side = [...sides][0];
-    else side = counts.L <= counts.R ? 'L' : 'R';
+    if (forced) {
+      side = forced;
+    } else if (sides.size === 1 && !midline) {
+      side = [...sides][0];
+    } else {
+      side = counts.L <= counts.R ? 'L' : 'R';
+    }
     counts[side]++;
-    const candidates = item.comps.filter(c => c.side === side);
+    item.side = side;
+
+    let targetSide = item.side;
+    if (item.entry.side === 'L') {
+      targetSide = 'L';
+    } else if (item.entry.side === 'R') {
+      targetSide = 'R';
+    }
+
+    const candidates = item.comps.filter(c => c.side === targetSide);
     const pool = candidates.length ? candidates : item.comps;
     item.comp = pool.reduce((a, b) => (b.y1 - b.y0 > a.y1 - a.y0 ? b : a));
-    item.side = side;
-    item.y = Math.min(Math.max(item.comp.cy, item.comp.y0), item.comp.y1);
+
+    // Ancre naturelle : ligne médiane de la composante
+    const midRowIdx = Math.floor(item.comp.rows.length / 2);
+    const midRow = item.comp.rows[midRowIdx];
+    item.ay = midRow[0];
+    item.ax = midRow[1];
+    item.y = item.ay;
   });
-  const gap = size * 1.45;
+
+  // Tri strict par ancre Y initiale (fondement de la non-intersection des lignes)
+  // En cas d'altitude quasi-identique, départage cohérent par couche anatomique puis par X
+  items.sort((a, b) => {
+    if (Math.abs(a.ay - b.ay) > 1.0) return a.ay - b.ay;
+    const rankDiff = getMuscleDepthRank(a.entry.muscle, view) - getMuscleDepthRank(b.entry.muscle, view);
+    return rankDiff !== 0 ? rankDiff : (a.ax - b.ax);
+  });
+
   ['L', 'R'].forEach(side => {
-    const group = items.filter(i => i.side === side).sort((a, b) => a.y - b.y);
-    for (let pass = 0; pass < 40; pass++) {
-      for (let i = 1; i < group.length; i++) if (group[i].y < group[i - 1].y + gap) group[i].y = group[i - 1].y + gap;
-      group.forEach(g => { g.y = Math.min(Math.max(g.y, g.comp.y0), g.comp.y1); });
-      for (let i = group.length - 2; i >= 0; i--) if (group[i].y > group[i + 1].y - gap) group[i].y = group[i + 1].y - gap;
-      group.forEach(g => { g.y = Math.min(Math.max(g.y, g.comp.y0), g.comp.y1); });
+    const group = items.filter(i => i.side === side);
+    if (!group.length) return;
+
+    group.sort((a, b) => a.ay - b.ay);
+
+    // Déroulement vers le bas avec espacement minimal garanti
+    for (let i = 1; i < group.length; i++) {
+      if (group[i].y < group[i - 1].y + gap) {
+        group[i].y = group[i - 1].y + gap;
+      }
     }
-    for (let i = 1; i < group.length; i++) if (group[i].y < group[i - 1].y + gap) group[i].y = group[i - 1].y + gap;
-    group.forEach(g => {
-      const best = nearestRow(g.comp.rows, g.y);
-      g.ax = best[1];
-      g.ay = best[0];
+
+    // Clamping inférieur : ne jamais dépasser la limite basse yMax
+    if (group[group.length - 1].y > yMax) {
+      group[group.length - 1].y = yMax;
+      for (let i = group.length - 2; i >= 0; i--) {
+        if (group[i].y > group[i + 1].y - gap) {
+          group[i].y = group[i + 1].y - gap;
+        }
+      }
+    }
+
+    // Clamping supérieur : ne jamais remonter au-dessus de yMin
+    if (group[0].y < yMin) {
+      group[0].y = yMin;
+      for (let i = 1; i < group.length; i++) {
+        if (group[i].y < group[i - 1].y + gap) {
+          group[i].y = group[i - 1].y + gap;
+        }
+      }
+    }
+
+    // Ajustement de l'ancre le long du muscle en préservant scrupuleusement la monotonie verticale
+    group.forEach((g, idx) => {
+      const minAy = idx > 0 ? group[idx - 1].ay : yMin;
+      const maxAy = idx < group.length - 1 ? group[idx + 1].ay : yMax;
+      const validRows = g.comp.rows.filter(r => r[0] >= minAy && r[0] <= maxAy);
+      if (validRows.length) {
+        const best = nearestRow(validRows, g.y);
+        g.ax = best[1];
+        g.ay = best[0];
+      }
     });
+
+    // Décroisement planaire géométrique (2-opt planar untangling)
+    // Élimine rigoureusement tout croisement entre muscles médiaux et latéraux (bras/mains/tronc)
+    const edge = side === 'L' ? bx0 - 2 : bx1 + 2;
+    const isLeft = side === 'L';
+    const flatLen = 8;
+
+    const getLeaderPts = (item) => {
+      const cornerX = isLeft ? Math.min(item.ax - 2, edge + flatLen) : Math.max(item.ax + 2, edge - flatLen);
+      if (Math.abs(item.ay - item.y) > 1.0) {
+        return [[edge, item.y], [cornerX, item.y], [item.ax, item.ay]];
+      } else {
+        return [[edge, item.y], [item.ax, item.ay]];
+      }
+    };
+
+    const ccw = (A, B, C) => (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0]);
+    const intersect = (p1, p2, q1, q2) => (
+      ccw(p1, q1, q2) !== ccw(p2, q1, q2) && ccw(p1, p2, q1) !== ccw(p1, p2, q2)
+    );
+    const linesCross = (pts1, pts2) => {
+      for (let i = 0; i < pts1.length - 1; i++) {
+        for (let j = 0; j < pts2.length - 1; j++) {
+          if (intersect(pts1[i], pts1[i + 1], pts2[j], pts2[j + 1])) return true;
+        }
+      }
+      return false;
+    };
+
+    let changed = true;
+    let passes = 0;
+    while (changed && passes < 40) {
+      changed = false;
+      passes++;
+      for (let i = 0; i < group.length; i++) {
+        for (let j = i + 1; j < group.length; j++) {
+          if (linesCross(getLeaderPts(group[i]), getLeaderPts(group[j]))) {
+            const tmpY = group[i].y;
+            group[i].y = group[j].y;
+            group[j].y = tmpY;
+            group.sort((a, b) => a.y - b.y);
+            changed = true;
+            break;
+          }
+        }
+        if (changed) break;
+      }
+    }
   });
   return items;
 }
@@ -2188,13 +2415,45 @@ function buildSVG(interactive) {
   const dict = I18N[state.lang] || I18N.fr;
   const { entries } = parseList(state.text);
   const selected = entries.map((e, i) => ({ ...e, muscle: MUSCLES.get(e.id) })).filter(e => e.muscle);
-  const byId = new Map(selected.map(e => [e.id, e]));
+  const muscleSidesMap = new Map();
+  ATLAS.muscles.forEach(m => {
+    const info = getMuscleSides(m.id, entries);
+    if (info.active) muscleSidesMap.set(m.id, info);
+  });
+  const selectedMuscles = [];
+  ATLAS.muscles.forEach(m => {
+    if (muscleSidesMap.has(m.id)) {
+      const sides = muscleSidesMap.get(m.id);
+      const side = (sides.L && !sides.R) ? 'L' : ((sides.R && !sides.L) ? 'R' : 'both');
+      selectedMuscles.push({ id: m.id, muscle: m, side, sides });
+    }
+  });
   const heat = selected.some(e => e.value !== null);
   const views = state.view === 'both' ? ['front', 'back'] : [state.view];
   const [yMin, yMax] = zoneRange(state.zone);
-  const size = 16, pad = 16, gapLabel = 8, panelGap = 36;
+  const bodyH = yMax - yMin;
   const showLabels = state.labels !== 'none';
   const [bx0, , bx1] = ATLAS.views.front.bbox;
+
+  // Calcul du nombre maximal de candidats par panneau pour déterminer dynamiquement taille et interligne
+  const frontCount = selectedMuscles.filter(e => e.muscle.views.front).length;
+  const backCount = selectedMuscles.filter(e => e.muscle.views.back).length;
+  const maxCandidates = state.view === 'both' ? Math.max(frontCount, backCount) : (state.view === 'front' ? frontCount : backCount);
+
+  // Auto-scaling dynamique de la police et de l'interligne selon la densité de muscles
+  let size = 15;
+  let gap = 22;
+  if (maxCandidates > 28) {
+    size = 10;
+    gap = Math.max(11.5, Math.min(13.8, (bodyH - 20) / maxCandidates));
+  } else if (maxCandidates > 20) {
+    size = 11.5;
+    gap = Math.max(14, Math.min(16.5, (bodyH - 20) / maxCandidates));
+  } else if (maxCandidates > 13) {
+    size = 13.5;
+    gap = 19;
+  }
+  const pad = 16, gapLabel = 8, panelGap = 36;
 
   // Numérotation ordonnée dynamique : DE HAUT EN BAS, FACE PUIS DOS
   let currentN = 1;
@@ -2205,10 +2464,10 @@ function buildSVG(interactive) {
     
     // En vue duo (Face + Dos), ne pas répéter sur le dos un muscle déjà étiqueté sur la face
     const candidates = (state.view === 'both' && view === 'back')
-      ? selected.filter(e => !assignedMuscleNumbers.has(e.id))
-      : selected;
+      ? selectedMuscles.filter(e => !assignedMuscleNumbers.has(e.id))
+      : selectedMuscles;
       
-    const labels = planLabels(view, candidates, forced, yMin, yMax, size);
+    const labels = planLabels(view, candidates, forced, yMin, yMax, size, gap);
     
     // Tri strict de haut en bas (axe Y croissant : de la tête vers les pieds)
     labels.sort((a, b) => a.y - b.y);
@@ -2238,14 +2497,14 @@ function buildSVG(interactive) {
 
   const isHeat = (heat || state.colorMode === 'heat');
   const bodyW = bx1 - bx0;
-  const bodyH = yMax - yMin;
 
   // Hauteur verticale optimisée et équilibrée pour le bas de figure (légende + licence + marges)
   // Mode % CMV : distance pieds->titre (24) + titre (16) + barre/ticks/chiffres (28) + chiffres->licence (28) + licence (16) + licence->fond (26) = 138
   // Mode Classique : distance pieds->licence (28) + licence (16) + licence->fond (26) = 70
   const FOOTER_H = isHeat ? 138 : 70;
   const TOP_MARGIN = 22;
-  const totalFigureH = TOP_MARGIN + bodyH + FOOTER_H;
+  const requiredLabelH = (maxCandidates * gap) + 30;
+  const totalFigureH = Math.max(TOP_MARGIN + bodyH + FOOTER_H, TOP_MARGIN + requiredLabelH + FOOTER_H);
 
   // Calcul stable de la marge latérale pour les étiquettes
   const maxLabelW = Math.max(0, ...panels.flatMap(p => p.labels.map(l => l.width || 0)));
@@ -2343,8 +2602,13 @@ function buildSVG(interactive) {
     });
     licenseY = numY + 28;
   } else {
-    licenseY = feetY + 28;
+    const contentBottomY = Math.max(feetY, ...panels.flatMap(p => p.labels.map(l => (l.y + p.dy) || 0)));
+    licenseY = contentBottomY + 24;
   }
+
+  // S'assurer que le cadre intègre toujours une marge d'au moins 22px sous la licence
+  targetH = Math.max(targetH, licenseY + 22);
+  currentSvgH = targetH;
 
   // LICENCE EN SEMI-TRANSPARENCE POSITIONNÉE DE FAÇON HARMONIEUSE SOUS LE CONTENU
   const licenseSvg = `<text x="${f1(targetW / 2)}" y="${f1(licenseY)}" font-size="${size}" text-anchor="middle" fill="${t.textColor}" fill-opacity="0.45" font-family='${FONT}' letter-spacing="0.02em">${dict.imageLicense}</text>`;
@@ -2359,8 +2623,12 @@ function buildSVG(interactive) {
 
   panels.forEach(p => {
     const clipId = `clip-${p.view}`;
+    const clipLId = `${clipId}-L`;
+    const clipRId = `${clipId}-R`;
     let g = `<g transform="translate(${f1(p.px)} ${f1(p.dy)})">`;
     g += `<clipPath id="${clipId}"><rect x="0" y="${f1(yMin)}" width="${VB_W}" height="${f1(yMax - yMin)}"/></clipPath>`;
+    g += `<clipPath id="${clipLId}"><rect x="0" y="${f1(yMin)}" width="145" height="${f1(yMax - yMin)}"/></clipPath>`;
+    g += `<clipPath id="${clipRId}"><rect x="145" y="${f1(yMin)}" width="${VB_W - 145}" height="${f1(yMax - yMin)}"/></clipPath>`;
     g += `<g clip-path="url(#${clipId})" stroke-linejoin="round">`;
     const V = ATLAS.views[p.view];
 
@@ -2368,62 +2636,114 @@ function buildSVG(interactive) {
       g += `<path d="${V.body}" fill="${t.bodyFill}" stroke="${t.bodyStroke}" stroke-width="0.95" fill-rule="evenodd"/>`;
     }
 
-    // Filtrage et tri des muscles par profondeur (du plus profond au plus superficiel)
+    // Filtrage et tri des muscles par couche anatomique puis profondeur relative (du plus profond au plus superficiel)
     let here = ATLAS.muscles.filter(m => m.views[p.view]);
-    here.sort((a, b) => a.views[p.view].depth - b.views[p.view].depth);
+    here.sort((a, b) => getMuscleDepthRank(a, p.view) - getMuscleDepthRank(b, p.view));
 
-    const selectedInView = here.filter(m => byId.has(m.id));
+    const selectedInView = here.filter(m => muscleSidesMap.has(m.id));
 
-    const renderSelected = m => {
-      const e = byId.get(m.id);
-      let fill = '';
-      if (e.value !== null) {
-        fill = heatColor(e.value);
-      } else if (state.colorMode === 'palette') {
-        fill = getMuscleColor(m) || t.selectedFill;
-      } else {
-        fill = t.selectedFill;
-      }
+    const getFillFor = (m, val) => {
+      if (val !== null) return heatColor(val);
+      if (state.colorMode === 'palette') return getMuscleColor(m) || t.selectedFill;
+      return t.selectedFill;
+    };
+
+    const renderMusclePart = (m, side, isActive, val, isPassover = false) => {
       let isFiltered = (state.layer !== 'all' && m.layer !== state.layer);
-      let opacity = isFiltered ? 0.25 : 1.0;
-      g += `<path ${interactive ? `class="muscle active" data-id="${m.id}"` : ''} d="${m.views[p.view].d}" fill="${fill}" stroke="${t.selectedStroke}" stroke-width="0.95" fill-opacity="${opacity}" fill-rule="evenodd"/>`;
+      const clipAttr = side === 'L' ? `clip-path="url(#${clipLId})"` : (side === 'R' ? `clip-path="url(#${clipRId})"` : '');
+      const sideAttr = side ? `data-side="${side}"` : '';
+      const styleAttr = (isFiltered && state.layer !== 'all') ? 'style="pointer-events:none;"' : '';
+
+      if (isActive) {
+        const fill = getFillFor(m, val);
+        const opacity = isFiltered ? 0.25 : 1.0;
+        return `<path ${interactive ? `class="muscle active" data-id="${m.id}" ${sideAttr}` : ''} ${clipAttr} ${styleAttr} d="${m.views[p.view].d}" fill="${fill}" stroke="${t.selectedStroke}" stroke-width="0.95" fill-opacity="${opacity}" fill-rule="evenodd"/>`;
+      } else {
+        if (state.context === 'off') return '';
+        let isTranslucent = (state.context === 'translucent');
+        let fillOpacity, strokeOpacity, strokeWidth;
+
+        if (isTranslucent) {
+          fillOpacity = isPassover ? 0.05 : (isFiltered ? 0.04 : 0.16);
+          strokeOpacity = isPassover ? 0.75 : (isFiltered ? 0.10 : 0.38);
+          strokeWidth = isPassover ? 0.65 : 0.40;
+        } else {
+          fillOpacity = isFiltered ? 0.15 : (selectedInView.length > 0 ? 0.65 : 0.88);
+          strokeOpacity = isFiltered ? 0.20 : (selectedInView.length > 0 ? 0.75 : 0.90);
+          strokeWidth = 0.45;
+        }
+
+        const passClass = isPassover ? ' passover' : '';
+        return `<path ${interactive ? `class="muscle${passClass}" data-id="${m.id}" ${sideAttr}` : ''} ${clipAttr} ${styleAttr} d="${m.views[p.view].d}" fill="${t.otherFill}" stroke="${t.otherStroke}" stroke-width="${strokeWidth}" fill-opacity="${fillOpacity}" stroke-opacity="${strokeOpacity}" fill-rule="evenodd"/>`;
+      }
     };
 
     if (state.context === 'on') {
-      // Option d'avant (Visibles) : tous les autres muscles en arrière-plan, muscles sélectionnés au premier plan pur
-      here.filter(m => !byId.has(m.id)).forEach(m => {
-        let isFiltered = (state.layer !== 'all' && m.layer !== state.layer);
-        let opacity = isFiltered ? 0.12 : (selectedInView.length > 0 ? 0.55 : 1.0);
-        g += `<path ${interactive ? `class="muscle" data-id="${m.id}"` : ''} d="${m.views[p.view].d}" fill="${t.otherFill}" stroke="${t.otherStroke}" stroke-width="0.45" fill-opacity="${opacity}" stroke-opacity="${opacity}" fill-rule="evenodd"/>`;
+      here.forEach(m => {
+        const sides = muscleSidesMap.get(m.id);
+        if (!sides) {
+          if (state.symmetry === 'asymmetric') {
+            g += renderMusclePart(m, 'L', false, null, false);
+            g += renderMusclePart(m, 'R', false, null, false);
+          } else {
+            g += renderMusclePart(m, null, false, null, false);
+          }
+        } else if (!sides.both || sides.valL !== sides.valR || state.symmetry === 'asymmetric') {
+          if (!sides.L) g += renderMusclePart(m, 'L', false, null, false);
+          if (!sides.R) g += renderMusclePart(m, 'R', false, null, false);
+        }
       });
-      here.filter(m => byId.has(m.id)).forEach(m => {
-        renderSelected(m);
+      here.forEach(m => {
+        const sides = muscleSidesMap.get(m.id);
+        if (sides) {
+          if (sides.both && sides.valL === sides.valR && state.symmetry === 'symmetric') {
+            g += renderMusclePart(m, null, true, sides.valL, false);
+          } else {
+            if (sides.L) g += renderMusclePart(m, 'L', true, sides.valL, false);
+            if (sides.R) g += renderMusclePart(m, 'R', true, sides.valR, false);
+          }
+        }
       });
     } else if (state.context === 'translucent') {
-      // Nouvelle option (Transparents) : rendu anatomique par profondeur avec semi-transparence des muscles passant par-dessus
       here.forEach(m => {
-        if (byId.has(m.id)) {
-          renderSelected(m);
+        const sides = muscleSidesMap.get(m.id);
+        const passesOver = selectedInView.some(sel => {
+          if (getMuscleDepthRank(m, p.view) <= getMuscleDepthRank(sel, p.view)) return false;
+          const ov1 = m.views[p.view].overlaps;
+          const ov2 = sel.views[p.view].overlaps;
+          return (ov1 && ov1.includes(sel.id)) || (ov2 && ov2.includes(m.id));
+        });
+
+        if (!sides) {
+          if (state.symmetry === 'asymmetric') {
+            g += renderMusclePart(m, 'L', false, null, passesOver);
+            g += renderMusclePart(m, 'R', false, null, passesOver);
+          } else {
+            g += renderMusclePart(m, null, false, null, passesOver);
+          }
         } else {
-          const passesOverSelected = selectedInView.some(sel => {
-            if (m.views[p.view].depth <= sel.views[p.view].depth) return false;
-            const ov1 = m.views[p.view].overlaps;
-            const ov2 = sel.views[p.view].overlaps;
-            return (ov1 && ov1.includes(sel.id)) || (ov2 && ov2.includes(m.id));
-          });
+          if (sides.both && sides.valL === sides.valR && state.symmetry === 'symmetric') {
+            g += renderMusclePart(m, null, true, sides.valL, false);
+          } else {
+            if (sides.L) g += renderMusclePart(m, 'L', true, sides.valL, false);
+            else g += renderMusclePart(m, 'L', false, null, passesOver);
 
-          let isFiltered = (state.layer !== 'all' && m.layer !== state.layer);
-          let fillOpacity = passesOverSelected ? 0.32 : (isFiltered ? 0.12 : (selectedInView.length > 0 ? 0.55 : 1.0));
-          let strokeOpacity = passesOverSelected ? 0.85 : (isFiltered ? 0.15 : (selectedInView.length > 0 ? 0.65 : 1.0));
-          let strokeWidth = passesOverSelected ? 0.65 : 0.45;
-
-          g += `<path ${interactive ? `class="muscle${passesOverSelected ? ' passover' : ''}" data-id="${m.id}"` : ''} d="${m.views[p.view].d}" fill="${t.otherFill}" stroke="${t.otherStroke}" stroke-width="${strokeWidth}" fill-opacity="${fillOpacity}" stroke-opacity="${strokeOpacity}" fill-rule="evenodd"/>`;
+            if (sides.R) g += renderMusclePart(m, 'R', true, sides.valR, false);
+            else g += renderMusclePart(m, 'R', false, null, passesOver);
+          }
         }
       });
     } else {
-      // Masqués : seuls les muscles sélectionnés sont affichés
-      here.filter(m => byId.has(m.id)).forEach(m => {
-        renderSelected(m);
+      here.forEach(m => {
+        const sides = muscleSidesMap.get(m.id);
+        if (sides) {
+          if (sides.both && sides.valL === sides.valR && state.symmetry === 'symmetric') {
+            g += renderMusclePart(m, null, true, sides.valL, false);
+          } else {
+            if (sides.L) g += renderMusclePart(m, 'L', true, sides.valL, false);
+            if (sides.R) g += renderMusclePart(m, 'R', true, sides.valR, false);
+          }
+        }
       });
     }
 
@@ -2436,15 +2756,16 @@ function buildSVG(interactive) {
       const tx = left ? bx0 - gapLabel : bx1 + gapLabel;
       const targetY = l.ay !== undefined ? l.ay : l.y;
       
-      // Si l'étiquette est décalée verticalement par rapport à la zone visible du muscle, on trace une ligne brisée propre
+      // Petit bout de plat horizontal (landing) partant de l'étiquette vers la silhouette anatomique
+      const flatLen = 8;
+      const cornerX = left ? Math.min(l.ax - 2, edge + flatLen) : Math.max(l.ax + 2, edge - flatLen);
       if (Math.abs(targetY - l.y) > 1.0) {
-        const midX = left ? (edge + l.ax) * 0.45 : (edge + l.ax) * 0.55;
-        g += `<polyline points="${f1(edge)},${f1(l.y)} ${f1(midX)},${f1(l.y)} ${f1(l.ax)},${f1(targetY)}" fill="none" stroke="${t.textColor}" stroke-width="0.8" stroke-linejoin="round"/>`;
+        g += `<polyline points="${f1(edge)},${f1(l.y)} ${f1(cornerX)},${f1(l.y)} ${f1(l.ax)},${f1(targetY)}" fill="none" stroke="${t.textColor}" stroke-width="0.8" stroke-linejoin="round"/>`;
       } else {
         g += `<line x1="${f1(edge)}" y1="${f1(l.y)}" x2="${f1(l.ax)}" y2="${f1(targetY)}" stroke="${t.textColor}" stroke-width="0.8"/>`;
       }
-      g += `<circle cx="${f1(l.ax)}" cy="${f1(targetY)}" r="1.8" fill="${t.textColor}"/>`;
-      g += `<text x="${f1(tx)}" y="${f1(l.y + size * 0.33)}" font-size="${size}" font-family='${FONT}' text-anchor="${left ? 'end' : 'start'}" fill="${t.textColor}">${esc(l.text)}</text>`;
+      g += `<circle cx="${f1(l.ax)}" cy="${f1(targetY)}" r="${f1(Math.min(1.8, Math.max(1.1, size * 0.12)))}" fill="${t.textColor}"/>`;
+      g += `<text x="${f1(tx)}" y="${f1(l.y + size * 0.33)}" font-size="${f1(size)}" font-family='${FONT}' text-anchor="${left ? 'end' : 'start'}" fill="${t.textColor}">${esc(l.text)}</text>`;
     });
 
     g += '</g>';
@@ -2592,7 +2913,7 @@ function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 // --- APPLICATION DE LA LANGUE (I18N) ---
 let activeGroupFilter = 'all';
 let searchQuery = '';
-let totalVisibleSearch = 63;
+let totalVisibleSearch = 69;
 
 function applyI18n() {
   const dict = I18N[state.lang] || I18N.fr;
@@ -2624,8 +2945,8 @@ activeGroupFilter = 'all';
 function renderMuscleCards() {
   const dict = I18N[state.lang] || I18N.fr;
   const isEn = state.lang === 'en';
+  const isAsym = state.symmetry === 'asymmetric';
   const selectedEntries = parseList(state.text).entries;
-  const selectedMap = new Map(selectedEntries.map(e => [e.id, e.value]));
   const cardList = $('muscle-card-list');
 
   let groupsToRender = MUSCLE_GROUPS;
@@ -2652,28 +2973,34 @@ function renderMuscleCards() {
     if (muscles.length === 0) return '';
     totalVisible += muscles.length;
 
-    const selectedInGroup = muscles.filter(m => selectedMap.has(m.id)).length;
+    const selectedInGroup = muscles.filter(m => {
+      const sides = getMuscleSides(m.id, selectedEntries);
+      return sides.active;
+    }).length;
     const groupName = isEn ? group.name_en : group.name_fr;
 
     const cardsHtml = muscles.map(m => {
-      const isChecked = selectedMap.has(m.id);
-      const val = isChecked && selectedMap.get(m.id) !== null ? selectedMap.get(m.id) : null;
-      const layerClass = `badge-${m.layer}`;
-      const layerLabel = m.layer === 'superficial' ? (isEn ? 'Sup' : 'Sup') : (m.layer === 'intermediate' ? (isEn ? 'Mid' : 'Moy') : (isEn ? 'Deep' : 'Prof'));
+      const sides = getMuscleSides(m.id, selectedEntries);
+      const isChecked = sides.active;
+      const val = isChecked ? (sides.valL !== null ? sides.valL : sides.valR) : null;
       const displayName = muscleName(m, state.lang);
       const subName = isEn ? m.fr : m.en;
-
-      const assignedN = activeMuscleNumbers && activeMuscleNumbers.get(m.id);
-      let numBadgeHtml = '';
-      if (assignedN) {
-        numBadgeHtml = `<span class="m-num-badge">#${assignedN}</span>`;
-      }
 
       let badgeHtml = '';
       if (val !== null) {
         badgeHtml = `<span class="m-clmv-badge" style="background:${heatColor(val)}; color:${val > 55 ? '#ffffff' : '#0f172a'}">${val} ${dict.unitBadge}</span>`;
-      } else if (isChecked) {
-        badgeHtml = `<span class="m-active-dot" title="${dict.activeTag}"></span>`;
+      }
+
+      let sidesHtml = '';
+      if (isAsym) {
+        const lblL = isEn ? 'L' : 'G';
+        const lblR = isEn ? 'R' : 'D';
+        const titleL = isEn ? 'Left' : 'Gauche';
+        const titleR = isEn ? 'Right' : 'Droite';
+        sidesHtml = `<div class="m-sides">
+          <button type="button" class="m-side-btn ${sides.L ? 'active' : ''}" data-side="L" data-id="${m.id}" title="${titleL}">${lblL}</button>
+          <button type="button" class="m-side-btn ${sides.R ? 'active' : ''}" data-side="R" data-id="${m.id}" title="${titleR}">${lblR}</button>
+        </div>`;
       }
 
       const swatchCol = getMuscleColor(m);
@@ -2686,7 +3013,7 @@ function renderMuscleCards() {
           </div>
           <div class="m-sub">${esc(subName)}</div>
         </div>
-        ${numBadgeHtml}
+        ${sidesHtml}
         ${badgeHtml}
       </div>`;
     }).join('');
@@ -2705,11 +3032,12 @@ function renderMuscleCards() {
 function updateStatus() {
   const dict = I18N[state.lang] || I18N.fr;
   const { entries } = parseList(state.text);
-  const count = entries.length;
-  const total = (ATLAS && ATLAS.muscles) ? ATLAS.muscles.length : 63;
+  const activeMusclesSet = new Set(entries.map(e => e.id));
+  const count = activeMusclesSet.size;
+  const total = (ATLAS && ATLAS.muscles) ? ATLAS.muscles.length : 69;
   const isAll = (count >= total && total > 0);
 
-  // Compteur principal de sélection (ex: 61 / 63)
+  // Compteur principal de sélection (ex: 61 / 69)
   const countLabel = $('muscleCountLabel');
   if (countLabel) {
     if (searchQuery) {
@@ -2912,6 +3240,64 @@ function toggleMuscle(id, on, specificValue = null) {
   setText(keep.filter((l, i, a) => l.trim() || i < a.length - 1).join('\n').replace(/\n+$/, ''));
 }
 
+function toggleMuscleSide(id, targetSide, specificValue = null) {
+  const m = MUSCLES.get(id);
+  if (!m) return;
+  const { entries } = parseList(state.text);
+  const sides = getMuscleSides(id, entries);
+  const isEn = state.lang === 'en';
+  const name = muscleName(m, state.lang);
+  const tagL = isEn ? '(L)' : '(G)';
+  const tagR = isEn ? '(R)' : '(D)';
+
+  const lines = state.text.split(/\r?\n/);
+  const otherLines = lines.filter(line => {
+    const probe = parseList(line).entries[0];
+    return !(probe && probe.id === id);
+  });
+
+  let newL = sides.L;
+  let newR = sides.R;
+  let valL = sides.valL;
+  let valR = sides.valR;
+
+  if (targetSide === 'L') {
+    newL = !newL;
+    if (newL && specificValue !== null) valL = specificValue;
+    if (!newL) valL = null;
+  } else if (targetSide === 'R') {
+    newR = !newR;
+    if (newR && specificValue !== null) valR = specificValue;
+    if (!newR) valR = null;
+  } else if (targetSide === 'both') {
+    const turnOn = !(newL || newR);
+    newL = turnOn;
+    newR = turnOn;
+    if (turnOn && specificValue !== null) {
+      valL = specificValue;
+      valR = specificValue;
+    } else if (!turnOn) {
+      valL = null;
+      valR = null;
+    }
+  }
+
+  const muscleNewLines = [];
+  if (newL && newR && valL === valR && state.symmetry === 'symmetric') {
+    muscleNewLines.push(valL !== null ? `${name}; ${valL}` : name);
+  } else {
+    if (newL) {
+      muscleNewLines.push(valL !== null ? `${name} ${tagL}; ${valL}` : `${name} ${tagL}`);
+    }
+    if (newR) {
+      muscleNewLines.push(valR !== null ? `${name} ${tagR}; ${valR}` : `${name} ${tagR}`);
+    }
+  }
+
+  const finalLines = [...otherLines, ...muscleNewLines].filter((l, i, a) => l.trim() || i < a.length - 1);
+  setText(finalLines.join('\n').replace(/\n+$/, ''));
+}
+
 // Écouteurs d'options
 document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
   const key = b.parentElement.dataset.key;
@@ -2928,6 +3314,9 @@ document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click'
     } else {
       switchRightTab('classic', false);
     }
+  }
+  if (key === 'symmetry' || key === 'lang' || key === 'layer') {
+    renderMuscleCards();
   }
   render();
 }));
@@ -2950,24 +3339,48 @@ $('tabMvc').addEventListener('click', () => switchRightTab('mvc'));
 
 // Clic sur carte muscle dans le panneau droit
 $('muscle-card-list').addEventListener('click', e => {
+  const sideBtn = e.target.closest('.m-side-btn');
+  if (sideBtn) {
+    e.stopPropagation();
+    const id = sideBtn.dataset.id;
+    const side = sideBtn.dataset.side;
+    toggleMuscleSide(id, side);
+    return;
+  }
+
   const card = e.target.closest('.m-card');
   if (!card) return;
   const id = card.dataset.id;
-  const isSelected = parseList(state.text).entries.some(x => x.id === id);
-  toggleMuscle(id, !isSelected);
+  if (state.symmetry === 'asymmetric') {
+    toggleMuscleSide(id, 'both');
+  } else {
+    const isSelected = parseList(state.text).entries.some(x => x.id === id);
+    toggleMuscle(id, !isSelected);
+  }
 });
 
 // Sélection / Désélection complète rapide
 if ($('btnToggleSelectAll')) {
   $('btnToggleSelectAll').addEventListener('click', () => {
     const { entries } = parseList(state.text);
-    const total = (ATLAS && ATLAS.muscles) ? ATLAS.muscles.length : 63;
+    const total = (ATLAS && ATLAS.muscles) ? ATLAS.muscles.length : 69;
     const isAll = (entries.length >= total && total > 0);
     if (isAll) {
       setText('');
     } else {
-      const allText = ATLAS.muscles.map(m => muscleName(m, state.lang)).join('\n');
-      setText(allText);
+      if (state.symmetry === 'asymmetric') {
+        const isEn = state.lang === 'en';
+        const tagL = isEn ? ' (L)' : ' (G)';
+        const tagR = isEn ? ' (R)' : ' (D)';
+        const allText = ATLAS.muscles.map(m => {
+          const name = muscleName(m, state.lang);
+          return `${name}${tagL}\n${name}${tagR}`;
+        }).join('\n');
+        setText(allText);
+      } else {
+        const allText = ATLAS.muscles.map(m => muscleName(m, state.lang)).join('\n');
+        setText(allText);
+      }
     }
   });
 }
@@ -2995,31 +3408,151 @@ $('btnClearSearch').addEventListener('click', () => {
   $('muscleSearch').focus();
 });
 
-// Clic direct sur le SVG (avec distinction drag / clic)
+// Clic direct sur le SVG (avec distinction drag / clic et sélection multi-couches)
 stage.addEventListener('click', e => {
   if (dragDist > 5) return;
-  const target = e.target.closest('.muscle[data-id]');
-  if (!target) return;
-  const id = target.dataset.id;
-  toggleMuscle(id, !parseList(state.text).entries.some(x => x.id === id));
+
+  const targets = document.elementsFromPoint(e.clientX, e.clientY)
+    .map(el => el.closest('.muscle[data-id]'))
+    .filter(Boolean);
+
+  if (!targets.length) return;
+
+  // Déduplication conservant l'ordre de profondeur (superficiel -> profond)
+  const candidates = [];
+  const seenIds = new Set();
+  for (const t of targets) {
+    const id = t.dataset.id;
+    if (!seenIds.has(id)) {
+      seenIds.add(id);
+      candidates.push(t);
+    }
+  }
+
+  const entries = parseList(state.text).entries;
+  const isAsym = state.symmetry === 'asymmetric';
+  const targetSide = candidates[0].dataset.side || 'L';
+
+  const isMuscleSelected = (id) => {
+    if (isAsym) {
+      return entries.some(x => x.id === id && (x.side === 'both' || x.side === targetSide));
+    }
+    return entries.some(x => x.id === id);
+  };
+
+  // Si un seul muscle sous le curseur : bascule simple standard
+  if (candidates.length === 1) {
+    const id = candidates[0].dataset.id;
+    if (isAsym) toggleMuscleSide(id, targetSide);
+    else toggleMuscle(id, !isMuscleSelected(id));
+    return;
+  }
+
+  // Plusieurs muscles superposés sous le clic (ex: Oblique externe / Oblique interne, Gastrocnémien / Soléaire, etc.)
+  // Si un filtre de couche est actif, cibler directement le muscle correspondant à cette couche
+  if (state.layer !== 'all') {
+    const layerMatch = candidates.find(el => {
+      const m = MUSCLES.get(el.dataset.id);
+      return m && m.layer === state.layer;
+    });
+    if (layerMatch) {
+      const id = layerMatch.dataset.id;
+      if (isAsym) toggleMuscleSide(id, targetSide);
+      else toggleMuscle(id, !isMuscleSelected(id));
+      return;
+    }
+  }
+
+  // En vue normale avec superposition :
+  // Si le premier muscle (superficiel) n'est pas sélectionné -> on le sélectionne
+  // Si le premier muscle EST DÉJÀ sélectionné -> le clic active la couche sous-jacente (ex: oblique interne sous oblique externe) !
+  // Si tous les muscles sous le curseur sont sélectionnés -> on désélectionne le premier muscle
+  const firstInactive = candidates.find(el => !isMuscleSelected(el.dataset.id));
+  if (firstInactive) {
+    const id = firstInactive.dataset.id;
+    if (isAsym) toggleMuscleSide(id, targetSide);
+    else toggleMuscle(id, true);
+  } else {
+    // Tous sont actifs : désélectionner le premier
+    const id = candidates[0].dataset.id;
+    if (isAsym) toggleMuscleSide(id, targetSide);
+    else toggleMuscle(id, false);
+  }
 });
 
-// Tooltip interactif au survol
+// Tooltip interactif au survol (avec indication des couches superposées)
 stage.addEventListener('mousemove', e => {
-  const target = e.target.closest('.muscle[data-id]');
-  if (!target) {
+  const targets = document.elementsFromPoint(e.clientX, e.clientY)
+    .map(el => el.closest('.muscle[data-id]'))
+    .filter(Boolean);
+
+  if (!targets.length) {
     tooltip.style.display = 'none';
     return;
   }
-  const id = target.dataset.id;
-  const m = MUSCLES.get(id);
-  if (!m) return;
+
+  // Déduplication conservant l'ordre
+  const candidates = [];
+  const seenIds = new Set();
+  for (const t of targets) {
+    const id = t.dataset.id;
+    if (!seenIds.has(id)) {
+      seenIds.add(id);
+      candidates.push(t);
+    }
+  }
+
   const dict = I18N[state.lang] || I18N.fr;
   const isEn = state.lang === 'en';
-  const entry = parseList(state.text).entries.find(x => x.id === id);
+  const entries = parseList(state.text).entries;
+  const side = candidates[0].dataset.side;
+  const sideSuffix = (state.symmetry === 'asymmetric' && side)
+    ? ` <span style="color:#60a5fa; font-weight:700;">(${side === 'L' ? (isEn ? 'L' : 'G') : (isEn ? 'R' : 'D')})</span>`
+    : '';
+
+  // Muscle prioritaire : celui correspondant à la couche filtrée, ou sinon le premier plan
+  let primaryEl = candidates[0];
+  if (state.layer !== 'all') {
+    const match = candidates.find(el => {
+      const m = MUSCLES.get(el.dataset.id);
+      return m && m.layer === state.layer;
+    });
+    if (match) primaryEl = match;
+  }
+
+  const primaryMuscle = MUSCLES.get(primaryEl.dataset.id);
+  if (!primaryMuscle) return;
+
+  const entry = entries.find(x => x.id === primaryMuscle.id && (x.side === 'both' || !side || x.side === side));
+  const isPrimaryActive = !!entry;
   const mvcStr = entry && entry.value !== null ? `<br><b style="color:#fdba74;">${entry.value} ${dict.unitBadge}</b>` : '';
-  const subName = isEn ? m.fr : m.en;
-  tooltip.innerHTML = `<b>${esc(muscleName(m, state.lang))}</b> ${m.abbr ? `(${m.abbr})` : ''}<br><span style="color:#94a3b8">${esc(subName)}</span>${mvcStr}`;
+  const subName = isEn ? primaryMuscle.fr : primaryMuscle.en;
+
+  let html = `<b>${esc(muscleName(primaryMuscle, state.lang))}</b>${sideSuffix} ${primaryMuscle.abbr ? `(${primaryMuscle.abbr})` : ''}<br><span style="color:#94a3b8">${esc(subName)}</span>${mvcStr}`;
+
+  // Si d'autres muscles sont sous-jacents sous le curseur, les indiquer clairement
+  const others = candidates.filter(el => el.dataset.id !== primaryMuscle.id);
+  if (others.length > 0) {
+    const otherInfos = others.map(el => {
+      const om = MUSCLES.get(el.dataset.id);
+      if (!om) return '';
+      const oActive = entries.some(x => x.id === om.id && (x.side === 'both' || !side || x.side === side));
+      const layerName = dict[om.layer] || om.layer;
+      const statusTag = oActive ? `<span style="color:#22c55e; font-weight:600;"> (${isEn ? 'active' : 'actif'})</span>` : '';
+      return `<div style="font-size:11px; color:#cbd5e1; margin-top:2px;">• ${esc(muscleName(om, state.lang))} <span style="color:#94a3b8">(${layerName})</span>${statusTag}</div>`;
+    }).filter(Boolean).join('');
+
+    if (otherInfos) {
+      const hint = isPrimaryActive
+        ? (isEn ? 'Cliquer pour activer la couche sous-jacente' : 'Cliquer pour activer la couche sous-jacente')
+        : (isEn ? 'Couches sous-jacentes' : 'Couches sous-jacentes');
+      html += `<div style="margin-top:6px; padding-top:5px; border-top:1px solid rgba(255,255,255,0.18);">` +
+        `<div style="font-size:10px; text-transform:uppercase; letter-spacing:0.04em; color:#94a3b8; font-weight:600;">${hint} :</div>` +
+        otherInfos + `</div>`;
+    }
+  }
+
+  tooltip.innerHTML = html;
   const rect = stageFrame.getBoundingClientRect();
   tooltip.style.left = (e.clientX - rect.left + 14) + 'px';
   tooltip.style.top = (e.clientY - rect.top + 14) + 'px';
@@ -3036,7 +3569,7 @@ function getExampleObject() {
         { muscle: "vastus-lateralis", mvc: 78.5 },
         { muscle: "vastus-medialis", mvc: 65.0 },
         { muscle: "rectus-femoris", mvc: 52.0 },
-        { muscle: "biceps-femoris", mvc: 42.5 },
+        { muscle: "biceps-femoris-long", mvc: 42.5 },
         { muscle: "semitendinosus", mvc: 37.0 },
         { muscle: "gastrocnemius-medial", mvc: 46.0 },
         { muscle: "soleus", mvc: 38.0 },
@@ -3050,7 +3583,7 @@ function getExampleObject() {
       { muscle: "vastus-lateralis", cmv: 78.5 },
       { muscle: "vastus-medialis", cmv: 65.0 },
       { muscle: "rectus-femoris", cmv: 52.0 },
-      { muscle: "biceps-femoris", cmv: 42.5 },
+      { muscle: "biceps-femoris-long", cmv: 42.5 },
       { muscle: "semitendinosus", cmv: 37.0 },
       { muscle: "gastrocnemius-medial", cmv: 46.0 },
       { muscle: "soleus", cmv: 38.0 },

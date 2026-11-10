@@ -25,7 +25,7 @@ for k, (v, f) in meshes.items():
     if k in ('tibialis-posterior', 'flexor-digitorum-longus'):
         continue
     u_front = cv2.bitwise_or(u_front, bad.rasterize(v, f, 'front'))
-v1_front = bad.body_silhouette_v1(u_front)
+v1_front = bad.body_silhouette_base(u_front)
 
 def draw_tapered_capsule(mask, p0, p1, r0, r1, val=255):
     p0, p1 = np.array(p0, dtype=float), np.array(p1, dtype=float)
@@ -51,7 +51,6 @@ def build_final_silhouette(base_mask):
     mask_ref_500 = (mask_ref_500 > 127).astype(np.uint8) * 255
     
     m[2000:2450, 20:430] = 0
-    m[2000:2450, 1736-430:1736-20] = 0
     
     for sy in range(50, 500):
         dy = 1950 + sy
@@ -59,27 +58,23 @@ def build_final_silhouette(base_mask):
             if mask_ref_500[sy, sx] > 0:
                 dx = 20 + sx
                 m[dy, dx] = 255
-                dx_r = int(round(1736.0 - dx))
-                if 0 <= dx_r < WIDTH:
-                    m[dy, dx_r] = 255
                     
-    hand_band = m[1985:2450, :].astype(np.float32)
+    hand_band = m[1985:2450, :870].astype(np.float32)
     hand_band = cv2.GaussianBlur(hand_band, (9, 9), 2.0)
-    m[1985:2450, :] = (hand_band > 127).astype(np.uint8) * 255
+    m[1985:2450, :870] = (hand_band > 127).astype(np.uint8) * 255
 
-    # 2. FEET: pure additive medial arch & Hallux (D1) tangent to shin at y=3800 + smooth forefoot cascade
-    for is_right in [False, True]:
-        def tx_f(x):
-            return (1739.0 - x) if is_right else x
-        
-        draw_tapered_capsule(m, (tx_f(722), 3800), (tx_f(730), 4005), 11.0, 20.0, 255) # Hallux (D1)
-        draw_tapered_capsule(m, (tx_f(728), 4006), (tx_f(674), 4008), 20.0, 18.5, 255) # Hallux -> D2
-        draw_tapered_capsule(m, (tx_f(674), 4008), (tx_f(618), 4004), 18.5, 16.0, 255) # D2 -> D3
-        draw_tapered_capsule(m, (tx_f(618), 4004), (tx_f(554), 3997), 16.0, 15.0, 255) # D3 -> rounded D5
+    # 2. FEET: pure additive medial arch & Hallux (D1) tangent to shin at y=3800 + smooth forefoot cascade (left side)
+    draw_tapered_capsule(m, (722, 3800), (730, 4005), 11.0, 20.0, 255) # Hallux (D1)
+    draw_tapered_capsule(m, (728, 4006), (674, 4008), 20.0, 18.5, 255) # Hallux -> D2
+    draw_tapered_capsule(m, (674, 4008), (618, 4004), 18.5, 16.0, 255) # D2 -> D3
+    draw_tapered_capsule(m, (618, 4004), (554, 3997), 16.0, 15.0, 255) # D3 -> rounded D5
 
-    foot_band = m[3660:4060, :].astype(np.float32)
+    foot_band = m[3660:4060, :870].astype(np.float32)
     foot_band = cv2.GaussianBlur(foot_band, (21, 21), 4.5)
-    m[3660:4060, :] = (foot_band > 127).astype(np.uint8) * 255
+    m[3660:4060, :870] = (foot_band > 127).astype(np.uint8) * 255
+
+    # 3. SYMÉTRIE BILATÉRALE PARFAITE
+    m[:, 870:] = np.fliplr(m[:, :870])
     return m
 
 def vectorize_mask(mask):
@@ -143,7 +138,7 @@ for m_entry in atlas['muscles']:
         m_comb = bad.rasterize(v1, f1, view_k)
         for is_right in [False, True]:
             def tx_t(x):
-                return (1736.0 - x) if is_right else x
+                return (1739.0 - x) if is_right else x
             poly_t_clear = np.array([
                 [int(tx_t(110)), 2280], [int(tx_t(355)), 2280],
                 [int(tx_t(355)), 2420], [int(tx_t(110)), 2420]
