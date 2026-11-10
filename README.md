@@ -81,7 +81,6 @@ L'application accepte indifféremment les identifiants anatomiques complets ou l
 
 | Fichier / Dossier | Rôle dans le projet |
 | :--- | :--- |
-| **`index.html`** | Application finale autonome et monolithique distribuable (embarquant styles, logique, logos et atlas vectoriel 2D). |
-| **`favicon.*` / `apple-touch-icon.png`** | Jeux complet d'icônes et favicons pour l'application web. |
+| **`index.html`** | Application web 100% autonome et monolithique (styles, logique, favicons et atlas vectoriel inlinés). |
 | **`docs/screenshots/`** | Captures d'écran officielles illustrant les fonctionnalités dans la documentation. |
 | **`.github/workflows/deploy.yml`** | Workflow d'intégration et déploiement continu automatique sur GitHub Pages. |
