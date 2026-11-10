@@ -4,7 +4,7 @@
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](index.html)
 [![License](https://img.shields.io/badge/license-CC--BY--SA--2.1--JP-green.svg)](https://creativecommons.org/licenses/by-sa/2.1/jp/)
 
-Application autonome de référence pour le laboratoire : cartographie anatomique 2D haute résolution pour l'illustration de protocoles d'électromyographie de surface (sEMG) et la visualisation de résultats normalisés (% CMLV / % MVC).
+Application autonome de référence pour le laboratoire : cartographie anatomique 2D haute résolution pour l'illustration de protocoles d'électromyographie de surface (sEMG) et la visualisation de résultats normalisés (% CMV / % MVC).
 
 ---
 
@@ -26,7 +26,7 @@ Sur un poste d'acquisition (Noraxon, Delsys, etc.) sans connexion internet :
 
 - **Modes de travail** :
   - **Mode Protocole (Classique)** : sélection interactive des muscles étudiés, palette anatomique ou rouge uniforme.
-  - **Mode Résultats (Heatmap % CMLV / % MVC)** : coloration thermique dynamique 0–100 % avec échelle et tableau de valeurs en direct. Import/Export JSON d'activations avec support des abréviations standards (VL, VM, RF, BF, MG, LG, TA, GM, etc.).
+  - **Mode Résultats (Heatmap % CMV / % MVC)** : coloration thermique dynamique 0–100 % avec échelle et tableau de valeurs en direct. Import/Export JSON d'activations avec support des abréviations standards (VL, VM, RF, BF, MG, LG, TA, GM, etc.).
 - **Vues & Cadrage** :
   - Angles : Duo (Face + Dos), Face seule, Dos seul.
   - Cadrage : Corps entier, Haut du corps, Membres inférieurs.

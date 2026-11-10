@@ -1316,7 +1316,7 @@
       <div class="seg" data-key="colorMode">
         <button data-value="palette" data-i18n="palette">Par muscle</button>
         <button data-value="uniform" data-i18n="uniform">Rouge uni</button>
-        <button data-value="heat" data-i18n="heat">Heatmap % CMLV</button>
+        <button data-value="heat" data-i18n="heat">Heatmap % CMV</button>
       </div>
     </div>
     <div class="ctrl-item">
@@ -1464,7 +1464,7 @@
     </div>
   </div>
 
-  <!-- VUE 2 : MODE MVC (DONNÉES SÉMG % MVC / % CMLV) -->
+  <!-- VUE 2 : MODE MVC (DONNÉES SÉMG % MVC / % CMV) -->
   <div id="view-mvc" class="panel-view" style="display:none">
     <!-- Statut synthétique MVC -->
     <div id="mvcSummaryBox" class="mvc-summary-box empty">
@@ -1508,8 +1508,8 @@
         <button type="button" class="btn-link" id="btnCopyJsonSchema" data-i18n="clmvCopy" onclick="event.stopPropagation();">Copier modèle</button>
       </summary>
       <div class="mvc-details-body">
-        <p class="mvc-format-hint" data-i18n="mvcFormatHint">Format : <code>{"mesures": [{"muscle": "vastus-lateralis", "clmv": 75}]}</code></p>
-        <textarea id="jsonClmvInput" spellcheck="false" placeholder="Collez votre JSON d'activations % CMLV / % MVC ici..."></textarea>
+        <p class="mvc-format-hint" data-i18n="mvcFormatHint">Format : <code>{"mesures": [{"muscle": "vastus-lateralis", "cmv": 75}]}</code></p>
+        <textarea id="jsonClmvInput" spellcheck="false" placeholder="Collez votre JSON d'activations % CMV / % MVC ici..."></textarea>
         <div id="jsonClmvStatus" class="json-status"></div>
         <button type="button" class="btn sm primary" id="btnApplyJson" style="width:100%" data-i18n="clmvApply">Appliquer les données JSON</button>
       </div>
@@ -1675,7 +1675,7 @@ const I18N = {
     colorMode: 'Coloration',
     palette: 'Par muscle',
     uniform: 'Rouge uni',
-    heat: 'Heatmap % CMLV',
+    heat: 'Heatmap % CMV',
     contextLabel: 'Autres muscles',
     contextTranslucent: 'Transparents',
     contextOn: 'Visibles',
@@ -1708,11 +1708,11 @@ const I18N = {
     presetSelectAll: 'Tout cocher',
     presetClearAll: 'Effacer',
     modeClassic: 'Mode Classique',
-    modeMvc: 'Mode % CMLV',
+    modeMvc: 'Mode % CMV',
     quickPicks: 'Picks :',
     mvcNoDataTitle: 'Aucune activation chargée',
     mvcNoDataSub: "Importez un fichier JSON ou chargez un exemple type.",
-    mvcActiveTitle: n => `${n} muscle${n > 1 ? 's' : ''} activé${n > 1 ? 's' : ''} (% CMLV)`,
+    mvcActiveTitle: n => `${n} muscle${n > 1 ? 's' : ''} activé${n > 1 ? 's' : ''} (% CMV)`,
     heatActiveLegend: 'Échelle thermique active',
     mvcEditorTitle: 'Éditeur & Format JSON',
     mvcFormatHint: 'Format attendu :',
@@ -1720,27 +1720,27 @@ const I18N = {
     mvcScaleLegend: 'Échelle 0 à 100%',
     mvcEmptyPrompt: "Aucun muscle avec % d'activation. Cliquez sur 'Exemple type' ou 'Importer .json'.",
     removeActivation: "Supprimer l'activation",
-    clmvTitle: 'Données % CMLV (JSON)',
+    clmvTitle: 'Données % CMV (JSON)',
     clmvTag: 'Format précis attendu',
-    clmvDesc: "Les pourcentages d'activation % CMLV sont importés via un fichier ou objet JSON structuré (aucun champ manuel individuel).",
+    clmvDesc: "Les pourcentages d'activation % CMV sont importés via un fichier ou objet JSON structuré (aucun champ manuel individuel).",
     clmvFormatTitle: 'Format JSON type :',
     clmvCopy: 'Copier modèle',
     clmvLoadExample: 'Exemple',
     clmvImportFile: 'Importer .json',
     clmvClear: 'Effacer',
     clmvApply: 'Appliquer les données JSON',
-    clmvPlaceholder: "Collez votre JSON d'activations % CMLV ici...",
+    clmvPlaceholder: "Collez votre JSON d'activations % CMV ici...",
     musclesTitle: 'Muscles',
     selectedSingle: 'sélectionné',
     selectedPlural: 'sélectionnés',
     noMuscle: 'Aucun muscle ne correspond aux critères.',
     footer: "Muscle Map — Développé par Jean PANCHAIRI • Technosport amU · D'après BodyParts3D (DBCLS, CC BY-SA 2.1 JP).",
     imageLicense: "Technosport amU · Based on BodyParts3D (DBCLS, CC BY-SA 2.1 JP).",
-    scaleTitle: '% CMLV (Contraction Maximale Volontaire)',
-    unitBadge: '% CMLV',
+    scaleTitle: '% CMV (Contraction Maximale Volontaire)',
+    unitBadge: '% CMV',
     activeTag: 'Actif',
     allPill: 'Tous',
-    jsonSuccess: n => `✓ ${n} muscle(s) chargé(s) avec succès en % CMLV.`,
+    jsonSuccess: n => `✓ ${n} muscle(s) chargé(s) avec succès en % CMV.`,
     jsonEmpty: 'Aucune donnée musculaire trouvée dans le JSON.',
     jsonUnrecognized: 'Aucun muscle reconnu. Utilisez vastus-lateralis, VL, etc.',
     jsonSyntaxError: err => `Erreur de syntaxe JSON : ${err}`,
@@ -2001,7 +2001,7 @@ function parseList(text) {
   return { entries, unknown };
 }
 
-// Échelle graduelle heatmap 0-100 % CMLV / % MVC
+// Échelle graduelle heatmap 0-100 % CMV / % MVC
 const HEAT_STOPS = [[0,'#fff3b0'],[25,'#fdc766'],[50,'#f58a3a'],[75,'#d73a2c'],[100,'#6e0a1e']];
 const hex = h => [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16));
 function getMuscleColor(m) {
@@ -2178,7 +2178,7 @@ function buildSVG(interactive) {
   const bodyH = yMax - yMin;
 
   // Hauteur verticale optimisée et équilibrée pour le bas de figure (légende + licence + marges)
-  // Mode % CMLV : distance pieds->titre (20) + titre (11) + barre/ticks/chiffres (22) + chiffres->licence (22) + licence->fond (27) = 102
+  // Mode % CMV : distance pieds->titre (20) + titre (11) + barre/ticks/chiffres (22) + chiffres->licence (22) + licence->fond (27) = 102
   // Mode Classique : distance pieds->licence (22) + licence->fond (26) = 48
   const FOOTER_H = isHeat ? 102 : 48;
   const TOP_MARGIN = 22;
@@ -2253,7 +2253,7 @@ function buildSVG(interactive) {
 
   const feetY = panelsLayout.feetY;
 
-  // Barre d'échelle heatmap sEMG % CMLV / % MVC (position sous les pieds harmonieuse et aérée)
+  // Barre d'échelle heatmap sEMG % CMV / % MVC (position sous les pieds harmonieuse et aérée)
   let barSvg = '';
   let licenseY;
 
@@ -2898,7 +2898,7 @@ stage.addEventListener('mousemove', e => {
 });
 stage.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
 
-// --- MODULE DONNÉES % CMLV / % MVC (JSON PRÉCIS ET FORMAT EXEMPLE) ---
+// --- MODULE DONNÉES % CMV / % MVC (JSON PRÉCIS ET FORMAT EXEMPLE) ---
 function getExampleObject() {
   if (state.lang === 'en') {
     return {
@@ -2916,16 +2916,16 @@ function getExampleObject() {
     };
   }
   return {
-    unite: "% CMLV",
+    unite: "% CMV",
     mesures: [
-      { muscle: "vastus-lateralis", clmv: 78.5 },
-      { muscle: "vastus-medialis", clmv: 65.0 },
-      { muscle: "rectus-femoris", clmv: 52.0 },
-      { muscle: "biceps-femoris", clmv: 42.5 },
-      { muscle: "semitendinosus", clmv: 37.0 },
-      { muscle: "gastrocnemius-medial", clmv: 46.0 },
-      { muscle: "soleus", clmv: 38.0 },
-      { muscle: "tibialis-anterior", clmv: 29.0 }
+      { muscle: "vastus-lateralis", cmv: 78.5 },
+      { muscle: "vastus-medialis", cmv: 65.0 },
+      { muscle: "rectus-femoris", cmv: 52.0 },
+      { muscle: "biceps-femoris", cmv: 42.5 },
+      { muscle: "semitendinosus", cmv: 37.0 },
+      { muscle: "gastrocnemius-medial", cmv: 46.0 },
+      { muscle: "soleus", cmv: 38.0 },
+      { muscle: "tibialis-anterior", cmv: 29.0 }
     ]
   };
 }
@@ -2957,7 +2957,7 @@ function applyClmvJson(jsonString) {
     let recognized = 0;
     items.forEach(it => {
       const rawName = String(it.muscle || it.id || it.name || it.nom || '');
-      const rawVal = it.clmv ?? it.mvc ?? it.valeur ?? it.value ?? it.pct;
+      const rawVal = it.cmv ?? it.clmv ?? it.mvc ?? it.valeur ?? it.value ?? it.pct;
       const key = norm(rawName);
       const id = NAME_INDEX.get(key) || fuzzyMatch(key);
       if (id && rawVal !== undefined && rawVal !== null && !isNaN(Number(rawVal))) {
@@ -3054,9 +3054,9 @@ function getExportFilename(extension) {
   };
   const zoneStr = zoneMap[state.zone] || state.zone;
 
-  // 4. Mode / Données : si données d'activation % CMLV / % MVC
+  // 4. Mode / Données : si données d'activation % CMV / % MVC
   const hasHeat = (state.colorMode === 'heat') || (state.heat && Object.keys(state.heat).length > 0);
-  const modeStr = hasHeat ? (isFr ? 'cmlv' : 'mvc') : '';
+  const modeStr = hasHeat ? (isFr ? 'cmv' : 'mvc') : '';
 
   // Assemblage propre et ordonné : la couleur de fond est positionnée en dernier
   const ratioStr = (state.exportRatio && state.exportRatio !== 'auto') ? state.exportRatio.replace(':', 'x') : '';
