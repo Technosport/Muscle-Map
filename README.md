@@ -1,4 +1,4 @@
-# Muscle Map
+# Muscle Map - Visualisation de protocoles EMG
 
 [![Technosport amU](https://img.shields.io/badge/Technosport-amU%20%7C%20ISM-002D62?style=flat-square)](https://github.com/Technosport)
 [![Type](https://img.shields.io/badge/Type-Application%20Web%20autonome-009EE2?style=flat-square)](#)
