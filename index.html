@@ -2178,9 +2178,9 @@ function buildSVG(interactive) {
   const bodyH = yMax - yMin;
 
   // Hauteur verticale optimisée et équilibrée pour le bas de figure (légende + licence + marges)
-  // Mode % CMV : distance pieds->titre (20) + titre (11) + barre/ticks/chiffres (22) + chiffres->licence (22) + licence->fond (27) = 102
-  // Mode Classique : distance pieds->licence (22) + licence->fond (26) = 48
-  const FOOTER_H = isHeat ? 102 : 48;
+  // Mode % CMV : distance pieds->titre (24) + titre (16) + barre/ticks/chiffres (28) + chiffres->licence (28) + licence (16) + licence->fond (26) = 138
+  // Mode Classique : distance pieds->licence (28) + licence (16) + licence->fond (26) = 70
+  const FOOTER_H = isHeat ? 138 : 70;
   const TOP_MARGIN = 22;
   const totalFigureH = TOP_MARGIN + bodyH + FOOTER_H;
 
@@ -2194,6 +2194,10 @@ function buildSVG(interactive) {
     contentW = pad + labelMargin + bodyW + centerGap + bodyW + labelMargin + pad;
   } else {
     contentW = pad + labelMargin + bodyW + labelMargin + pad;
+  }
+  const minFigureW = isHeat ? 580 : 540;
+  if (contentW < minFigureW) {
+    contentW = minFigureW;
   }
   const contentH = totalFigureH;
 
@@ -2258,29 +2262,29 @@ function buildSVG(interactive) {
   let licenseY;
 
   if (isHeat) {
-    const barW = Math.min(240, targetW - pad * 4);
+    const barW = Math.min(260, targetW - pad * 4);
     const barX = (targetW - barW) / 2;
-    const titleY = feetY + 20;
-    const barY = titleY + 11;
-    const barH = 7;
-    const tickH = 3.5;
+    const titleY = feetY + 24;
+    const barY = titleY + 14;
+    const barH = 8;
+    const tickH = 4;
     const stops = HEAT_STOPS.map(([v, c]) => `<stop offset="${v}%" stop-color="${c}"/>`).join('');
     barSvg += `<defs><linearGradient id="heatbar" x1="0" x2="1" y1="0" y2="0">${stops}</linearGradient></defs>`;
-    barSvg += `<text x="${f1(targetW / 2)}" y="${f1(titleY)}" font-size="${size * 0.88}" font-family='${FONT}' text-anchor="middle" font-weight="600" fill="${t.textColor}" letter-spacing="0.01em">${dict.scaleTitle}</text>`;
-    barSvg += `<rect x="${f1(barX)}" y="${f1(barY)}" width="${f1(barW)}" height="${barH}" rx="3" fill="url(#heatbar)" stroke="${t.textColor}" stroke-width="0.5" stroke-opacity="0.35"/>`;
-    const numY = barY + barH + tickH + size * 0.82;
+    barSvg += `<text x="${f1(targetW / 2)}" y="${f1(titleY)}" font-size="${size}" font-family='${FONT}' text-anchor="middle" font-weight="600" fill="${t.textColor}" letter-spacing="0.01em">${dict.scaleTitle}</text>`;
+    barSvg += `<rect x="${f1(barX)}" y="${f1(barY)}" width="${f1(barW)}" height="${barH}" rx="3" fill="url(#heatbar)" stroke="${t.textColor}" stroke-width="0.8" stroke-opacity="0.35"/>`;
+    const numY = barY + barH + tickH + size * 0.88;
     [0, 25, 50, 75, 100].forEach(v => {
       const tx = barX + barW * v / 100;
-      barSvg += `<line x1="${f1(tx)}" x2="${f1(tx)}" y1="${f1(barY + barH)}" y2="${f1(barY + barH + tickH)}" stroke="${t.textColor}" stroke-width="0.6" stroke-opacity="0.55"/>`;
-      barSvg += `<text x="${f1(tx)}" y="${f1(numY)}" font-size="${size * 0.78}" font-family='${FONT}' text-anchor="middle" fill="${t.textColor}" fill-opacity="0.85">${v}</text>`;
+      barSvg += `<line x1="${f1(tx)}" x2="${f1(tx)}" y1="${f1(barY + barH)}" y2="${f1(barY + barH + tickH)}" stroke="${t.textColor}" stroke-width="0.8" stroke-opacity="0.6"/>`;
+      barSvg += `<text x="${f1(tx)}" y="${f1(numY)}" font-size="${size}" font-family='${FONT}' text-anchor="middle" fill="${t.textColor}" fill-opacity="0.85">${v}</text>`;
     });
-    licenseY = numY + 22;
+    licenseY = numY + 28;
   } else {
-    licenseY = feetY + 22;
+    licenseY = feetY + 28;
   }
 
   // LICENCE EN SEMI-TRANSPARENCE POSITIONNÉE DE FAÇON HARMONIEUSE SOUS LE CONTENU
-  const licenseSvg = `<text x="${f1(targetW / 2)}" y="${f1(licenseY)}" font-size="9.5" text-anchor="middle" fill="${t.textColor}" fill-opacity="0.4" font-family='${FONT}' letter-spacing="0.02em">${dict.imageLicense}</text>`;
+  const licenseSvg = `<text x="${f1(targetW / 2)}" y="${f1(licenseY)}" font-size="${size}" text-anchor="middle" fill="${t.textColor}" fill-opacity="0.45" font-family='${FONT}' letter-spacing="0.02em">${dict.imageLicense}</text>`;
 
   let body = '';
   if (state.bg !== 'transparent') {
