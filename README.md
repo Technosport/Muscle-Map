@@ -1,6 +1,6 @@
 # Muscle Map — Cartographie anatomique vectorielle sEMG 2D
 
-[![Deploy to GitHub Pages](https://github.com/votre-compte/MuscleMap/actions/workflows/deploy.yml/badge.svg)](https://github.com/votre-compte/MuscleMap/actions/workflows/deploy.yml)
+[![Deploy to GitHub Pages](https://github.com/Technosport/Muscle-Map/actions/workflows/deploy.yml/badge.svg)](https://github.com/Technosport/Muscle-Map/actions/workflows/deploy.yml)
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](index.html)
 [![License](https://img.shields.io/badge/license-CC--BY--SA--2.1--JP-green.svg)](https://creativecommons.org/licenses/by-sa/2.1/jp/)
 
@@ -12,7 +12,7 @@ Application autonome de référence pour le laboratoire : cartographie anatomiqu
 
 ### 1. En ligne (GitHub Pages)
 Accessible directement sur n'importe quel appareil (PC, Mac, tablette, smartphone) sans installation :
-👉 **`https://<votre-compte>.github.io/MuscleMap/`**
+👉 **`https://technosport.github.io/Muscle-Map/`**
 
 ### 2. En local au laboratoire (Hors-ligne)
 Sur un poste d'acquisition (Noraxon, Delsys, etc.) sans connexion internet :
@@ -88,19 +88,17 @@ Le script réinjecte les données dans `index.html` en une fraction de seconde.
 1. **Créer le dépôt GitHub** :
    Créez un nouveau dépôt public (ou privé avec GitHub Pro/Enterprise) nommé `MuscleMap` sur votre compte ou organisation de laboratoire.
 
-2. **Lier et pousser le code** :
+2. **Pousser le code** :
    ```bash
-   git remote add origin https://github.com/<votre-organisation-ou-nom>/MuscleMap.git
-   git branch -M main
    git push -u origin main
    ```
 
 3. **Activer GitHub Pages** :
-   - Rendez-vous sur votre dépôt GitHub dans **Settings > Pages**.
+   - Rendez-vous sur votre dépôt GitHub dans **Settings > Pages** : [https://github.com/Technosport/Muscle-Map/settings/pages](https://github.com/Technosport/Muscle-Map/settings/pages).
    - Sous **Build and deployment > Source** :
      - Choisissez **GitHub Actions** (le workflow `.github/workflows/deploy.yml` inclus prend tout en charge automatiquement à chaque push).
      - *Ou bien* choisissez **Deploy from a branch** avec la branche `main` et le dossier `/ (root)`.
-   - Votre application sera en ligne à l'adresse : `https://<votre-compte>.github.io/MuscleMap/`.
+   - Votre application sera en ligne à l'adresse : **`https://technosport.github.io/Muscle-Map/`**.
 
 ---
 
