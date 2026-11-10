@@ -1,0 +1,3244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Muscle Map • Cartographie Anatomique</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --fg: #0f172a;
+    --fg-muted: #334155;
+    --muted: #64748b;
+    --muted-light: #94a3b8;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-light: #eff6ff;
+    --accent-border: #bfdbfe;
+    --line: #e2e8f0;
+    --line-subtle: #f1f5f9;
+    --err: #b91c1c;
+    --err-bg: #fef2f2;
+    --err-border: #fecaca;
+    --warn: #b45309;
+    --warn-bg: #fffbeb;
+    --ok: #15803d;
+    --ok-bg: #f0fdf4;
+    --panel-bg: #ffffff;
+    --card-bg: #ffffff;
+    --left-width: 320px;
+    --right-width: 400px;
+    --topbar-height: 50px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+    --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+  body {
+    display: flex;
+    flex-direction: column;
+    font: 14.5px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--fg);
+    background: var(--bg);
+    width: 100%;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* --- STRUCTURE PRINCIPALE CONTENEUR --- */
+  #app-container {
+    flex: 1 1 0;
+    min-height: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* --- TOPBAR MOBILE / TABLET (< 992px) --- */
+  #mobile-topbar {
+    display: none;
+    height: var(--topbar-height);
+    background: #ffffff;
+    border-bottom: 1px solid var(--line);
+    padding: 0 12px;
+    align-items: center;
+    justify-content: space-between;
+    flex: none;
+    z-index: 50;
+    box-shadow: var(--shadow-xs);
+  }
+  .topbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--fg-muted);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .topbar-btn:hover { background: #f8fafc; border-color: #cbd5e1; color: var(--fg); }
+  .topbar-btn.active { background: var(--accent-light); border-color: var(--accent-border); color: var(--accent); }
+  .topbar-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .topbar-title .tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-light);
+    border: 1px solid var(--accent-border);
+    padding: 1.5px 6px;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* --- RIDEAU SOMBRE / BACKDROP POUR MOBILE --- */
+  #drawer-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(3px);
+    z-index: 998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+  }
+  #drawer-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* --- PANNEAUX LATERAUX --- */
+  .panel {
+    flex: none;
+    height: 100%;
+    overflow-y: auto;
+    background: var(--panel-bg);
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+  .panel::-webkit-scrollbar { width: 5px; }
+  .panel::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  
+  #panel-left {
+    width: var(--left-width);
+    border-right: 1px solid var(--line);
+    padding: 12px 12px 20px;
+    gap: 9px;
+    transition: margin-left 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease;
+  }
+
+  #panel-right {
+    width: var(--right-width);
+    border-left: 1px solid var(--line);
+    padding: 12px 12px 20px;
+    gap: 10px;
+    overflow: hidden;
+    transition: margin-right 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease;
+  }
+
+
+  /* En-tête tiroir mobile & Bouton fermer */
+  .drawer-only-header {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 2px;
+  }
+  .drawer-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .panel-close-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 3px 8px;
+    border-radius: 6px;
+    transition: all 0.12s;
+  }
+  .panel-close-btn:hover {
+    color: var(--fg);
+    background: #f1f5f9;
+  }
+
+  /* En-tête panneau gauche */
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--fg);
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .brand-title .tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-light);
+    border: 1px solid var(--accent-border);
+    padding: 1.5px 6px;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .seg-lang {
+    width: 66px;
+    flex: none;
+    padding: 2px !important;
+    border-radius: 6px !important;
+  }
+  .seg-lang button {
+    padding: 2.5px 0 !important;
+    font-size: 12px !important;
+    font-weight: 600;
+  }
+
+  /* Cartes de regroupement dans le panneau gauche */
+  .panel-card {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 9px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    box-shadow: var(--shadow-xs);
+  }
+  .panel-card-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 1px;
+  }
+  .panel-card-icon {
+    display: inline-flex;
+    align-items: center;
+    color: var(--accent);
+  }
+  .panel-card-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--fg-muted);
+    margin: 0;
+  }
+  .ctrl-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5px;
+  }
+  .ctrl-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.01em;
+  }
+
+  /* Segmented Controls unifiés style iOS / Linear */
+  .seg {
+    display: flex;
+    background: #f1f5f9;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 2.5px;
+    gap: 2px;
+  }
+  .seg button {
+    flex: 1;
+    padding: 4px 6px;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--muted);
+    border-radius: 5px;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    text-align: center;
+    user-select: none;
+  }
+  .seg button:hover {
+    color: var(--fg);
+    background: rgba(255, 255, 255, 0.6);
+  }
+  .seg button[aria-pressed="true"] {
+    background: #ffffff;
+    color: var(--fg);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+
+  /* Select dropdown épuré */
+  select {
+    width: 100%;
+    padding: 6px 30px 6px 9px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E") no-repeat right 9px center;
+    appearance: none;
+    color: var(--fg);
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  select:hover { border-color: #cbd5e1; }
+  select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  }
+
+  /* Boutons */
+  .btn {
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--fg-muted);
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    user-select: none;
+  }
+  .btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: var(--fg);
+  }
+  .btn.primary {
+    background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+    border: 1px solid #1d4ed8;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+  }
+  .btn.primary:hover {
+    background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%);
+    box-shadow: 0 2px 5px rgba(37, 99, 235, 0.3);
+    transform: translateY(-1px);
+  }
+  .btn.sm {
+    padding: 4px 8px;
+    font-size: 12.5px;
+    height: 33px;
+  }
+  .export-btns {
+    display: flex;
+    gap: 8px;
+  }
+  .export-btns .btn {
+    flex: 1;
+    height: 35px;
+    font-weight: 600;
+    font-size: 13px;
+    border-radius: 6px;
+  }
+
+  /* --- ZONE CENTRALE (STAGE) : FLUIDE, RESPONSIVE & ADAPTATIVE --- */
+  main#stage-wrapper {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  #stage-square-frame {
+    position: relative;
+    box-sizing: border-box;
+    flex: none;
+    max-width: 100%;
+    max-height: 100%;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+    overflow: hidden;
+    cursor: grab;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+    transition: width 0.18s cubic-bezier(0.16, 1, 0.3, 1), height 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  #stage-square-frame.is-grabbing {
+    cursor: grabbing;
+  }
+  #stage-square-frame.checker {
+    background: conic-gradient(#f1f5f9 25%, #ffffff 0 50%, #f1f5f9 0 75%, #ffffff 0) 0 0/20px 20px !important;
+  }
+  #stage-square-frame.bg-dark {
+    background: #0f172a !important;
+    border-color: #334155;
+  }
+
+  /* Barre d'outils zoom style Plotly */
+  .zoom-toolbar {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--line);
+    border-radius: 9999px;
+    padding: 3px 5px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  }
+  .zoom-toolbar button {
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 9999px;
+    color: var(--fg-muted);
+    transition: all 0.12s;
+  }
+  .zoom-toolbar button:hover { background: #f1f5f9; color: var(--fg); }
+
+  #stage-content {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  #stage {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #stage svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .muscle[data-id] {
+    cursor: pointer;
+    transition: opacity 0.15s, stroke-width 0.15s, fill-opacity 0.15s;
+  }
+  .muscle[data-id]:hover {
+    stroke-width: 1.6 !important;
+    stroke: var(--fg) !important;
+    filter: brightness(1.08);
+  }
+  .muscle.passover[data-id] {
+    transition: fill-opacity 0.2s, stroke-opacity 0.2s, stroke-width 0.2s;
+  }
+  .muscle.passover[data-id]:hover {
+    fill-opacity: 0.65 !important;
+    stroke-opacity: 1 !important;
+    stroke: var(--fg) !important;
+    stroke-width: 1.6 !important;
+  }
+
+  /* Tooltip flottant */
+  #tooltip {
+    position: absolute;
+    pointer-events: none;
+    z-index: 50;
+    background: rgba(15, 23, 42, 0.94);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+    display: none;
+    line-height: 1.35;
+    backdrop-filter: blur(4px);
+  }
+
+  /* --- NOUVEAU DESIGN EPURE DU PANNEAU DROIT (MODES CLASSIQUE & MVC) --- */
+  .mode-switch-wrap {
+    flex: none;
+    background: #f1f5f9;
+    padding: 3px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--line);
+  }
+  .mode-switch-seg {
+    display: flex;
+    gap: 2px;
+  }
+  .mode-tab-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6.5px 10px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+  }
+  .mode-tab-btn:hover {
+    color: var(--fg);
+    background: rgba(255, 255, 255, 0.6);
+  }
+  .mode-tab-btn.active {
+    background: #ffffff;
+    color: var(--fg);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+  .mode-tab-btn.active svg {
+    color: var(--accent);
+  }
+  .tab-count-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1.5px 6px;
+    border-radius: 9999px;
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+    line-height: 1.2;
+  }
+
+  .panel-view {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .search-box {
+    position: relative;
+    width: 100%;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 7px 30px 7px 32px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    font: inherit;
+    font-size: 13px;
+    outline: none;
+    background: #fff;
+    color: var(--fg);
+    transition: all 0.15s ease;
+  }
+  .search-box input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+  .search-box svg {
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    width: 15px;
+    height: 15px;
+    fill: var(--muted-light);
+    pointer-events: none;
+  }
+  .btn-clear-search {
+    position: absolute;
+    right: 8px;
+    top: 6px;
+    background: none;
+    border: none;
+    font-size: 17px;
+    color: var(--muted-light);
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    transition: color 0.12s;
+  }
+  .btn-clear-search:hover { color: var(--fg); }
+
+  .muscle-list-container {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: #fff;
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+  }
+  .muscle-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--line);
+    background: #f8fafc;
+    flex: none;
+  }
+  .list-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .count-tag {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--muted);
+    background: #e2e8f0;
+    padding: 1.5px 6.5px;
+    border-radius: 9999px;
+  }
+  .selection-status {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .btn-clear-selection {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #dc2626;
+    cursor: pointer;
+    padding: 2px 7px;
+    border-radius: 6px;
+    transition: all 0.12s;
+  }
+  .btn-clear-selection:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+    border-color: #fca5a5;
+  }
+
+  #muscle-card-list {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 8px 12px;
+  }
+  .m-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 6px 4px;
+    margin-top: 8px;
+    border-bottom: 1px solid var(--line);
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--fg-muted);
+  }
+  .m-group-header:first-child { margin-top: 0; }
+  .m-group-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    background: #f1f5f9;
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  .m-card {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6.5px 10px;
+    background: #fff;
+    border: 1px solid #f1f5f9;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    user-select: none;
+  }
+  .m-card:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    transform: translateY(-0.5px);
+  }
+  .m-card.active {
+    border-color: #93c5fd;
+    background: #f0f7ff;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.08);
+  }
+  .m-swatch {
+    width: 13px;
+    height: 13px;
+    border-radius: 3.5px;
+    flex: none;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+  }
+  .m-info {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.25;
+  }
+  .m-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .m-abbr {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    background: #f1f5f9;
+    padding: 1px 4.5px;
+    border-radius: 3.5px;
+  }
+  .m-sub {
+    font-size: 11.5px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .m-num-badge {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--accent);
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    padding: 1.5px 5.5px;
+    border-radius: 5px;
+    flex: none;
+    letter-spacing: -0.02em;
+  }
+  .m-clmv-badge {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 5px;
+    border: 1px solid var(--line);
+    flex: none;
+  }
+  .m-active-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex: none;
+    box-shadow: 0 0 0 2px #bfdbfe;
+  }
+
+  /* --- Mode MVC --- */
+  .mvc-summary-box {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--line);
+    background: #fff;
+    padding: 9px 12px;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-xs);
+  }
+  .mvc-summary-box.empty {
+    border-left: 3px solid #cbd5e1;
+    background: #f8fafc;
+  }
+  .mvc-summary-box.active {
+    border-left: 3px solid #f59e0b;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border-color: #fde68a;
+  }
+  .mvc-summary-content {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .mvc-summary-icon {
+    flex: none;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+  }
+  .mvc-summary-box.active .mvc-summary-icon {
+    color: #d97706;
+  }
+  .mvc-summary-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .mvc-summary-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--fg);
+    line-height: 1.3;
+  }
+  .mvc-summary-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .mvc-action-bar {
+    display: flex;
+    gap: 6px;
+  }
+  .btn-danger-subtle:hover {
+    color: var(--err) !important;
+    border-color: var(--err-border) !important;
+    background: var(--err-bg) !important;
+  }
+  .mvc-action-bar .btn {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 12.5px;
+    height: 33px;
+  }
+
+  .mvc-details {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: #fff;
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+  }
+  .mvc-details-summary {
+    padding: 7px 11px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--fg);
+    cursor: pointer;
+    background: #f8fafc;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+    transition: background 0.12s;
+  }
+  .mvc-details-summary::-webkit-details-marker { display: none; }
+  .mvc-details-summary:hover {
+    background: #f1f5f9;
+  }
+  .mvc-details-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .mvc-details-body {
+    padding: 9px 11px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .mvc-format-hint {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.35;
+  }
+  .mvc-format-hint code {
+    background: #f1f5f9;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    color: var(--fg);
+  }
+  .btn-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--accent);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .btn-link:hover { color: var(--accent-hover); }
+  #jsonClmvInput {
+    width: 100%;
+    height: 75px;
+    resize: vertical;
+    padding: 6px 8px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font: 12.5px/1.35 ui-monospace, SFMono-Regular, monospace;
+    background: #fff;
+    color: var(--fg);
+  }
+  #jsonClmvInput:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+    border-color: var(--accent);
+  }
+  .json-status {
+    font-size: 12.5px;
+    font-weight: 500;
+    min-height: 14px;
+    line-height: 1.3;
+  }
+  .json-status.success { color: var(--ok); }
+  .json-status.error { color: var(--err); }
+
+  .mvc-list-container {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: #fff;
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+  }
+  .mvc-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--line);
+    background: #f8fafc;
+    flex: none;
+  }
+  .mvc-list-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--fg-muted);
+  }
+  .mvc-list-scale-legend {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .mvc-muscle-list {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .mvc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6.5px 9px;
+    border-radius: 7px;
+    border: 1px solid #f1f5f9;
+    background: #ffffff;
+    transition: all 0.12s;
+  }
+  .mvc-item:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+  }
+  .mvc-item-swatch {
+    width: 13px;
+    height: 13px;
+    border-radius: 3.5px;
+    flex: none;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+  }
+  .mvc-item-main {
+    flex: 1;
+    min-width: 0;
+  }
+  .mvc-item-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .mvc-item-sub {
+    font-size: 11.5px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mvc-item-bar-track {
+    width: 100%;
+    height: 3.5px;
+    background: #f1f5f9;
+    border-radius: 2px;
+    margin-top: 3.5px;
+    overflow: hidden;
+  }
+  .mvc-item-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.2s ease;
+  }
+  .mvc-item-value {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 2.5px 6.5px;
+    border-radius: 5px;
+    flex: none;
+    border: 1px solid;
+  }
+  .mvc-item-delete {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 2px 5px;
+    font-size: 15px;
+    line-height: 1;
+    border-radius: 4px;
+    opacity: 0.6;
+    transition: all 0.12s;
+  }
+  .mvc-item-delete:hover {
+    color: #ef4444;
+    background: #fee2e2;
+    opacity: 1;
+  }
+  .mvc-empty-placeholder {
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+    margin: auto 0;
+  }
+  .mvc-empty-placeholder svg {
+    margin: 0 auto 8px;
+    display: block;
+    color: #cbd5e1;
+  }
+
+  footer {
+    margin-top: 10px;
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  /* ============================================================ */
+  /* RESPONSIVE & ADAPTATIF AUX TAILLES D'ECRAN                  */
+  /* ============================================================ */
+
+  /* Ecrans moyens / Laptops compacts (992px a 1240px) */
+  @media (max-width: 1240px) {
+    :root {
+      --left-width: 280px;
+      --right-width: 350px;
+    }
+    #panel-left {
+      padding: 10px 10px 16px;
+      gap: 8px;
+    }
+    #panel-right {
+      padding: 10px 10px 16px;
+    }
+    .panel-card-title {
+      font-size: 11px;
+    }
+  }
+
+  /* Tablettes et Mobiles (< 992px) : Tiroirs coulissants + Scène plein écran */
+  @media (max-width: 991px) {
+    #mobile-topbar {
+      display: flex;
+    }
+    #drawer-backdrop {
+      display: block;
+    }
+
+    .panel-close-btn {
+      display: block;
+    }
+    .drawer-only-header {
+      display: flex;
+    }
+
+    .panel {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      height: 100%;
+      z-index: 1000;
+      box-shadow: 0 0 30px rgba(0,0,0,0.28);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    #panel-left {
+      left: 0;
+      width: min(88vw, 360px);
+      transform: translateX(-105%);
+      margin-left: 0 !important;
+      opacity: 1 !important;
+      border-right: 1px solid var(--line);
+    }
+    #panel-left.drawer-open {
+      transform: translateX(0);
+    }
+    #panel-right {
+      right: 0;
+      width: min(88vw, 410px);
+      transform: translateX(105%);
+      margin-right: 0 !important;
+      opacity: 1 !important;
+      border-left: 1px solid var(--line);
+    }
+    #panel-right.drawer-open {
+      transform: translateX(0);
+    }
+
+    main#stage-wrapper {
+      padding: 10px;
+    }
+    .zoom-toolbar {
+      top: 10px;
+      right: 10px;
+    }
+  }
+
+  /* Smartphones et petits ecrans (< 640px) */
+  @media (max-width: 639px) {
+    :root {
+      --topbar-height: 46px;
+    }
+    .topbar-title .tag {
+      display: none;
+    }
+    .topbar-btn span.label-text {
+      display: none;
+    }
+    .topbar-btn {
+      padding: 6px 9px;
+    }
+    #panel-left, #panel-right {
+      width: 94vw;
+      padding: 10px 10px 16px;
+    }
+    .seg button {
+      font-size: 11.5px;
+      padding: 4px 2px;
+    }
+    .export-btns .btn {
+      font-size: 12.5px;
+      height: 34px;
+    }
+    main#stage-wrapper {
+      padding: 6px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- EN-TETE MOBILE / TABLETTE (< 992px) -->
+<header id="mobile-topbar">
+  <button type="button" class="topbar-btn" id="btnOpenLeft" aria-label="Ouvrir les paramètres">
+    <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor">
+      <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+    </svg>
+    <span class="label-text" data-i18n="navControls">Paramètres</span>
+  </button>
+  <div class="topbar-title">
+    <span>Muscle Map</span>
+  </div>
+  <button type="button" class="topbar-btn" id="btnOpenRight" aria-label="Ouvrir la liste des muscles">
+    <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor">
+      <path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.381z"/>
+    </svg>
+    <span class="label-text" data-i18n="navMuscles">Muscles</span>
+    <span id="mobileMuscleBadge" class="tab-count-badge" style="display:none">0</span>
+  </button>
+</header>
+<div id="drawer-backdrop"></div>
+
+<div id="app-container">
+
+<!-- 1. PANNEAU GAUCHE : PARAMÈTRES & AFFICHAGE -->
+<aside id="panel-left" class="panel">
+  <!-- EN-TETE : TITRE + COMMUTATEUR DE LANGUE -->
+  <div class="panel-header">
+    <div class="brand-title">
+      <span>Muscle Map</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div class="seg seg-lang" data-key="lang" aria-label="Langue">
+        <button data-value="fr">FR</button>
+        <button data-value="en">EN</button>
+      </div>
+      <button type="button" class="panel-close-btn" id="btnCloseLeft" aria-label="Fermer" title="Fermer">&times;</button>
+    </div>
+  </div>
+
+  <!-- CARTE 1 : VUE & CADRAGE -->
+  <section class="panel-card">
+    <div class="panel-card-header">
+      <span class="panel-card-icon">
+        <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="7"/><path d="M10 3v3M10 14v3M3 10h3M14 10h3"/></svg>
+      </span>
+      <h3 class="panel-card-title" data-i18n="secView">Vue & Cadrage</h3>
+    </div>
+    <div class="ctrl-item">
+      <span class="ctrl-label" data-i18n="view">Angle</span>
+      <div class="seg" data-key="view">
+        <button data-value="both" data-i18n="both">Duo</button>
+        <button data-value="front" data-i18n="front">Face</button>
+        <button data-value="back" data-i18n="back">Dos</button>
+      </div>
+    </div>
+    <div class="ctrl-item">
+      <span class="ctrl-label" data-i18n="zone">Cadrage</span>
+      <div class="seg" data-key="zone">
+        <button data-value="full" data-i18n="full">Corps entier</button>
+        <button data-value="upper" data-i18n="upper">Haut du corps</button>
+        <button data-value="lower" data-i18n="lower">Membres inf.</button>
+      </div>
+    </div>
+    <div class="ctrl-item">
+      <span class="ctrl-label" data-i18n="formatRatio">Format</span>
+      <select id="exportRatioSelect">
+        <option value="auto" data-i18n="ratioAuto">Auto (optimal sans marge)</option>
+        <option value="16:9" data-i18n="ratio16_9">16:9 (Panoramique / Slide)</option>
+        <option value="4:3" data-i18n="ratio4_3">4:3 (Publication standard)</option>
+        <option value="9:16" data-i18n="ratio9_16">9:16 (Portrait vertical)</option>
+        <option value="3:4" data-i18n="ratio3_4">3:4 (Portrait standard)</option>
+        <option value="1:1" data-i18n="ratio1_1">1:1 (Carré hérité)</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- CARTE 2 : ANATOMIE & RENDU -->
+  <section class="panel-card">
+    <div class="panel-card-header">
+      <span class="panel-card-icon">
+        <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h12M4 10h12M4 14h12"/></svg>
+      </span>
+      <h3 class="panel-card-title" data-i18n="secAnatomy">Anatomie & Rendu</h3>
+    </div>
+    <div class="ctrl-item">
+      <span class="ctrl-label" data-i18n="colorMode">Coloration</span>
+      <div class="seg" data-key="colorMode">
+        <button data-value="palette" data-i18n="palette">Par muscle</button>
+        <button data-value="uniform" data-i18n="uniform">Rouge uni</button>
+        <button data-value="heat" data-i18n="heat">Heatmap % CMLV</button>
+      </div>
+    </div>
+    <div class="ctrl-item">
+      <span class="ctrl-label" data-i18n="contextLabel">Autres muscles</span>
+      <div class="seg" data-key="context">
+        <button data-value="translucent" data-i18n="contextTranslucent">Transparents</button>
+        <button data-value="on" data-i18n="contextOn">Visibles</button>
+        <button data-value="off" data-i18n="contextOff">Masqués</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARTE 3 : SILHOUETTE & STYLE -->
+  <section class="panel-card">
+    <div class="panel-card-header">
+      <span class="panel-card-icon">
+        <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="6"/><path d="M10 4v12"/></svg>
+      </span>
+      <h3 class="panel-card-title" data-i18n="secStyle">Silhouette & Thème</h3>
+    </div>
+    <div class="ctrl-item">
+      <span class="ctrl-label" data-i18n="bg">Fond</span>
+      <div class="seg" data-key="bg">
+        <button data-value="white" data-i18n="white">Blanc</button>
+        <button data-value="black" data-i18n="black">Noir</button>
+        <button data-value="transparent" data-i18n="transparent">Transparent</button>
+      </div>
+    </div>
+    <div class="ctrl-item">
+      <span class="ctrl-label" data-i18n="bodyTone">Teinte du corps</span>
+      <div class="seg" data-key="body">
+        <button data-value="light" data-i18n="light">Clair</button>
+        <button data-value="dark" data-i18n="dark">Foncé</button>
+      </div>
+    </div>
+    <div class="ctrl-item">
+      <span class="ctrl-label" data-i18n="labels">Repères</span>
+      <div class="seg" data-key="labels">
+        <button data-value="numbers" data-i18n="numbers">N°</button>
+        <button data-value="names" data-i18n="names">Noms</button>
+        <button data-value="both" data-i18n="labelsBoth">N° + Noms</button>
+        <button data-value="none" data-i18n="none">Aucun</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARTE 4 : EXPORT -->
+  <section class="panel-card" style="margin-bottom:4px">
+    <div class="panel-card-header">
+      <span class="panel-card-icon">
+        <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16v1a2 2 0 002 2h8a2 2 0 002-2v-1M10 3v10m-4-4l4-4 4 4"/></svg>
+      </span>
+      <h3 class="panel-card-title" data-i18n="secExport">Exportation</h3>
+    </div>
+    <div class="export-btns">
+      <button class="btn primary" id="png" title="Export PNG haute définition">
+        <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="14" height="14" rx="2"/><circle cx="8" cy="8" r="1.5"/><path d="M17 13l-4-4-6 6"/></svg>
+        <span data-i18n="exportPng">PNG</span>
+      </button>
+      <button class="btn" id="svg" title="Export vectoriel haute fidélité">
+        <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h4v4H4zM12 4h4v4h-4zM4 12h4v4H4zM12 12h4v4h-4z"/></svg>
+        <span data-i18n="exportSvg">SVG</span>
+      </button>
+    </div>
+  </section>
+
+  <footer id="footerText" data-i18n="footer">
+    Muscle Map — Cartographie vectorielle anatomique sEMG dérivée de BodyParts3D (DBCLS CC BY-SA 2.1 Japan).
+  </footer>
+</aside>
+
+<!-- 2. SCÈNE CENTRALE : ATLAS DANS UN CARRÉ STRICT ET FIXE (PLOTLY-STYLE ZOOM) -->
+<main id="stage-wrapper">
+
+
+  <div id="stage-square-frame">
+    <div class="zoom-toolbar">
+      <button id="btnZoomIn" title="Zoom avant (Molette vers l'avant)" aria-label="Zoom avant">
+        <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2.2" fill="none"><circle cx="11" cy="11" r="7"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button id="btnZoomOut" title="Zoom arrière (Molette vers l'arrière)" aria-label="Zoom arrière">
+        <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2.2" fill="none"><circle cx="11" cy="11" r="7"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button id="btnZoomReset" title="Réinitialiser zoom (1:1 / Double-clic)" aria-label="Réinitialiser zoom">
+        <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      </button>
+    </div>
+    <div id="stage-content">
+      <div id="stage"></div>
+    </div>
+    <div id="tooltip"></div>
+  </div>
+</main>
+
+<!-- 3. PANNEAU DROIT : SÉPARATION CLAIRE MODE CLASSIQUE ET MODE MVC -->
+<aside id="panel-right" class="panel">
+  <!-- En-tete mobile pour tiroir -->
+  <div class="drawer-only-header">
+    <div class="drawer-title">
+      <span data-i18n="navMuscles">Muscles & Activations</span>
+    </div>
+    <button type="button" class="panel-close-btn" id="btnCloseRight" aria-label="Fermer" title="Fermer">&times;</button>
+  </div>
+  <!-- SÉLECTEUR DE MODE ULTRA-LISIBLE -->
+  <div class="mode-switch-wrap">
+    <div class="mode-switch-seg">
+      <button type="button" class="mode-tab-btn active" id="tabClassic" data-tab="classic">
+        <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h12M4 10h12M4 14h8"/>
+        </svg>
+        <span data-i18n="modeClassic">Mode Classique</span>
+      </button>
+      <button type="button" class="mode-tab-btn" id="tabMvc" data-tab="mvc">
+        <svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor">
+          <path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.381z"/>
+        </svg>
+        <span data-i18n="modeMvc">Mode % MVC</span>
+        <span id="tabMvcBadge" class="tab-count-badge" style="display:none">0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- VUE 1 : MODE CLASSIQUE (ANATOMIE & SÉLECTION DIRECTE) -->
+  <div id="view-classic" class="panel-view">
+    <!-- Recherche dynamique -->
+    <div class="search-box">
+      <svg viewBox="0 0 20 20"><path d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg>
+      <input type="text" id="muscleSearch" placeholder="Rechercher (VL, VM, Biceps, Fessier...)" autocomplete="off">
+      <button type="button" id="btnClearSearch" class="btn-clear-search" title="Effacer la recherche" style="display:none">&times;</button>
+    </div>
+
+    <!-- Liste hiérarchique des muscles (pleine hauteur, épurée et logique) -->
+    <div class="muscle-list-container">
+      <div class="muscle-list-header">
+        <div class="list-title">
+          <span data-i18n="musclesTitle">Muscles</span>
+          <span id="muscleCountLabel" class="count-tag">0</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <div id="selectionStatus" class="selection-status"></div>
+          <button type="button" id="btnClearSelection" class="btn-clear-selection" title="Tout désélectionner" style="display:none">&times;</button>
+        </div>
+      </div>
+      <div id="muscle-card-list"></div>
+    </div>
+  </div>
+
+  <!-- VUE 2 : MODE MVC (DONNÉES SÉMG % MVC / % CMLV) -->
+  <div id="view-mvc" class="panel-view" style="display:none">
+    <!-- Statut synthétique MVC -->
+    <div id="mvcSummaryBox" class="mvc-summary-box empty">
+      <div class="mvc-summary-content">
+        <div class="mvc-summary-icon">
+          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor">
+            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+          </svg>
+        </div>
+        <div class="mvc-summary-text">
+          <div class="mvc-summary-title" id="mvcSummaryTitle" data-i18n="mvcNoDataTitle">Aucune activation chargée</div>
+          <div class="mvc-summary-sub" id="mvcSummarySub" data-i18n="mvcNoDataSub">Importez un fichier JSON ou chargez un exemple type.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions principales rapides -->
+    <div class="mvc-action-bar">
+      <button type="button" class="btn sm primary" id="btnImportJsonFile" title="Importer un fichier .json">
+        <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16v1a2 2 0 002 2h8a2 2 0 002-2v-1M10 3v10m-4-4l4-4 4 4"/></svg>
+        <span data-i18n="clmvImportFile">Importer .json</span>
+      </button>
+      <button type="button" class="btn sm" id="btnLoadExampleJson" title="Charger un exemple type">
+        <svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <span data-i18n="clmvLoadExample">Exemple</span>
+      </button>
+      <button type="button" class="btn sm btn-danger-subtle" id="btnClearClmv" title="Effacer toutes les activations">
+        <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        <span data-i18n="clmvClear">Effacer</span>
+      </button>
+    </div>
+    <input type="file" id="fileJson" accept=".json" hidden>
+
+    <!-- Volet Dépliable / Accordéon : Éditeur & Format JSON -->
+    <details class="mvc-details" id="mvcJsonDetails">
+      <summary class="mvc-details-summary">
+        <span class="mvc-details-title">
+          <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 16l4-4-4-4M6 4l-4 4 4 4"/></svg>
+          <span data-i18n="mvcEditorTitle">Éditeur & Format JSON</span>
+        </span>
+        <button type="button" class="btn-link" id="btnCopyJsonSchema" data-i18n="clmvCopy" onclick="event.stopPropagation();">Copier modèle</button>
+      </summary>
+      <div class="mvc-details-body">
+        <p class="mvc-format-hint" data-i18n="mvcFormatHint">Format : <code>{"mesures": [{"muscle": "vastus-lateralis", "clmv": 75}]}</code></p>
+        <textarea id="jsonClmvInput" spellcheck="false" placeholder="Collez votre JSON d'activations % CMLV / % MVC ici..."></textarea>
+        <div id="jsonClmvStatus" class="json-status"></div>
+        <button type="button" class="btn sm primary" id="btnApplyJson" style="width:100%" data-i18n="clmvApply">Appliquer les données JSON</button>
+      </div>
+    </details>
+
+    <!-- Tableau / Liste visuelle en direct des activations (% MVC) -->
+    <div class="mvc-list-container">
+      <div class="mvc-list-header">
+        <span class="mvc-list-title" data-i18n="mvcTableTitle">Cartographie des activations</span>
+        <span class="mvc-list-scale-legend" data-i18n="mvcScaleLegend">0% à 100%</span>
+      </div>
+      <div id="mvcMuscleList" class="mvc-muscle-list"></div>
+    </div>
+  </div>
+</aside>
+</div><!-- Fin #app-container -->
+
+<script>
+const ATLAS = /*ATLAS_JSON*/;
+const TECHNOSPORT_COLORS = {
+  "frontalis": "#9174f3",
+  "temporalis": "#a67ba2",
+  "masseter": "#ff8e7c",
+  "orbicularis-oculi": "#58df94",
+  "orbicularis-oris": "#3e6acf",
+  "zygomaticus-major": "#e2f988",
+  "platysma": "#71abc2",
+  "sternocleidomastoid": "#9966ff",
+  "splenius-capitis": "#f5fd86",
+  "pectoralis-major": "#ff8e7c",
+  "serratus-anterior": "#1e64de",
+  "rectus-abdominis": "#58df94",
+  "external-oblique": "#a67ba2",
+  "internal-oblique": "#ffc380",
+  "trapezius-upper": "#9966ff",
+  "trapezius-middle": "#f5fd86",
+  "trapezius-lower": "#69b8b6",
+  "latissimus-dorsi": "#9966ff",
+  "rhomboid-major": "#69b8b6",
+  "levator-scapulae": "#ffa97e",
+  "iliocostalis": "#58df94",
+  "longissimus": "#a67ba2",
+  "multifidus": "#ff8e7c",
+  "deltoid": "#6ce392",
+  "biceps-brachii": "#fff884",
+  "infraspinatus": "#c88193",
+  "teres-major": "#818fda",
+  "triceps-brachii": "#ffc380",
+  "brachioradialis": "#9966ff",
+  "pronator-teres": "#69b8b6",
+  "flexor-carpi-radialis": "#f5fd86",
+  "palmaris-longus": "#71abc2",
+  "flexor-carpi-ulnaris": "#3e6acf",
+  "flexor-digitorum-superficialis": "#ea8784",
+  "abductor-pollicis-brevis": "#2c66d7",
+  "abductor-digiti-minimi-hand": "#ffde82",
+  "extensor-carpi-radialis-longus": "#1e64de",
+  "extensor-carpi-radialis-brevis": "#ffa97e",
+  "extensor-digitorum": "#9966ff",
+  "extensor-carpi-ulnaris": "#ffeb83",
+  "dorsal-interossei-hand": "#cef689",
+  "tensor-fasciae-latae": "#6ce392",
+  "sartorius": "#fff884",
+  "rectus-femoris": "#9966ff",
+  "vastus-lateralis": "#69b8b6",
+  "vastus-medialis": "#ff9c7d",
+  "gracilis": "#6ce392",
+  "adductor-longus": "#818fda",
+  "gluteus-maximus": "#ff8e7c",
+  "gluteus-medius": "#7fe690",
+  "gluteus-minimus": "#566ec5",
+  "biceps-femoris": "#9966ff",
+  "semitendinosus": "#799dce",
+  "semimembranosus": "#f5fd86",
+  "adductor-magnus": "#58df94",
+  "tibialis-anterior": "#93ea8e",
+  "fibularis-longus": "#1e64de",
+  "extensor-digitorum-longus": "#ff9c7d",
+  "extensor-digitorum-brevis": "#baf28b",
+  "abductor-hallucis": "#8981e7",
+  "gastrocnemius-medial": "#1e64de",
+  "gastrocnemius-lateral": "#a7ee8d",
+  "soleus": "#ffb67f"
+};
+
+function getMuscleColor(m) {
+  if (state.colorMode === 'technosport') {
+    return m.technosport_color || TECHNOSPORT_COLORS[m.id] || m.color;
+  }
+  if (state.colorMode === 'uniform') {
+    return '#e11d48';
+  }
+  return m.color || '#e11d48';
+}
+</script>
+<script>
+const FONT = '"STIX Two Text","Latin Modern Roman","Times New Roman",Times,serif';
+const STORAGE_KEY = 'musclemap.pro.v1';
+const defaults = {
+  bg: 'white',
+  body: 'light',
+  view: 'both',
+  zone: 'full',
+  exportRatio: 'auto',
+  colorMode: 'palette',
+  layer: 'all',
+  labels: 'numbers',
+  lang: 'fr',
+  context: 'translucent',
+  text: ''
+};
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || localStorage.getItem('muscleatlas.pro.v4') || '{}');
+    delete s.contour;
+    s.layer = 'all';
+    return s;
+  } catch (err) { return {}; }
+}
+const state = Object.assign({}, defaults, loadState());
+
+const MUSCLES = new Map(ATLAS.muscles.map(m => [m.id, m]));
+const [VB_W, VB_H] = ATLAS.viewBox.slice(2);
+
+// DICTIONNAIRE BILINGUE FRANÇAIS / ANGLAIS
+const I18N = {
+  fr: {
+    secView: 'Vue & Cadrage',
+    toggleSettings: 'Paramètres',
+    toggleMuscles: 'Muscles',
+    navControls: 'Paramètres',
+    navMuscles: 'Muscles',
+    collapseLeft: 'Masquer paramètres (P)',
+    expandLeft: 'Afficher paramètres (P)',
+    collapseRight: 'Masquer liste (M)',
+    expandRight: 'Afficher liste (M)',
+    closeDrawer: 'Fermer',
+    secAnatomy: 'Anatomie & Rendu',
+    secStyle: 'Silhouette & Thème',
+    secExport: 'Export',
+    view: 'Angle',
+    both: 'Duo',
+    front: 'Face',
+    back: 'Dos',
+    zone: 'Cadrage',
+    full: 'Corps entier',
+    upper: 'Haut du corps',
+    lower: 'Membres inf.',
+    formatRatio: 'Format export',
+    ratioAuto: 'Auto (optimal sans marge)',
+    ratio16_9: '16:9 (Panoramique / Slide)',
+    ratio4_3: '4:3 (Publication standard)',
+    ratio9_16: '9:16 (Portrait vertical)',
+    ratio3_4: '3:4 (Portrait standard)',
+    ratio1_1: '1:1 (Carré hérité)',
+    layer: 'Couches',
+    all: 'Toutes',
+    superficial: 'Superficiel',
+    intermediate: 'Moyen',
+    deep: 'Profond',
+    colorMode: 'Coloration',
+    palette: 'Par muscle',
+    uniform: 'Rouge uni',
+    heat: 'Heatmap % CMLV',
+    contextLabel: 'Autres muscles',
+    contextTranslucent: 'Transparents',
+    contextOn: 'Visibles',
+    contextOff: 'Masqués',
+    bg: 'Fond',
+    white: 'Blanc',
+    black: 'Noir',
+    transparent: 'Transparent',
+    bodyTone: 'Teinte du corps',
+    light: 'Clair',
+    dark: 'Foncé',
+    labels: 'Repères',
+    numbers: 'N°',
+    names: 'Noms',
+    labelsBoth: 'N° + Noms',
+    none: 'Aucun',
+    lang: 'Langue',
+    export: 'Export',
+    exportPng: 'PNG',
+    exportSvg: 'SVG',
+    exportPngTitle: 'Export PNG haute définition',
+    exportSvgTitle: 'Export vectoriel haute fidélité (SVG)',
+    searchPlaceholder: 'Rechercher (VL, VM, Biceps, Fessier...)',
+    searchTitle: 'Rechercher un muscle',
+    groupsTitle: 'Groupes musculaires',
+    presetsTitle: 'Presets rapides',
+    presetQuads: 'Quadriceps',
+    presetHamstrings: 'Ischios',
+    presetCalves: 'Triceps sural',
+    presetSelectAll: 'Tout cocher',
+    presetClearAll: 'Effacer',
+    modeClassic: 'Mode Classique',
+    modeMvc: 'Mode % CMLV',
+    quickPicks: 'Picks :',
+    mvcNoDataTitle: 'Aucune activation chargée',
+    mvcNoDataSub: "Importez un fichier JSON ou chargez un exemple type.",
+    mvcActiveTitle: n => `${n} muscle${n > 1 ? 's' : ''} activé${n > 1 ? 's' : ''} (% CMLV)`,
+    heatActiveLegend: 'Échelle thermique active',
+    mvcEditorTitle: 'Éditeur & Format JSON',
+    mvcFormatHint: 'Format attendu :',
+    mvcTableTitle: 'Cartographie des activations',
+    mvcScaleLegend: 'Échelle 0 à 100%',
+    mvcEmptyPrompt: "Aucun muscle avec % d'activation. Cliquez sur 'Exemple type' ou 'Importer .json'.",
+    removeActivation: "Supprimer l'activation",
+    clmvTitle: 'Données % CMLV (JSON)',
+    clmvTag: 'Format précis attendu',
+    clmvDesc: "Les pourcentages d'activation % CMLV sont importés via un fichier ou objet JSON structuré (aucun champ manuel individuel).",
+    clmvFormatTitle: 'Format JSON type :',
+    clmvCopy: 'Copier modèle',
+    clmvLoadExample: 'Exemple',
+    clmvImportFile: 'Importer .json',
+    clmvClear: 'Effacer',
+    clmvApply: 'Appliquer les données JSON',
+    clmvPlaceholder: "Collez votre JSON d'activations % CMLV ici...",
+    musclesTitle: 'Muscles',
+    selectedSingle: 'sélectionné',
+    selectedPlural: 'sélectionnés',
+    noMuscle: 'Aucun muscle ne correspond aux critères.',
+    footer: 'Muscle Map — Cartographie vectorielle anatomique sEMG dérivée de BodyParts3D (DBCLS CC BY-SA 2.1 Japan).',
+    scaleTitle: '% CMLV (Contraction Maximale Volontaire)',
+    unitBadge: '% CMLV',
+    activeTag: 'Actif',
+    allPill: 'Tous',
+    jsonSuccess: n => `✓ ${n} muscle(s) chargé(s) avec succès en % CMLV.`,
+    jsonEmpty: 'Aucune donnée musculaire trouvée dans le JSON.',
+    jsonUnrecognized: 'Aucun muscle reconnu. Utilisez vastus-lateralis, VL, etc.',
+    jsonSyntaxError: err => `Erreur de syntaxe JSON : ${err}`,
+    jsonCopied: 'Modèle copié dans le presse-papiers.',
+    metaDuo: 'face et dos',
+    metaFront: 'face',
+    metaBack: 'dos'
+  },
+  en: {
+    secView: 'View & Framing',
+    toggleSettings: 'Settings',
+    toggleMuscles: 'Muscles',
+    navControls: 'Settings',
+    navMuscles: 'Muscles',
+    collapseLeft: 'Hide settings (P)',
+    expandLeft: 'Show settings (P)',
+    collapseRight: 'Hide list (M)',
+    expandRight: 'Show list (M)',
+    closeDrawer: 'Close',
+    secAnatomy: 'Anatomy & Display',
+    secStyle: 'Silhouette & Theme',
+    secExport: 'Export',
+    view: 'Angle',
+    both: 'Duo',
+    front: 'Front',
+    back: 'Back',
+    zone: 'Framing',
+    full: 'Full body',
+    upper: 'Upper body',
+    lower: 'Lower limbs',
+    formatRatio: 'Export aspect',
+    ratioAuto: 'Auto (optimal tight fit)',
+    ratio16_9: '16:9 (Landscape / Slide)',
+    ratio4_3: '4:3 (Publication standard)',
+    ratio9_16: '9:16 (Vertical / Mobile)',
+    ratio3_4: '3:4 (Vertical standard)',
+    ratio1_1: '1:1 (Legacy square)',
+    layer: 'Layers',
+    all: 'All',
+    superficial: 'Superficial',
+    intermediate: 'Intermediate',
+    deep: 'Deep',
+    colorMode: 'Coloring',
+    palette: 'Per muscle',
+    uniform: 'Uniform red',
+    heat: 'Heatmap % MVC',
+    contextLabel: 'Other muscles',
+    contextTranslucent: 'Transparent',
+    contextOn: 'Visible',
+    contextOff: 'Hidden',
+    bg: 'Background',
+    white: 'White',
+    black: 'Dark',
+    transparent: 'Transparent',
+    bodyTone: 'Body tone',
+    light: 'Light',
+    dark: 'Dark',
+    labels: 'Callouts',
+    numbers: '#',
+    names: 'Names',
+    labelsBoth: '# + Names',
+    none: 'None',
+    lang: 'Language',
+    export: 'Export',
+    exportPng: 'PNG',
+    exportSvg: 'SVG',
+    exportPngTitle: 'Export PNG haute définition',
+    exportSvgTitle: 'Export vectoriel haute fidélité (SVG)',
+    searchPlaceholder: 'Search (VL, VM, Biceps, Gluteal...)',
+    searchTitle: 'Search muscle',
+    groupsTitle: 'Muscle groups',
+    presetsTitle: 'Quick presets',
+    presetQuads: 'Quadriceps',
+    presetHamstrings: 'Hamstrings',
+    presetCalves: 'Calves',
+    presetSelectAll: 'Select All',
+    presetClearAll: 'Clear',
+    modeClassic: 'Classic Mode',
+    modeMvc: 'Mode % MVC',
+    quickPicks: 'Picks:',
+    mvcNoDataTitle: 'No activation data loaded',
+    mvcNoDataSub: 'Import a JSON file or load sample data.',
+    mvcActiveTitle: n => `${n} active muscle${n > 1 ? 's' : ''} (% MVC)`,
+    heatActiveLegend: 'Heatmap scale active',
+    mvcEditorTitle: 'JSON Editor & Schema',
+    mvcFormatHint: 'Expected format:',
+    mvcTableTitle: 'Activation Mapping',
+    mvcScaleLegend: 'Scale 0 to 100%',
+    mvcEmptyPrompt: "No muscle with % activation. Click 'Sample data' or 'Import .json'.",
+    removeActivation: 'Remove activation',
+    clmvTitle: 'Activation Data % MVC (JSON)',
+    clmvTag: 'Expected strict format',
+    clmvDesc: 'Activation percentages (% MVC) are imported via a structured JSON file or object (no manual individual fields).',
+    clmvFormatTitle: 'Expected JSON format:',
+    clmvCopy: 'Copy template',
+    clmvLoadExample: 'Sample',
+    clmvImportFile: 'Import .json',
+    clmvClear: 'Clear',
+    clmvApply: 'Apply JSON data',
+    clmvPlaceholder: 'Paste your % MVC activation JSON here...',
+    musclesTitle: 'Muscles',
+    selectedSingle: 'selected',
+    selectedPlural: 'selected',
+    noMuscle: 'No muscle matches the search criteria.',
+    footer: 'Muscle Map — Vector sEMG anatomical mapping derived from BodyParts3D (DBCLS CC BY-SA 2.1 Japan).',
+    scaleTitle: '% MVC (Maximal Voluntary Contraction)',
+    unitBadge: '% MVC',
+    activeTag: 'Active',
+    allPill: 'All',
+    jsonSuccess: n => `✓ ${n} muscle(s) successfully loaded in % MVC.`,
+    jsonEmpty: 'No muscle data found in the JSON.',
+    jsonUnrecognized: 'No muscle recognized. Use vastus-lateralis, VL, etc.',
+    jsonSyntaxError: err => `JSON syntax error: ${err}`,
+    jsonCopied: 'Template copied to clipboard.',
+    metaDuo: 'anterior and posterior',
+    metaFront: 'anterior',
+    metaBack: 'posterior'
+  }
+};
+
+// DÉFINITION DES GROUPES MUSCULAIRES ANATOMIQUES
+const MUSCLE_GROUPS = [
+  {
+    id: 'quadriceps_hip',
+    name_fr: 'Quadriceps & Fléchisseurs de cuisse',
+    name_en: 'Quadriceps & Hip Flexors',
+    pill_fr: 'Quadriceps',
+    pill_en: 'Quadriceps',
+    muscles: ['vastus-lateralis', 'vastus-medialis', 'rectus-femoris', 'sartorius', 'tensor-fasciae-latae']
+  },
+  {
+    id: 'hamstrings_glutes',
+    name_fr: 'Ischio-jambiers & Fessiers',
+    name_en: 'Hamstrings & Gluteals',
+    pill_fr: 'Ischios & Fessiers',
+    pill_en: 'Hamstrings & Glutes',
+    muscles: ['biceps-femoris', 'semitendinosus', 'semimembranosus', 'gluteus-maximus', 'gluteus-medius', 'gluteus-minimus']
+  },
+  {
+    id: 'adductors',
+    name_fr: 'Adducteurs de hanche',
+    name_en: 'Hip Adductors',
+    pill_fr: 'Adducteurs',
+    pill_en: 'Adductors',
+    muscles: ['adductor-longus', 'adductor-magnus', 'gracilis']
+  },
+  {
+    id: 'calves',
+    name_fr: 'Triceps sural (Mollets)',
+    name_en: 'Triceps Surae (Calves)',
+    pill_fr: 'Mollets',
+    pill_en: 'Calves',
+    muscles: ['gastrocnemius-medial', 'gastrocnemius-lateral', 'soleus']
+  },
+  {
+    id: 'leg_foot',
+    name_fr: 'Loge antéro-latérale & Pied',
+    name_en: 'Anterolateral Leg & Foot',
+    pill_fr: 'Jambe & Pied',
+    pill_en: 'Leg & Foot',
+    muscles: ['tibialis-anterior', 'fibularis-longus', 'extensor-digitorum-longus', 'extensor-digitorum-brevis', 'abductor-hallucis']
+  },
+  {
+    id: 'torso_abs',
+    name_fr: 'Thorax & Abdomen',
+    name_en: 'Chest & Abdomen',
+    pill_fr: 'Tronc & Abdos',
+    pill_en: 'Torso & Abs',
+    muscles: ['pectoralis-major', 'serratus-anterior', 'rectus-abdominis', 'external-oblique', 'internal-oblique']
+  },
+  {
+    id: 'back_spine',
+    name_fr: 'Dos, Scapula & Rachis',
+    name_en: 'Back, Scapula & Spine',
+    pill_fr: 'Dos & Rachis',
+    pill_en: 'Back & Spine',
+    muscles: ['trapezius-upper', 'trapezius-middle', 'trapezius-lower', 'latissimus-dorsi', 'rhomboid-major', 'levator-scapulae', 'iliocostalis', 'longissimus', 'multifidus']
+  },
+  {
+    id: 'shoulder_arm',
+    name_fr: 'Épaule & Bras',
+    name_en: 'Shoulder & Arm',
+    pill_fr: 'Épaule & Bras',
+    pill_en: 'Shoulder & Arm',
+    muscles: ['deltoid', 'biceps-brachii', 'triceps-brachii', 'infraspinatus', 'teres-major']
+  },
+  {
+    id: 'forearm_hand',
+    name_fr: 'Avant-bras & Main',
+    name_en: 'Forearm & Hand',
+    pill_fr: 'Avant-bras & Main',
+    pill_en: 'Forearm & Hand',
+    muscles: ['brachioradialis', 'pronator-teres', 'flexor-carpi-radialis', 'palmaris-longus', 'flexor-carpi-ulnaris', 'flexor-digitorum-superficialis', 'extensor-carpi-radialis-longus', 'extensor-carpi-radialis-brevis', 'extensor-digitorum', 'extensor-carpi-ulnaris', 'abductor-pollicis-brevis', 'abductor-digiti-minimi-hand', 'dorsal-interossei-hand']
+  },
+  {
+    id: 'head_neck',
+    name_fr: 'Tête & Cou',
+    name_en: 'Head & Neck',
+    pill_fr: 'Tête & Cou',
+    pill_en: 'Head & Neck',
+    muscles: ['frontalis', 'temporalis', 'masseter', 'orbicularis-oculi', 'orbicularis-oris', 'zygomaticus-major', 'platysma', 'sternocleidomastoid', 'splenius-capitis']
+  }
+];
+
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’']/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim();
+const NAME_INDEX = new Map();
+ATLAS.muscles.forEach(m => {
+  [m.id.replace(/-/g, ' '), m.fr, m.en, m.abbr].forEach(n => {
+    if (n) NAME_INDEX.set(norm(n), m.id);
+  });
+});
+
+const ALIASES = {
+  VL:'vastus-lateralis', VM:'vastus-medialis', RF:'rectus-femoris', BF:'biceps-femoris', ST:'semitendinosus', SM:'semimembranosus',
+  TFL:'tensor-fasciae-latae', GMAX:'gluteus-maximus', GMED:'gluteus-medius', GMIN:'gluteus-minimus', MG:'gastrocnemius-medial', LG:'gastrocnemius-lateral',
+  GASM:'gastrocnemius-medial', GASL:'gastrocnemius-lateral', TA:'tibialis-anterior', SOL:'soleus', PL:'fibularis-longus', PERL:'fibularis-longus',
+  EO:'external-oblique', IO:'internal-oblique', RA:'rectus-abdominis', SCM:'sternocleidomastoid', UT:'trapezius-upper', MT:'trapezius-middle', LT:'trapezius-lower',
+  LD:'latissimus-dorsi', BB:'biceps-brachii', TB:'triceps-brachii', PM:'pectoralis-major', SA:'serratus-anterior', DEL:'deltoid', BR:'brachioradialis',
+  ECRL:'extensor-carpi-radialis-longus', ECRB:'extensor-carpi-radialis-brevis', ECU:'extensor-carpi-ulnaris', ED:'extensor-digitorum',
+  FCR:'flexor-carpi-radialis', FCU:'flexor-carpi-ulnaris', FDS:'flexor-digitorum-superficialis', PT:'pronator-teres', EDL:'extensor-digitorum-longus',
+  ES:'iliocostalis', IL:'iliocostalis', LONG:'longissimus', MULT:'multifidus', INF:'infraspinatus', TMAJ:'teres-major', ADL:'adductor-longus', ADM:'adductor-magnus'
+};
+Object.entries(ALIASES).forEach(([k, v]) => NAME_INDEX.set(norm(k), v));
+
+const muscleName = (m, lang = state.lang) => (lang === 'en' && m.en) ? m.en : m.fr;
+
+function fuzzyMatch(key) {
+  if (key.length < 3) return null;
+  const found = new Set();
+  NAME_INDEX.forEach((id, name) => { if (name.includes(key)) found.add(id); });
+  return found.size === 1 ? [...found][0] : null;
+}
+
+function parseList(text) {
+  const entries = [], unknown = [], seen = new Map();
+  text.split(/\r?\n/).forEach((raw, index) => {
+    const line = raw.trim();
+    if (!line || line.startsWith('#')) return;
+    let name = line, value = null;
+    const parts = line.split(/[;\t=]/).map(s => s.trim());
+    if (parts.length > 1) {
+      name = parts[0];
+      const v = parseFloat(parts[1].replace(',', '.'));
+      if (!isNaN(v)) value = v;
+    } else {
+      const m = line.match(/^(.*?)[,:\s]+(-?\d+(?:[.,]\d+)?)\s*%?$/);
+      if (m) { name = m[1]; value = parseFloat(m[2].replace(',', '.')); }
+    }
+    const key = norm(name);
+    if (['muscle', 'muscles', 'nom', 'name', 'id'].includes(key.split(' ')[0]) && !NAME_INDEX.has(key)) return;
+    const id = NAME_INDEX.get(key) || fuzzyMatch(key);
+    if (!id) { unknown.push(raw.trim()); return; }
+    if (seen.has(id)) { entries[seen.get(id)].value = value; entries[seen.get(id)].line = index; return; }
+    seen.set(id, entries.length);
+    entries.push({ id, value, line: index });
+  });
+  return { entries, unknown };
+}
+
+// Échelle graduelle heatmap 0-100 % CMLV / % MVC
+const HEAT_STOPS = [[0,'#fff3b0'],[25,'#fdc766'],[50,'#f58a3a'],[75,'#d73a2c'],[100,'#6e0a1e']];
+const hex = h => [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16));
+function getMuscleColor(m) {
+  if (state.colorMode === 'uniform') {
+    return '#e11d48';
+  }
+  return (TECHNOSPORT_COLORS && TECHNOSPORT_COLORS[m.id]) || m.color || '#e11d48';
+}
+
+function heatColor(value) {
+  const v = Math.max(0, Math.min(100, value));
+  for (let i = 1; i < HEAT_STOPS.length; i++) {
+    if (v <= HEAT_STOPS[i][0]) {
+      const [a, ca] = HEAT_STOPS[i - 1], [b, cb] = HEAT_STOPS[i], t = (v - a) / (b - a);
+      const A = hex(ca), B = hex(cb);
+      return '#' + A.map((x, k) => Math.round(x + (B[k] - x) * t).toString(16).padStart(2, '0')).join('');
+    }
+  }
+  return HEAT_STOPS[HEAT_STOPS.length - 1][1];
+}
+
+const measureCtx = document.createElement('canvas').getContext('2d');
+function textWidth(text, size) {
+  measureCtx.font = `100px ${FONT}`;
+  return measureCtx.measureText(text).width * size / 100;
+}
+
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const f1 = n => Math.round(n * 10) / 10;
+
+function theme() {
+  const dark = state.body === 'dark';
+  const textColor = state.bg === 'black' ? '#f8fafc' : '#111827';
+  return {
+    textColor,
+    bodyFill: dark ? '#334155' : '#eef2f6',
+    bodyStroke: dark ? '#94a3b8' : '#718096',
+    otherFill: dark ? '#475569' : '#e2e8f0',
+    otherStroke: dark ? '#64748b' : '#cbd5e1',
+    selectedFill: '#dc2626',
+    selectedStroke: state.body === 'dark' || state.bg === 'black' ? '#ffffff' : '#0f172a',
+    noValueFill: '#94a3b8'
+  };
+}
+
+function zoneRange(zone) {
+  const front = ATLAS.views.front, [, top, , bottom] = front.bbox;
+  const cut = (front.crotch || 361) - 75;
+  if (zone === 'upper') return [top - 4, cut];
+  if (zone === 'lower') return [cut, bottom + 4];
+  return [top - 4, bottom + 4];
+}
+
+function nearestRow(rows, y) {
+  let best = rows[0];
+  for (const r of rows) if (Math.abs(r[0] - y) < Math.abs(best[0] - y)) best = r;
+  return best;
+}
+
+function planLabels(view, selected, forced, yMin, yMax, size) {
+  const [bx0, , bx1] = ATLAS.views[view].bbox;
+  const centerX = (bx0 + bx1) / 2;
+  const items = [];
+  const counts = { L: 0, R: 0 };
+  selected.forEach(entry => {
+    const data = entry.muscle.views[view];
+    if (!data) return;
+    const comps = data.anchors
+      .map(c => ({ ...c, y0: Math.max(c.y0, yMin + 4), y1: Math.min(c.y1, yMax - 4) }))
+      .filter(c => c.y1 >= c.y0 && c.rows.some(r => r[0] >= c.y0 && r[0] <= c.y1));
+    if (!comps.length) return;
+    items.push({ entry, comps });
+  });
+  items.sort((a, b) => a.comps[0].cy - b.comps[0].cy);
+  items.forEach(item => {
+    const sides = new Set(item.comps.map(c => c.side));
+    const midline = item.comps.length === 1 && Math.abs(item.comps[0].cx - centerX) < 22;
+    let side;
+    if (forced) side = forced;
+    else if (sides.size === 1 && !midline) side = [...sides][0];
+    else side = counts.L <= counts.R ? 'L' : 'R';
+    counts[side]++;
+    const candidates = item.comps.filter(c => c.side === side);
+    const pool = candidates.length ? candidates : item.comps;
+    item.comp = pool.reduce((a, b) => (b.y1 - b.y0 > a.y1 - a.y0 ? b : a));
+    item.side = side;
+    item.y = Math.min(Math.max(item.comp.cy, item.comp.y0), item.comp.y1);
+  });
+  const gap = size * 1.45;
+  ['L', 'R'].forEach(side => {
+    const group = items.filter(i => i.side === side).sort((a, b) => a.y - b.y);
+    for (let pass = 0; pass < 40; pass++) {
+      for (let i = 1; i < group.length; i++) if (group[i].y < group[i - 1].y + gap) group[i].y = group[i - 1].y + gap;
+      group.forEach(g => { g.y = Math.min(Math.max(g.y, g.comp.y0), g.comp.y1); });
+      for (let i = group.length - 2; i >= 0; i--) if (group[i].y > group[i + 1].y - gap) group[i].y = group[i + 1].y - gap;
+      group.forEach(g => { g.y = Math.min(Math.max(g.y, g.comp.y0), g.comp.y1); });
+    }
+    for (let i = 1; i < group.length; i++) if (group[i].y < group[i - 1].y + gap) group[i].y = group[i - 1].y + gap;
+    group.forEach(g => {
+      const best = nearestRow(g.comp.rows, g.y);
+      g.ax = best[1];
+      g.ay = best[0];
+    });
+  });
+  return items;
+}
+
+function labelText(entry, n, lang = state.lang) {
+  const name = muscleName(entry.muscle, lang);
+  if (state.labels === 'numbers') return String(n);
+  if (state.labels === 'names') return name;
+  return `${n}. ${name}`;
+}
+
+// Construction du SVG principal (TOUJOURS STRICTEMENT CARRÉ)
+// Variable globale de numérotation ordonnée active (Face puis Dos, de haut en bas)
+let activeMuscleNumbers = new Map();
+
+function buildSVG(interactive) {
+  const t = theme();
+  const dict = I18N[state.lang] || I18N.fr;
+  const { entries } = parseList(state.text);
+  const selected = entries.map((e, i) => ({ ...e, muscle: MUSCLES.get(e.id) })).filter(e => e.muscle);
+  const byId = new Map(selected.map(e => [e.id, e]));
+  const heat = selected.some(e => e.value !== null);
+  const views = state.view === 'both' ? ['front', 'back'] : [state.view];
+  const [yMin, yMax] = zoneRange(state.zone);
+  const size = 14, pad = 16, gapLabel = 7, panelGap = 36;
+  const showLabels = state.labels !== 'none';
+  const [bx0, , bx1] = ATLAS.views.front.bbox;
+
+  // Numérotation ordonnée dynamique : DE HAUT EN BAS, FACE PUIS DOS
+  let currentN = 1;
+  const assignedMuscleNumbers = new Map();
+
+  const panels = views.map(view => {
+    const forced = state.view === 'both' ? (view === 'front' ? 'L' : 'R') : null;
+    
+    // En vue duo (Face + Dos), ne pas répéter sur le dos un muscle déjà étiqueté sur la face
+    const candidates = (state.view === 'both' && view === 'back')
+      ? selected.filter(e => !assignedMuscleNumbers.has(e.id))
+      : selected;
+      
+    const labels = planLabels(view, candidates, forced, yMin, yMax, size);
+    
+    // Tri strict de haut en bas (axe Y croissant : de la tête vers les pieds)
+    labels.sort((a, b) => a.y - b.y);
+    
+    // Attribution séquentielle des numéros 1, 2, 3...
+    labels.forEach(l => {
+      l.n = currentN++;
+      l.entry.n = l.n;
+      assignedMuscleNumbers.set(l.entry.id, l.n);
+      l.text = labelText(l.entry, l.n, state.lang);
+
+      // Marge fixe calculée selon le plus long nom (FR ou EN) de chaque muscle
+      // Ainsi, le calque anatomique ne bouge absolument pas lors du switch de langue
+      const textFr = labelText(l.entry, l.n, 'fr');
+      const textEn = labelText(l.entry, l.n, 'en');
+      const widthFr = textWidth(textFr, size);
+      const widthEn = textWidth(textEn, size);
+      l.width = Math.max(widthFr, widthEn);
+    });
+
+    const renderedLabels = showLabels ? labels : [];
+    return { view, labels: renderedLabels };
+  });
+
+  // Mise à jour de la table globale pour synchroniser les cartes latérales
+  activeMuscleNumbers = assignedMuscleNumbers;
+
+  const isHeat = (heat || state.colorMode === 'heat');
+  const bodyW = bx1 - bx0;
+  const bodyH = yMax - yMin;
+
+  // Hauteur verticale optimisée et équilibrée pour le bas de figure (légende + licence + marges)
+  // Mode % CMLV : distance pieds->titre (20) + titre (11) + barre/ticks/chiffres (22) + chiffres->licence (22) + licence->fond (27) = 102
+  // Mode Classique : distance pieds->licence (22) + licence->fond (26) = 48
+  const FOOTER_H = isHeat ? 102 : 48;
+  const TOP_MARGIN = 22;
+  const totalFigureH = TOP_MARGIN + bodyH + FOOTER_H;
+
+  // Calcul stable de la marge latérale pour les étiquettes
+  const maxLabelW = Math.max(0, ...panels.flatMap(p => p.labels.map(l => l.width || 0)));
+  const labelMargin = showLabels ? Math.max(state.labels === 'numbers' ? 36 : 124, maxLabelW + 10) : 20;
+  const centerGap = 32;
+
+  let contentW;
+  if (state.view === 'both') {
+    contentW = pad + labelMargin + bodyW + centerGap + bodyW + labelMargin + pad;
+  } else {
+    contentW = pad + labelMargin + bodyW + labelMargin + pad;
+  }
+  const contentH = totalFigureH;
+
+  let targetW = contentW;
+  let targetH = contentH;
+
+  const ratio = state.exportRatio || 'auto';
+  if (ratio !== 'auto') {
+    let desiredRatio = 1.0;
+    if (ratio === '16:9') desiredRatio = 16 / 9;
+    else if (ratio === '9:16') desiredRatio = 9 / 16;
+    else if (ratio === '4:3') desiredRatio = 4 / 3;
+    else if (ratio === '3:4') desiredRatio = 3 / 4;
+    else if (ratio === '1:1') desiredRatio = 1.0;
+
+    const currentRatio = contentW / contentH;
+    if (currentRatio < desiredRatio) {
+      targetW = contentH * desiredRatio;
+      targetH = contentH;
+    } else {
+      targetW = contentW;
+      targetH = contentW / desiredRatio;
+    }
+  }
+
+  const padX = (targetW - contentW) / 2 + pad;
+  const padY = (targetH - contentH) / 2 + TOP_MARGIN;
+
+  let panelsLayout;
+  if (state.view === 'both') {
+    const xFront = padX + labelMargin;
+    const xBack = xFront + bodyW + centerGap;
+    const dy = padY - yMin;
+
+    panelsLayout = {
+      front: { px: xFront - bx0, dy: dy },
+      back: { px: xBack - bx0, dy: dy },
+      feetY: padY + bodyH
+    };
+  } else {
+    const xBody = padX + labelMargin;
+    const dy = padY - yMin;
+
+    panelsLayout = {
+      [state.view]: { px: xBody - bx0, dy: dy },
+      feetY: padY + bodyH
+    };
+  }
+
+  currentSvgW = targetW;
+  currentSvgH = targetH;
+
+  panels.forEach(p => {
+    p.px = panelsLayout[p.view].px;
+    p.dy = panelsLayout[p.view].dy;
+  });
+
+  const feetY = panelsLayout.feetY;
+
+  // Barre d'échelle heatmap sEMG % CMLV / % MVC (position sous les pieds harmonieuse et aérée)
+  let barSvg = '';
+  let licenseY;
+
+  if (isHeat) {
+    const barW = Math.min(240, targetW - pad * 4);
+    const barX = (targetW - barW) / 2;
+    const titleY = feetY + 20;
+    const barY = titleY + 11;
+    const barH = 7;
+    const tickH = 3.5;
+    const stops = HEAT_STOPS.map(([v, c]) => `<stop offset="${v}%" stop-color="${c}"/>`).join('');
+    barSvg += `<defs><linearGradient id="heatbar" x1="0" x2="1" y1="0" y2="0">${stops}</linearGradient></defs>`;
+    barSvg += `<text x="${f1(targetW / 2)}" y="${f1(titleY)}" font-size="${size * 0.88}" font-family='${FONT}' text-anchor="middle" font-weight="600" fill="${t.textColor}" letter-spacing="0.01em">${dict.scaleTitle}</text>`;
+    barSvg += `<rect x="${f1(barX)}" y="${f1(barY)}" width="${f1(barW)}" height="${barH}" rx="3" fill="url(#heatbar)" stroke="${t.textColor}" stroke-width="0.5" stroke-opacity="0.35"/>`;
+    const numY = barY + barH + tickH + size * 0.82;
+    [0, 25, 50, 75, 100].forEach(v => {
+      const tx = barX + barW * v / 100;
+      barSvg += `<line x1="${f1(tx)}" x2="${f1(tx)}" y1="${f1(barY + barH)}" y2="${f1(barY + barH + tickH)}" stroke="${t.textColor}" stroke-width="0.6" stroke-opacity="0.55"/>`;
+      barSvg += `<text x="${f1(tx)}" y="${f1(numY)}" font-size="${size * 0.78}" font-family='${FONT}' text-anchor="middle" fill="${t.textColor}" fill-opacity="0.85">${v}</text>`;
+    });
+    licenseY = numY + 22;
+  } else {
+    licenseY = feetY + 22;
+  }
+
+  // LICENCE EN SEMI-TRANSPARENCE POSITIONNÉE DE FAÇON HARMONIEUSE SOUS LE CONTENU
+  const licenseSvg = `<text x="${f1(targetW / 2)}" y="${f1(licenseY)}" font-size="9.5" text-anchor="middle" fill="${t.textColor}" fill-opacity="0.4" font-family='${FONT}' letter-spacing="0.02em">CC BY-SA 2.1 Japan · BodyParts3D (DBCLS)</text>`;
+
+  let body = '';
+  if (state.bg !== 'transparent') {
+    body += `<rect width="${f1(targetW)}" height="${f1(targetH)}" fill="${state.bg === 'black' ? '#090d16' : '#ffffff'}"/>`;
+  }
+  body += barSvg + licenseSvg;
+
+  // Auto-transparence anatomique des muscles superficiels passant au-dessus des muscles sélectionnés
+
+  panels.forEach(p => {
+    const clipId = `clip-${p.view}`;
+    let g = `<g transform="translate(${f1(p.px)} ${f1(p.dy)})">`;
+    g += `<clipPath id="${clipId}"><rect x="0" y="${f1(yMin)}" width="${VB_W}" height="${f1(yMax - yMin)}"/></clipPath>`;
+    g += `<g clip-path="url(#${clipId})" stroke-linejoin="round">`;
+    const V = ATLAS.views[p.view];
+
+    if (V.body) {
+      g += `<path d="${V.body}" fill="${t.bodyFill}" stroke="${t.bodyStroke}" stroke-width="0.95" fill-rule="evenodd"/>`;
+    }
+
+    // Filtrage et tri des muscles par profondeur (du plus profond au plus superficiel)
+    let here = ATLAS.muscles.filter(m => m.views[p.view]);
+    here.sort((a, b) => a.views[p.view].depth - b.views[p.view].depth);
+
+    const selectedInView = here.filter(m => byId.has(m.id));
+
+    const renderSelected = m => {
+      const e = byId.get(m.id);
+      let fill = '';
+      if (e.value !== null) {
+        fill = heatColor(e.value);
+      } else if (state.colorMode === 'palette') {
+        fill = getMuscleColor(m) || t.selectedFill;
+      } else {
+        fill = t.selectedFill;
+      }
+      let isFiltered = (state.layer !== 'all' && m.layer !== state.layer);
+      let opacity = isFiltered ? 0.25 : 1.0;
+      g += `<path ${interactive ? `class="muscle active" data-id="${m.id}"` : ''} d="${m.views[p.view].d}" fill="${fill}" stroke="${t.selectedStroke}" stroke-width="0.95" fill-opacity="${opacity}" fill-rule="evenodd"/>`;
+    };
+
+    if (state.context === 'on') {
+      // Option d'avant (Visibles) : tous les autres muscles en arrière-plan, muscles sélectionnés au premier plan pur
+      here.filter(m => !byId.has(m.id)).forEach(m => {
+        let isFiltered = (state.layer !== 'all' && m.layer !== state.layer);
+        let opacity = isFiltered ? 0.12 : (selectedInView.length > 0 ? 0.55 : 1.0);
+        g += `<path ${interactive ? `class="muscle" data-id="${m.id}"` : ''} d="${m.views[p.view].d}" fill="${t.otherFill}" stroke="${t.otherStroke}" stroke-width="0.45" fill-opacity="${opacity}" stroke-opacity="${opacity}" fill-rule="evenodd"/>`;
+      });
+      here.filter(m => byId.has(m.id)).forEach(m => {
+        renderSelected(m);
+      });
+    } else if (state.context === 'translucent') {
+      // Nouvelle option (Transparents) : rendu anatomique par profondeur avec semi-transparence des muscles passant par-dessus
+      here.forEach(m => {
+        if (byId.has(m.id)) {
+          renderSelected(m);
+        } else {
+          const passesOverSelected = selectedInView.some(sel => {
+            if (m.views[p.view].depth <= sel.views[p.view].depth) return false;
+            const ov1 = m.views[p.view].overlaps;
+            const ov2 = sel.views[p.view].overlaps;
+            return (ov1 && ov1.includes(sel.id)) || (ov2 && ov2.includes(m.id));
+          });
+
+          let isFiltered = (state.layer !== 'all' && m.layer !== state.layer);
+          let fillOpacity = passesOverSelected ? 0.32 : (isFiltered ? 0.12 : (selectedInView.length > 0 ? 0.55 : 1.0));
+          let strokeOpacity = passesOverSelected ? 0.85 : (isFiltered ? 0.15 : (selectedInView.length > 0 ? 0.65 : 1.0));
+          let strokeWidth = passesOverSelected ? 0.65 : 0.45;
+
+          g += `<path ${interactive ? `class="muscle${passesOverSelected ? ' passover' : ''}" data-id="${m.id}"` : ''} d="${m.views[p.view].d}" fill="${t.otherFill}" stroke="${t.otherStroke}" stroke-width="${strokeWidth}" fill-opacity="${fillOpacity}" stroke-opacity="${strokeOpacity}" fill-rule="evenodd"/>`;
+        }
+      });
+    } else {
+      // Masqués : seuls les muscles sélectionnés sont affichés
+      here.filter(m => byId.has(m.id)).forEach(m => {
+        renderSelected(m);
+      });
+    }
+
+    g += '</g>';
+
+    // Lignes de rappel et étiquettes : ligne coudée ou directe vers l'ancre exacte dans le muscle
+    p.labels.forEach(l => {
+      const left = l.side === 'L';
+      const edge = left ? bx0 - 2 : bx1 + 2;
+      const tx = left ? bx0 - gapLabel : bx1 + gapLabel;
+      const targetY = l.ay !== undefined ? l.ay : l.y;
+      
+      // Si l'étiquette est décalée verticalement par rapport à la zone visible du muscle, on trace une ligne brisée propre
+      if (Math.abs(targetY - l.y) > 1.0) {
+        const midX = left ? (edge + l.ax) * 0.45 : (edge + l.ax) * 0.55;
+        g += `<polyline points="${f1(edge)},${f1(l.y)} ${f1(midX)},${f1(l.y)} ${f1(l.ax)},${f1(targetY)}" fill="none" stroke="${t.textColor}" stroke-width="0.55" stroke-linejoin="round"/>`;
+      } else {
+        g += `<line x1="${f1(edge)}" y1="${f1(l.y)}" x2="${f1(l.ax)}" y2="${f1(targetY)}" stroke="${t.textColor}" stroke-width="0.55"/>`;
+      }
+      g += `<circle cx="${f1(l.ax)}" cy="${f1(targetY)}" r="1.3" fill="${t.textColor}"/>`;
+      g += `<text x="${f1(tx)}" y="${f1(l.y + size * 0.33)}" font-size="${size}" font-family='${FONT}' text-anchor="${left ? 'end' : 'start'}" fill="${t.textColor}">${esc(l.text)}</text>`;
+    });
+
+    g += '</g>';
+    body += g;
+  });
+
+  const label = state.view === 'both' ? dict.metaDuo : (state.view === 'front' ? dict.metaFront : dict.metaBack);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${f1(targetW)} ${f1(targetH)}" width="100%" height="100%" font-family='${FONT}'>` +
+    `<title>Muscle Map (${label})</title>` +
+    `<metadata>Muscle Map — Dérivé de BodyParts3D (DBCLS CC BY-SA 2.1 Japan).</metadata>` +
+    body + '</svg>';
+  return { svg, width: targetW, height: targetH, count: selected.length, heat };
+}
+
+// --- GESTION DE L'INTERFACE UTILISATEUR ---
+const $ = id => document.getElementById(id);
+const stageFrame = $('stage-square-frame');
+const stageContent = $('stage-content');
+const stage = $('stage');
+const tooltip = $('tooltip');
+const jsonClmvInput = $('jsonClmvInput');
+const jsonClmvStatus = $('jsonClmvStatus');
+
+// --- NAVIGATION VECTORIELLE PURE (VRAI ZOOM SVG SANS AUCUNE PIXELLISATION) ---
+let currentSvgW = 1000, currentSvgH = 1000;
+let zoomScale = 1.0;
+let viewBoxX = 0, viewBoxY = 0;
+const minZoom = 1.0;
+const maxZoom = 12.0;
+let isDragging = false;
+let startX = 0, startY = 0;
+let origViewBoxX = 0, origViewBoxY = 0;
+let dragDist = 0;
+
+function updateSvgViewBox() {
+  const svgEl = stage.querySelector('svg');
+  if (!svgEl) return;
+  const vw = currentSvgW / zoomScale;
+  const vh = currentSvgH / zoomScale;
+  const maxVx = Math.max(0, currentSvgW - vw);
+  const maxVy = Math.max(0, currentSvgH - vh);
+  viewBoxX = Math.max(0, Math.min(maxVx, viewBoxX));
+  viewBoxY = Math.max(0, Math.min(maxVy, viewBoxY));
+  svgEl.setAttribute('viewBox', `${f1(viewBoxX)} ${f1(viewBoxY)} ${f1(vw)} ${f1(vh)}`);
+}
+
+function zoomTo(newZoom, clientOriginX, clientOriginY) {
+  const rect = stageFrame.getBoundingClientRect();
+  const ox = clientOriginX !== undefined ? (clientOriginX - rect.left) : (rect.width / 2);
+  const oy = clientOriginY !== undefined ? (clientOriginY - rect.top) : (rect.height / 2);
+
+  const clamped = Math.min(maxZoom, Math.max(minZoom, newZoom));
+  if (Math.abs(clamped - zoomScale) < 0.001) return;
+
+  const oldVw = currentSvgW / zoomScale;
+  const oldVh = currentSvgH / zoomScale;
+
+  const u = Math.max(0, Math.min(1, ox / rect.width));
+  const v = Math.max(0, Math.min(1, oy / rect.height));
+
+  const px = viewBoxX + u * oldVw;
+  const py = viewBoxY + v * oldVh;
+
+  zoomScale = clamped;
+
+  if (zoomScale <= 1.0) {
+    zoomScale = 1.0;
+    viewBoxX = 0;
+    viewBoxY = 0;
+  } else {
+    const newVw = currentSvgW / zoomScale;
+    const newVh = currentSvgH / zoomScale;
+    viewBoxX = px - u * newVw;
+    viewBoxY = py - v * newVh;
+  }
+
+  updateSvgViewBox();
+}
+
+stageFrame.addEventListener('wheel', e => {
+  e.preventDefault();
+  const delta = e.deltaY < 0 ? 1.18 : 0.85;
+  zoomTo(zoomScale * delta, e.clientX, e.clientY);
+}, { passive: false });
+
+stageFrame.addEventListener('mousedown', e => {
+  if (e.button !== 0 || e.target.closest('.zoom-toolbar')) return;
+  isDragging = true;
+  startX = e.clientX;
+  startY = e.clientY;
+  origViewBoxX = viewBoxX;
+  origViewBoxY = viewBoxY;
+  dragDist = 0;
+  stageFrame.classList.add('is-grabbing');
+});
+
+window.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+  dragDist = Math.hypot(dx, dy);
+  if (zoomScale > 1.0) {
+    const rect = stageFrame.getBoundingClientRect();
+    const svgDx = -dx * (currentSvgW / zoomScale) / rect.width;
+    const svgDy = -dy * (currentSvgH / zoomScale) / rect.height;
+    viewBoxX = origViewBoxX + svgDx;
+    viewBoxY = origViewBoxY + svgDy;
+    updateSvgViewBox();
+  }
+});
+
+window.addEventListener('mouseup', () => {
+  if (isDragging) {
+    isDragging = false;
+    stageFrame.classList.remove('is-grabbing');
+  }
+});
+
+stageFrame.addEventListener('dblclick', e => {
+  if (e.target.closest('.zoom-toolbar')) return;
+  zoomScale = 1.0;
+  viewBoxX = 0;
+  viewBoxY = 0;
+  updateSvgViewBox();
+});
+
+$('btnZoomIn').addEventListener('click', e => {
+  e.stopPropagation();
+  zoomTo(zoomScale * 1.35);
+});
+$('btnZoomOut').addEventListener('click', e => {
+  e.stopPropagation();
+  zoomTo(zoomScale / 1.35);
+});
+$('btnZoomReset').addEventListener('click', e => {
+  e.stopPropagation();
+  zoomScale = 1.0;
+  viewBoxX = 0;
+  viewBoxY = 0;
+  updateSvgViewBox();
+});
+
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+// --- APPLICATION DE LA LANGUE (I18N) ---
+let activeGroupFilter = 'all';
+let searchQuery = '';
+
+function applyI18n() {
+  const dict = I18N[state.lang] || I18N.fr;
+
+  // Mise à jour de tous les éléments data-i18n
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (dict[key]) el.textContent = dict[key];
+  });
+
+  // Titre du document & infobulles d'export
+  document.title = state.lang === 'en'
+    ? 'Muscle Map — Anatomical Mapping'
+    : 'Muscle Map — Cartographie Anatomique';
+  if ($('png')) $('png').title = `${dict.exportPngTitle || dict.exportPng} (${getExportFilename('png')})`;
+  if ($('svg')) $('svg').title = `${dict.exportSvgTitle || dict.exportSvg} (${getExportFilename('svg')})`;
+
+  // Champ de recherche
+  $('muscleSearch').placeholder = dict.searchPlaceholder;
+
+  jsonClmvInput.placeholder = dict.clmvPlaceholder;
+  if ($('exportRatioSelect')) $('exportRatioSelect').value = state.exportRatio || 'auto';
+  renderMvcList();
+}
+
+activeGroupFilter = 'all';
+
+// --- GROUPES MUSCULAIRES ET CARTES ---
+function renderMuscleCards() {
+  const dict = I18N[state.lang] || I18N.fr;
+  const isEn = state.lang === 'en';
+  const selectedEntries = parseList(state.text).entries;
+  const selectedMap = new Map(selectedEntries.map(e => [e.id, e.value]));
+  const cardList = $('muscle-card-list');
+
+  let groupsToRender = MUSCLE_GROUPS;
+  if (activeGroupFilter !== 'all') {
+    groupsToRender = groupsToRender.filter(g => g.id === activeGroupFilter);
+  }
+
+  const q = searchQuery ? norm(searchQuery) : '';
+  let totalVisible = 0;
+
+  const html = groupsToRender.map(group => {
+    let muscles = group.muscles.map(id => MUSCLES.get(id)).filter(Boolean);
+
+    if (state.layer !== 'all') {
+      muscles = muscles.filter(m => m.layer === state.layer);
+    }
+
+    if (q) {
+      muscles = muscles.filter(m => {
+        return norm(m.fr).includes(q) || norm(m.en).includes(q) || norm(m.id).includes(q) || (m.abbr && norm(m.abbr).includes(q));
+      });
+    }
+
+    if (muscles.length === 0) return '';
+    totalVisible += muscles.length;
+
+    const selectedInGroup = muscles.filter(m => selectedMap.has(m.id)).length;
+    const groupName = isEn ? group.name_en : group.name_fr;
+
+    const cardsHtml = muscles.map(m => {
+      const isChecked = selectedMap.has(m.id);
+      const val = isChecked && selectedMap.get(m.id) !== null ? selectedMap.get(m.id) : null;
+      const layerClass = `badge-${m.layer}`;
+      const layerLabel = m.layer === 'superficial' ? (isEn ? 'Sup' : 'Sup') : (m.layer === 'intermediate' ? (isEn ? 'Mid' : 'Moy') : (isEn ? 'Deep' : 'Prof'));
+      const displayName = muscleName(m, state.lang);
+      const subName = isEn ? m.fr : m.en;
+
+      const assignedN = activeMuscleNumbers && activeMuscleNumbers.get(m.id);
+      let numBadgeHtml = '';
+      if (assignedN) {
+        numBadgeHtml = `<span class="m-num-badge">#${assignedN}</span>`;
+      }
+
+      let badgeHtml = '';
+      if (val !== null) {
+        badgeHtml = `<span class="m-clmv-badge" style="background:${heatColor(val)}; color:${val > 55 ? '#ffffff' : '#0f172a'}">${val} ${dict.unitBadge}</span>`;
+      } else if (isChecked) {
+        badgeHtml = `<span class="m-active-dot" title="${dict.activeTag}"></span>`;
+      }
+
+      const swatchCol = getMuscleColor(m);
+      return `<div class="m-card ${isChecked ? 'active' : ''}" data-id="${m.id}">
+        <div class="m-swatch" style="background:${swatchCol};"></div>
+        <div class="m-info">
+          <div class="m-title">
+            <span>${esc(displayName)}</span>
+            ${m.abbr ? `<span class="m-abbr">${m.abbr}</span>` : ''}
+          </div>
+          <div class="m-sub">${esc(subName)}</div>
+        </div>
+        ${numBadgeHtml}
+        ${badgeHtml}
+      </div>`;
+    }).join('');
+
+    return `<div class="m-group-header">
+      <span>${esc(groupName)}</span>
+      <span class="m-group-count">${selectedInGroup} / ${muscles.length}</span>
+    </div>${cardsHtml}`;
+  }).join('');
+
+  $('muscleCountLabel').textContent = `${totalVisible} / ${ATLAS.muscles.length}`;
+  cardList.innerHTML = html || `<p style="padding:14px 8px; color:var(--muted); font-size:11px; text-align:center;">${dict.noMuscle}</p>`;
+}
+
+function updateStatus() {
+  const dict = I18N[state.lang] || I18N.fr;
+  const { entries } = parseList(state.text);
+  const statusEl = $('selectionStatus');
+  const count = entries.length;
+  statusEl.textContent = `${count} ${count > 1 ? dict.selectedPlural : dict.selectedSingle}`;
+  const btnClear = $('btnClearSelection');
+  if (btnClear) {
+    btnClear.style.display = count > 0 ? 'inline-block' : 'none';
+  }
+}
+
+function render() {
+  document.querySelectorAll('.seg').forEach(seg => {
+    seg.querySelectorAll('button').forEach(b => {
+      b.setAttribute('aria-pressed', String(state[seg.dataset.key] === b.dataset.value));
+    });
+  });
+
+  stageFrame.classList.toggle('checker', state.bg === 'transparent');
+  stageFrame.classList.toggle('bg-dark', state.bg === 'black');
+
+  applyI18n();
+  stage.innerHTML = buildSVG(true).svg;
+  fitStageSquare();
+  updateSvgViewBox();
+  renderMuscleCards();
+  updateStatus();
+  save();
+}
+
+let currentRightTab = 'classic';
+
+function switchRightTab(mode, syncLeft = true) {
+  currentRightTab = mode;
+  const isClassic = mode === 'classic';
+  $('tabClassic').classList.toggle('active', isClassic);
+  $('tabMvc').classList.toggle('active', !isClassic);
+  $('view-classic').style.display = isClassic ? 'flex' : 'none';
+  $('view-mvc').style.display = !isClassic ? 'flex' : 'none';
+
+  if (!isClassic) {
+    if (state.colorMode !== 'heat') {
+      state.colorMode = 'heat';
+      if (syncLeft) {
+        document.querySelectorAll('.seg[data-key="colorMode"] button').forEach(b => {
+          b.setAttribute('aria-pressed', b.dataset.value === 'heat');
+        });
+      }
+      render();
+    }
+    renderMvcList();
+  } else {
+    renderMuscleCards();
+  }
+}
+
+function renderMvcList() {
+  const dict = I18N[state.lang] || I18N.fr;
+  const isEn = state.lang === 'en';
+  const { entries } = parseList(state.text);
+  const heatEntries = entries.filter(e => e.value !== null);
+  const container = $('mvcMuscleList');
+  const badgeEl = $('tabMvcBadge');
+
+  if (badgeEl) {
+    badgeEl.textContent = heatEntries.length;
+    badgeEl.style.display = heatEntries.length > 0 ? 'inline-flex' : 'none';
+  }
+  updateMobileBadges();
+
+  const summaryBox = $('mvcSummaryBox');
+  const summaryTitle = $('mvcSummaryTitle');
+  const summarySub = $('mvcSummarySub');
+
+  if (!container || !summaryBox) return;
+
+  if (heatEntries.length === 0) {
+    summaryBox.className = 'mvc-summary-box empty';
+    summaryTitle.textContent = dict.mvcNoDataTitle;
+    summarySub.textContent = dict.mvcNoDataSub;
+
+    container.innerHTML = `
+      <div class="mvc-empty-placeholder">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <div>${dict.mvcEmptyPrompt}</div>
+      </div>
+    `;
+    return;
+  }
+
+  const values = heatEntries.map(e => e.value);
+  const minVal = Math.min(...values).toFixed(1);
+  const maxVal = Math.max(...values).toFixed(1);
+
+  summaryBox.className = 'mvc-summary-box active';
+  summaryTitle.textContent = typeof dict.mvcActiveTitle === 'function' ? dict.mvcActiveTitle(heatEntries.length) : `${heatEntries.length} muscles`;
+  summarySub.textContent = `Min : ${minVal}% • Max : ${maxVal}% • ${dict.heatActiveLegend}`;
+
+  const sorted = [...heatEntries].sort((a, b) => b.value - a.value);
+
+  const html = sorted.map(e => {
+    const m = MUSCLES.get(e.id);
+    if (!m) return '';
+    const name = muscleName(m, state.lang);
+    const sub = isEn ? m.fr : m.en;
+    const color = heatColor(e.value);
+    const pctWidth = Math.min(100, Math.max(0, e.value));
+
+    return `
+      <div class="mvc-item" data-id="${m.id}">
+        <div class="mvc-item-swatch" style="background:${color};"></div>
+        <div class="mvc-item-main">
+          <div class="mvc-item-title">
+            <span>${esc(name)}</span>
+            ${m.abbr ? `<span class="m-abbr">${m.abbr}</span>` : ''}
+          </div>
+          <div class="mvc-item-sub">${esc(sub)}</div>
+          <div class="mvc-item-bar-track">
+            <div class="mvc-item-bar-fill" style="width:${pctWidth}%; background:${color};"></div>
+          </div>
+        </div>
+        <div class="mvc-item-value" style="background:${color}18; border-color:${color}44;">
+          ${e.value} %
+        </div>
+        <button type="button" class="mvc-item-delete" title="${dict.removeActivation}" data-id="${m.id}">&times;</button>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = html;
+
+  container.querySelectorAll('.mvc-item-delete').forEach(btn => {
+    btn.addEventListener('click', ev => {
+      ev.stopPropagation();
+      const id = btn.dataset.id;
+      toggleMuscle(id, false);
+      renderMvcList();
+    });
+  });
+}
+
+function setText(text, refreshCards = true) {
+  state.text = text;
+  if (refreshCards) {
+    renderMuscleCards();
+    renderMvcList();
+  }
+  render();
+}
+
+function toggleMuscle(id, on, specificValue = null) {
+  const lines = state.text.split(/\r?\n/);
+  const keep = lines.filter(line => {
+    const probe = parseList(line).entries[0];
+    return !(probe && probe.id === id);
+  });
+  if (on) {
+    const m = MUSCLES.get(id);
+    const name = muscleName(m, state.lang);
+    keep.push(specificValue !== null ? `${name}; ${specificValue}` : name);
+  }
+  setText(keep.filter((l, i, a) => l.trim() || i < a.length - 1).join('\n').replace(/\n+$/, ''));
+}
+
+// Écouteurs d'options
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+  const key = b.parentElement.dataset.key;
+  const val = b.dataset.value;
+  state[key] = val;
+  if (key === 'view' || key === 'zone') {
+    zoomScale = 1.0;
+    viewBoxX = 0;
+    viewBoxY = 0;
+  }
+  if (key === 'colorMode') {
+    if (val === 'heat') {
+      switchRightTab('mvc', false);
+    } else {
+      switchRightTab('classic', false);
+    }
+  }
+  render();
+}));
+
+const ratioSelect = $('exportRatioSelect');
+if (ratioSelect) {
+  ratioSelect.value = state.exportRatio || 'auto';
+  ratioSelect.addEventListener('change', e => {
+    state.exportRatio = e.target.value;
+    zoomScale = 1.0;
+    viewBoxX = 0;
+    viewBoxY = 0;
+    render();
+  });
+}
+
+// Onglets de navigation du panneau droit
+$('tabClassic').addEventListener('click', () => switchRightTab('classic'));
+$('tabMvc').addEventListener('click', () => switchRightTab('mvc'));
+
+// Clic sur carte muscle dans le panneau droit
+$('muscle-card-list').addEventListener('click', e => {
+  const card = e.target.closest('.m-card');
+  if (!card) return;
+  const id = card.dataset.id;
+  const isSelected = parseList(state.text).entries.some(x => x.id === id);
+  toggleMuscle(id, !isSelected);
+});
+
+// Désélection rapide
+if ($('btnClearSelection')) {
+  $('btnClearSelection').addEventListener('click', () => {
+    setText('');
+  });
+}
+
+// Recherche textuelle avec bouton de suppression
+$('muscleSearch').addEventListener('input', e => {
+  searchQuery = e.target.value.trim();
+  $('btnClearSearch').style.display = searchQuery ? 'block' : 'none';
+  renderMuscleCards();
+});
+$('btnClearSearch').addEventListener('click', () => {
+  $('muscleSearch').value = '';
+  searchQuery = '';
+  $('btnClearSearch').style.display = 'none';
+  renderMuscleCards();
+  $('muscleSearch').focus();
+});
+
+// Clic direct sur le SVG (avec distinction drag / clic)
+stage.addEventListener('click', e => {
+  if (dragDist > 5) return;
+  const target = e.target.closest('.muscle[data-id]');
+  if (!target) return;
+  const id = target.dataset.id;
+  toggleMuscle(id, !parseList(state.text).entries.some(x => x.id === id));
+});
+
+// Tooltip interactif au survol
+stage.addEventListener('mousemove', e => {
+  const target = e.target.closest('.muscle[data-id]');
+  if (!target) {
+    tooltip.style.display = 'none';
+    return;
+  }
+  const id = target.dataset.id;
+  const m = MUSCLES.get(id);
+  if (!m) return;
+  const dict = I18N[state.lang] || I18N.fr;
+  const isEn = state.lang === 'en';
+  const entry = parseList(state.text).entries.find(x => x.id === id);
+  const mvcStr = entry && entry.value !== null ? `<br><b style="color:#fdba74;">${entry.value} ${dict.unitBadge}</b>` : '';
+  const subName = isEn ? m.fr : m.en;
+  tooltip.innerHTML = `<b>${esc(muscleName(m, state.lang))}</b> ${m.abbr ? `(${m.abbr})` : ''}<br><span style="color:#94a3b8">${esc(subName)}</span>${mvcStr}`;
+  const rect = stageFrame.getBoundingClientRect();
+  tooltip.style.left = (e.clientX - rect.left + 14) + 'px';
+  tooltip.style.top = (e.clientY - rect.top + 14) + 'px';
+  tooltip.style.display = 'block';
+});
+stage.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+
+// --- MODULE DONNÉES % CMLV / % MVC (JSON PRÉCIS ET FORMAT EXEMPLE) ---
+function getExampleObject() {
+  if (state.lang === 'en') {
+    return {
+      unit: "% MVC",
+      measurements: [
+        { muscle: "vastus-lateralis", mvc: 78.5 },
+        { muscle: "vastus-medialis", mvc: 65.0 },
+        { muscle: "rectus-femoris", mvc: 52.0 },
+        { muscle: "biceps-femoris", mvc: 42.5 },
+        { muscle: "semitendinosus", mvc: 37.0 },
+        { muscle: "gastrocnemius-medial", mvc: 46.0 },
+        { muscle: "soleus", mvc: 38.0 },
+        { muscle: "tibialis-anterior", mvc: 29.0 }
+      ]
+    };
+  }
+  return {
+    unite: "% CMLV",
+    mesures: [
+      { muscle: "vastus-lateralis", clmv: 78.5 },
+      { muscle: "vastus-medialis", clmv: 65.0 },
+      { muscle: "rectus-femoris", clmv: 52.0 },
+      { muscle: "biceps-femoris", clmv: 42.5 },
+      { muscle: "semitendinosus", clmv: 37.0 },
+      { muscle: "gastrocnemius-medial", clmv: 46.0 },
+      { muscle: "soleus", clmv: 38.0 },
+      { muscle: "tibialis-anterior", clmv: 29.0 }
+    ]
+  };
+}
+
+function applyClmvJson(jsonString) {
+  const dict = I18N[state.lang] || I18N.fr;
+  try {
+    const parsed = JSON.parse(jsonString);
+    let items = [];
+    if (Array.isArray(parsed)) {
+      items = parsed;
+    } else if (parsed && Array.isArray(parsed.mesures)) {
+      items = parsed.mesures;
+    } else if (parsed && Array.isArray(parsed.measurements)) {
+      items = parsed.measurements;
+    } else if (parsed && Array.isArray(parsed.data)) {
+      items = parsed.data;
+    } else if (parsed && typeof parsed === 'object') {
+      items = Object.entries(parsed).map(([k, v]) => ({ muscle: k, clmv: v }));
+    }
+
+    if (!items.length) {
+      jsonClmvStatus.className = 'json-status error';
+      jsonClmvStatus.textContent = dict.jsonEmpty;
+      return false;
+    }
+
+    const lines = [];
+    let recognized = 0;
+    items.forEach(it => {
+      const rawName = String(it.muscle || it.id || it.name || it.nom || '');
+      const rawVal = it.clmv ?? it.mvc ?? it.valeur ?? it.value ?? it.pct;
+      const key = norm(rawName);
+      const id = NAME_INDEX.get(key) || fuzzyMatch(key);
+      if (id && rawVal !== undefined && rawVal !== null && !isNaN(Number(rawVal))) {
+        const m = MUSCLES.get(id);
+        const name = muscleName(m, state.lang);
+        lines.push(`${name}; ${Number(rawVal)}`);
+        recognized++;
+      }
+    });
+
+    if (recognized === 0) {
+      jsonClmvStatus.className = 'json-status error';
+      jsonClmvStatus.textContent = dict.jsonUnrecognized;
+      return false;
+    }
+
+    state.colorMode = 'heat';
+    setText(lines.join('\n'));
+    switchRightTab('mvc');
+    jsonClmvStatus.className = 'json-status success';
+    jsonClmvStatus.textContent = dict.jsonSuccess(recognized);
+    return true;
+  } catch (err) {
+    jsonClmvStatus.className = 'json-status error';
+    jsonClmvStatus.textContent = dict.jsonSyntaxError(err.message);
+    return false;
+  }
+}
+
+$('btnLoadExampleJson').addEventListener('click', () => {
+  const exampleObj = getExampleObject();
+  const jsonStr = JSON.stringify(exampleObj, null, 2);
+  jsonClmvInput.value = jsonStr;
+  applyClmvJson(jsonStr);
+});
+
+$('btnApplyJson').addEventListener('click', () => {
+  const str = jsonClmvInput.value.trim();
+  if (!str) {
+    jsonClmvStatus.className = 'json-status error';
+    jsonClmvStatus.textContent = I18N[state.lang].jsonEmpty;
+    return;
+  }
+  applyClmvJson(str);
+});
+
+$('btnClearClmv').addEventListener('click', () => {
+  jsonClmvInput.value = '';
+  jsonClmvStatus.textContent = '';
+  setText('');
+});
+
+$('btnCopyJsonSchema').addEventListener('click', () => {
+  navigator.clipboard.writeText(JSON.stringify(getExampleObject(), null, 2));
+  jsonClmvStatus.className = 'json-status success';
+  jsonClmvStatus.textContent = I18N[state.lang].jsonCopied;
+});
+
+$('btnImportJsonFile').addEventListener('click', () => $('fileJson').click());
+$('fileJson').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const text = await file.text();
+  e.target.value = '';
+  jsonClmvInput.value = text;
+  applyClmvJson(text);
+});
+
+// --- EXPORTATION STRICTEMENT CARRÉE ---
+function download(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function getExportFilename(extension) {
+  const isFr = state.lang !== 'en';
+
+  // 1. Vue : duo / face / dos (FR) ou duo / front / back (EN)
+  const viewMap = isFr
+    ? { both: 'duo', front: 'face', back: 'dos' }
+    : { both: 'duo', front: 'front', back: 'back' };
+  const viewStr = viewMap[state.view] || state.view;
+
+  // 2. Couleur de fond simplifiée directe : white / black / transparent
+  const bgStr = state.bg || 'white';
+
+  // 3. Cadrage / Zone : fullbody / upperbody / lowerbody
+  const zoneMap = {
+    full: 'fullbody',
+    upper: 'upperbody',
+    lower: 'lowerbody'
+  };
+  const zoneStr = zoneMap[state.zone] || state.zone;
+
+  // 4. Mode / Données : si données d'activation % CMLV / % MVC
+  const hasHeat = (state.colorMode === 'heat') || (state.heat && Object.keys(state.heat).length > 0);
+  const modeStr = hasHeat ? (isFr ? 'cmlv' : 'mvc') : '';
+
+  // Assemblage propre et ordonné : la couleur de fond est positionnée en dernier
+  const ratioStr = (state.exportRatio && state.exportRatio !== 'auto') ? state.exportRatio.replace(':', 'x') : '';
+  const parts = ['muscle-map', viewStr, zoneStr];
+  if (modeStr) parts.push(modeStr);
+  if (ratioStr) parts.push(ratioStr);
+  parts.push(bgStr);
+
+  return `${parts.join('_')}.${extension}`;
+}
+
+const stamp = (ext = 'png') => getExportFilename(ext);
+
+// Export Vectoriel SVG (Ajusté à la géométrie exacte)
+$('svg').addEventListener('click', () => {
+  const { svg, width, height } = buildSVG(false);
+  const maxDim = 2048;
+  const scale = maxDim / Math.max(width, height);
+  const outW = Math.round(width * scale);
+  const outH = Math.round(height * scale);
+  const sized = svg.replace('width="100%" height="100%"', `width="${outW}" height="${outH}"`);
+  download(new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n' + sized], { type: 'image/svg+xml' }), getExportFilename('svg'));
+});
+
+// Export Haute Définition PNG 4K (4096 px max sans marges parasites)
+$('png').addEventListener('click', async () => {
+  try {
+    const { svg, width, height } = buildSVG(false);
+    const maxDim = 4096;
+    const scale = maxDim / Math.max(width, height);
+    const outW = Math.round(width * scale);
+    const outH = Math.round(height * scale);
+    const sized = svg.replace('width="100%" height="100%"', `width="${outW}" height="${outH}"`);
+    const blob = new Blob([sized], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const image = new Image();
+    image.src = url;
+    await new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = err => reject(new Error('Image decode error: ' + err));
+    });
+    const canvas = document.createElement('canvas');
+    canvas.width = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    if (state.bg === 'white') {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, outW, outH);
+    } else if (state.bg === 'black') {
+      ctx.fillStyle = '#090d16';
+      ctx.fillRect(0, 0, outW, outH);
+    }
+    ctx.drawImage(image, 0, 0, outW, outH);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(blob => download(blob, getExportFilename('png')), 'image/png');
+  } catch (err) {
+    console.error('Erreur export PNG:', err);
+  }
+});
+
+// ============================================================
+// SYSTEME RESPONSIVE & ADAPTATIF UNIFIE
+// ============================================================
+function fitStageSquare() {
+  const wrapper = $('stage-wrapper');
+  if (!wrapper || !stageFrame) return;
+  const isMobile = window.innerWidth < 640;
+  const isTablet = window.innerWidth < 992;
+  const pad = isMobile ? 16 : (isTablet ? 26 : 38);
+  const w = wrapper.clientWidth - pad;
+  const h = wrapper.clientHeight - pad;
+  if (w <= 0 || h <= 0) return;
+
+  const ar = (currentSvgW && currentSvgH) ? (currentSvgW / currentSvgH) : 1.0;
+  let targetW, targetH;
+  if (w / h > ar) {
+    targetH = Math.max(120, h);
+    targetW = Math.round(targetH * ar);
+  } else {
+    targetW = Math.max(120, w);
+    targetH = Math.round(targetW / ar);
+  }
+
+  stageFrame.style.width = targetW + 'px';
+  stageFrame.style.height = targetH + 'px';
+  stageFrame.style.aspectRatio = `${currentSvgW} / ${currentSvgH}`;
+}
+
+const resizeObs = new ResizeObserver(() => fitStageSquare());
+if ($('stage-wrapper')) resizeObs.observe($('stage-wrapper'));
+window.addEventListener('resize', fitStageSquare);
+
+// --- GESTION DES TIROIRS MOBILE / TABLETTE (< 992px) ---
+const panelLeft = $('panel-left');
+const panelRight = $('panel-right');
+const drawerBackdrop = $('drawer-backdrop');
+const btnOpenLeft = $('btnOpenLeft');
+const btnOpenRight = $('btnOpenRight');
+const btnCloseLeft = $('btnCloseLeft');
+const btnCloseRight = $('btnCloseRight');
+
+function closeAllDrawers() {
+  if (panelLeft) panelLeft.classList.remove('drawer-open');
+  if (panelRight) panelRight.classList.remove('drawer-open');
+  if (drawerBackdrop) drawerBackdrop.classList.remove('active');
+  if (btnOpenLeft) btnOpenLeft.classList.remove('active');
+  if (btnOpenRight) btnOpenRight.classList.remove('active');
+}
+
+function openLeftDrawer() {
+  if (panelRight) panelRight.classList.remove('drawer-open');
+  if (btnOpenRight) btnOpenRight.classList.remove('active');
+  if (panelLeft) panelLeft.classList.toggle('drawer-open');
+  const isOpen = panelLeft && panelLeft.classList.contains('drawer-open');
+  if (drawerBackdrop) drawerBackdrop.classList.toggle('active', isOpen);
+  if (btnOpenLeft) btnOpenLeft.classList.toggle('active', isOpen);
+}
+
+function openRightDrawer() {
+  if (panelLeft) panelLeft.classList.remove('drawer-open');
+  if (btnOpenLeft) btnOpenLeft.classList.remove('active');
+  if (panelRight) panelRight.classList.toggle('drawer-open');
+  const isOpen = panelRight && panelRight.classList.contains('drawer-open');
+  if (drawerBackdrop) drawerBackdrop.classList.toggle('active', isOpen);
+  if (btnOpenRight) btnOpenRight.classList.toggle('active', isOpen);
+}
+
+if (btnOpenLeft) btnOpenLeft.addEventListener('click', openLeftDrawer);
+if (btnOpenRight) btnOpenRight.addEventListener('click', openRightDrawer);
+if (btnCloseLeft) btnCloseLeft.addEventListener('click', closeAllDrawers);
+if (btnCloseRight) btnCloseRight.addEventListener('click', closeAllDrawers);
+if (drawerBackdrop) drawerBackdrop.addEventListener('click', closeAllDrawers);
+
+// Raccourcis clavier (Escape = Fermer les tiroirs mobile)
+window.addEventListener('keydown', e => {
+  if (e.target.matches('input, textarea, select')) return;
+  if (e.key === 'Escape') {
+    closeAllDrawers();
+  }
+});
+
+// --- GESTES TACTILES NATURELS (Pinch-to-zoom & Pan tactile) ---
+let touchStartX = 0, touchStartY = 0;
+let initialPinchDist = 0;
+let initialPinchZoom = 1.0;
+let isTouchPanning = false;
+
+stageFrame.addEventListener('touchstart', e => {
+  if (e.target.closest('.zoom-toolbar')) return;
+  if (e.touches.length === 1) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    origViewBoxX = viewBoxX;
+    origViewBoxY = viewBoxY;
+    dragDist = 0;
+    isTouchPanning = true;
+  } else if (e.touches.length === 2) {
+    isTouchPanning = false;
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    initialPinchDist = Math.hypot(dx, dy);
+    initialPinchZoom = zoomScale;
+  }
+}, { passive: true });
+
+stageFrame.addEventListener('touchmove', e => {
+  if (e.target.closest('.zoom-toolbar')) return;
+  if (e.touches.length === 1 && isTouchPanning && zoomScale > 1.0) {
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+    dragDist = Math.hypot(dx, dy);
+    const rect = stageFrame.getBoundingClientRect();
+    const svgDx = -dx * (currentSvgW / zoomScale) / rect.width;
+    const svgDy = -dy * (currentSvgH / zoomScale) / rect.height;
+    viewBoxX = origViewBoxX + svgDx;
+    viewBoxY = origViewBoxY + svgDy;
+    updateSvgViewBox();
+  } else if (e.touches.length === 2 && initialPinchDist > 0) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.hypot(dx, dy);
+    const factor = dist / initialPinchDist;
+    const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    zoomTo(initialPinchZoom * factor, midX, midY);
+  }
+}, { passive: true });
+
+stageFrame.addEventListener('touchend', e => {
+  if (e.touches.length === 0) {
+    isTouchPanning = false;
+    initialPinchDist = 0;
+  }
+}, { passive: true });
+
+function updateMobileBadges() {
+  const heatCount = (state.colorMode === 'heat' && state.heatMap) ? state.heatMap.size : 0;
+  const selCount = parseList(state.text).entries.length;
+  const count = heatCount > 0 ? heatCount : selCount;
+  const mb = $('mobileMuscleBadge');
+  if (mb) {
+    mb.textContent = count;
+    mb.style.display = count > 0 ? 'inline-flex' : 'none';
+  }
+}
+
+fitStageSquare();
+render();
+updateMobileBadges();
+</script>
+</body>
+</html>
