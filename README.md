@@ -4,7 +4,7 @@
 [![Type](https://img.shields.io/badge/Type-Application%20Web%20autonome-009EE2?style=flat-square)](#)
 [![Pages](https://img.shields.io/badge/GitHub%20Pages-D%C3%A9ploy%C3%A9-26A669?style=flat-square)](https://technosport.github.io/Muscle-Map/)
 
-> **Cartographie anatomique vectorielle 2D pour l'illustration de protocoles d'électromyographie de surface (sEMG) et la visualisation thermique des niveaux d'activation (% CMV / % MVC).**  
+> **Cartographie anatomique vectorielle 2D pour l'illustration de protocoles d'électromyographie de surface (sEMG) et la visualisation thermique des niveaux d'activation (% CMV).**  
 > *Développé au sein du **Technosport / ISM** (UMR 7287 CNRS — Aix-Marseille Université) • [**Application en ligne**](https://technosport.github.io/Muscle-Map/)*
 
 <p align="center">
