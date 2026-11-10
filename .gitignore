@@ -21,8 +21,14 @@ Thumbs.db
 *.npz
 *.stl
 *.ply
+*.glb
 
-# Scratch and preview files
+# Scratch and build tools
+dev_build/
+*.py
+*.template.html
+*.json
+*.jpg
 *_demo.py
 test_*.py
 inspect_*.py
@@ -30,7 +36,6 @@ process_*.py
 *showcase*.html
 *preview*.png
 real_*
-finish_deploy.py
 
 # Temporary files
 tmp/

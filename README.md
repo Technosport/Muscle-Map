@@ -77,23 +77,11 @@ L'application accepte indifféremment les identifiants anatomiques complets ou l
 
 ---
 
-## 🔧 Architecture & Personnalisation
+## 🔧 Structure du dépôt
 
 | Fichier / Dossier | Rôle dans le projet |
 | :--- | :--- |
-| **`index.html`** | Application finale autonome et monolithique distribuable (embarquant styles, logique et atlas vectoriel). |
-| **`app.template.html`** | Gabarit source de l'interface (HTML5, styles CSS et scripts JavaScript). |
-| **`muscle_map_data.json`** | Base de données vectorielle des 63 muscles et silhouettes (coordonnées 2D normalisées). |
-| **`build_app.py`** | Script de compilation réinjectant les données vectorielles dans le gabarit pour produire `index.html`. |
-| **`docs/screenshots/`** | Captures d'écran officielles illustrant les modes de l'application dans la documentation. |
-| **`generate_screenshots.py`** | Script de capture d'écran automatisé haute résolution de l'application via Chrome sans tête. |
+| **`index.html`** | Application finale autonome et monolithique distribuable (embarquant styles, logique, logos et atlas vectoriel 2D). |
+| **`favicon.*` / `apple-touch-icon.png`** | Jeux complet d'icônes et favicons pour l'application web. |
+| **`docs/screenshots/`** | Captures d'écran officielles illustrant les fonctionnalités dans la documentation. |
 | **`.github/workflows/deploy.yml`** | Workflow d'intégration et déploiement continu automatique sur GitHub Pages. |
-| **`muscles.glb`** | Archive 3D issue de BodyParts3D 3.0 (référence géométrique pour les reconstructions). |
-| **`build_atlas_data.py`** | Script d'extraction et de projection géométrique 3D vers contours vectoriels 2D. |
-| **`refine_publication_contours.py`** | Script d'optimisation et de lissage des contours vectoriels pour l'export scientifique. |
-
-> [!NOTE]
-> Ne pas éditer manuellement le fichier `index.html`. Toute évolution d'interface ou de logique doit être apportée dans **`app.template.html`**, puis recompilée via :
-> ```bash
-> python build_app.py
-> ```
