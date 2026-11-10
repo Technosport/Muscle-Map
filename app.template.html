@@ -684,16 +684,51 @@
     font-weight: 600;
     color: var(--accent);
   }
+  .btn-toggle-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--fg);
+    cursor: pointer;
+    padding: 2.5px 8px;
+    border-radius: var(--radius-sm);
+    transition: all 0.14s ease;
+    user-select: none;
+    line-height: 1.2;
+  }
+  .btn-toggle-all:hover {
+    background: var(--accent-light);
+    border-color: var(--accent-border);
+    color: var(--accent);
+  }
+  .btn-toggle-all.active {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: var(--fg-muted);
+  }
+  .btn-toggle-all.active:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #b91c1c;
+  }
   .btn-clear-selection {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
     background: #fef2f2;
     border: 1px solid #fecaca;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 600;
     color: #dc2626;
     cursor: pointer;
-    padding: 2px 7px;
-    border-radius: 6px;
+    padding: 2.5px 7px;
+    border-radius: var(--radius-sm);
     transition: all 0.12s;
+    line-height: 1.2;
   }
   .btn-clear-selection:hover {
     background: #fee2e2;
@@ -1457,7 +1492,16 @@
         </div>
         <div style="display:flex; align-items:center; gap:6px;">
           <div id="selectionStatus" class="selection-status"></div>
-          <button type="button" id="btnClearSelection" class="btn-clear-selection" title="Tout désélectionner" style="display:none">&times;</button>
+          <button type="button" id="btnToggleSelectAll" class="btn-toggle-all" title="Tout sélectionner / désélectionner">
+            <svg id="btnToggleSelectAllIcon" viewBox="0 0 20 20" width="12" height="12" fill="none">
+              <rect x="3" y="3" width="14" height="14" rx="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span id="btnToggleSelectAllText" data-i18n="selectAll">Tout sélectionner</span>
+          </button>
+          <button type="button" id="btnClearSelection" class="btn-clear-selection" title="Effacer la sélection" style="display:none">
+            &times; <span data-i18n="clearSelected">Effacer</span>
+          </button>
         </div>
       </div>
       <div id="muscle-card-list"></div>
@@ -1731,6 +1775,9 @@ const I18N = {
     clmvApply: 'Appliquer les données JSON',
     clmvPlaceholder: "Collez votre JSON d'activations % CMV ici...",
     musclesTitle: 'Muscles',
+    selectAll: 'Tout sélectionner',
+    deselectAll: 'Tout désélectionner',
+    clearSelected: 'Effacer',
     selectedSingle: 'sélectionné',
     selectedPlural: 'sélectionnés',
     noMuscle: 'Aucun muscle ne correspond aux critères.',
@@ -1842,6 +1889,9 @@ const I18N = {
     clmvApply: 'Apply JSON data',
     clmvPlaceholder: 'Paste your % MVC activation JSON here...',
     musclesTitle: 'Muscles',
+    selectAll: 'Select All',
+    deselectAll: 'Deselect All',
+    clearSelected: 'Clear',
     selectedSingle: 'selected',
     selectedPlural: 'selected',
     noMuscle: 'No muscle matches the search criteria.',
@@ -2642,10 +2692,38 @@ function updateStatus() {
   const { entries } = parseList(state.text);
   const statusEl = $('selectionStatus');
   const count = entries.length;
-  statusEl.textContent = `${count} ${count > 1 ? dict.selectedPlural : dict.selectedSingle}`;
+  const total = (ATLAS && ATLAS.muscles) ? ATLAS.muscles.length : 63;
+  const isAll = (count >= total && total > 0);
+
+  if (statusEl) {
+    statusEl.textContent = `${count} ${count > 1 ? dict.selectedPlural : dict.selectedSingle}`;
+  }
+
+  const btnToggle = $('btnToggleSelectAll');
+  const btnToggleText = $('btnToggleSelectAllText');
+  const btnToggleIcon = $('btnToggleSelectAllIcon');
+
+  if (btnToggle && btnToggleText) {
+    if (isAll) {
+      btnToggleText.textContent = dict.deselectAll;
+      btnToggle.title = dict.deselectAll;
+      btnToggle.classList.add('active');
+      if (btnToggleIcon) {
+        btnToggleIcon.innerHTML = '<rect x="3" y="3" width="14" height="14" rx="3" stroke="currentColor" stroke-width="2" fill="none"/><line x1="7" y1="10" x2="13" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+      }
+    } else {
+      btnToggleText.textContent = dict.selectAll;
+      btnToggle.title = dict.selectAll;
+      btnToggle.classList.remove('active');
+      if (btnToggleIcon) {
+        btnToggleIcon.innerHTML = '<rect x="3" y="3" width="14" height="14" rx="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+      }
+    }
+  }
+
   const btnClear = $('btnClearSelection');
   if (btnClear) {
-    btnClear.style.display = count > 0 ? 'inline-block' : 'none';
+    btnClear.style.display = (count > 0 && !isAll) ? 'inline-flex' : 'none';
   }
 }
 
@@ -2848,6 +2926,21 @@ $('muscle-card-list').addEventListener('click', e => {
   const isSelected = parseList(state.text).entries.some(x => x.id === id);
   toggleMuscle(id, !isSelected);
 });
+
+// Sélection / Désélection complète rapide
+if ($('btnToggleSelectAll')) {
+  $('btnToggleSelectAll').addEventListener('click', () => {
+    const { entries } = parseList(state.text);
+    const total = (ATLAS && ATLAS.muscles) ? ATLAS.muscles.length : 63;
+    const isAll = (entries.length >= total && total > 0);
+    if (isAll) {
+      setText('');
+    } else {
+      const allText = ATLAS.muscles.map(m => muscleName(m, state.lang)).join('\n');
+      setText(allText);
+    }
+  });
+}
 
 // Désélection rapide
 if ($('btnClearSelection')) {
