@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "Si vous utilisez Muscle Map dans une publication, merci de le citer. Citez aussi BodyParts3D (Mitsuhashi et al., 2009)."
+title: "Muscle Map"
+type: software
+authors:
+  - family-names: "PANCHAIRI"
+    given-names: "Jean"
+    affiliation: "Technosport, Institut des Sciences du Mouvement (UMR 7287 CNRS — Aix-Marseille Université)"
+repository-code: "https://github.com/Technosport/Muscle-Map"
+url: "https://technosport.github.io/Muscle-Map/"
+license: MIT
+date-released: "2026-11-11"
+abstract: "Cartographie anatomique vectorielle 2D pour l'illustration de protocoles sEMG et la visualisation des niveaux d'activation (% CMV)."
+references:
+  - type: article
+    authors:
+      - family-names: "Mitsuhashi"
+        given-names: "N."
+    title: "BodyParts3D: 3D structure database for anatomical concepts"
+    journal: "Nucleic Acids Research"
+    volume: 37
+    year: 2009
+    start: D782
+    end: D785
+    doi: "10.1093/nar/gkn613"

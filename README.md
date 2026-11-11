@@ -84,3 +84,11 @@ L'application accepte indifféremment les identifiants anatomiques complets ou l
 | **`index.html`** | Application web 100% autonome et monolithique (styles, logique, favicons et atlas vectoriel inlinés). |
 | **`docs/screenshots/`** | Captures d'écran officielles illustrant les fonctionnalités dans la documentation. |
 | **`.github/workflows/deploy.yml`** | Workflow d'intégration et déploiement continu automatique sur GitHub Pages. |
+
+---
+
+## 📜 Licence et citation
+
+- **Code** : MIT (voir [LICENSE](LICENSE)).
+- **Atlas anatomique et images exportées** : CC BY-SA 2.1 JP, d'après [BodyParts3D](https://lifesciencedb.jp/bp3d/) (DBCLS). Détails et règles de réutilisation : [NOTICE.md](NOTICE.md).
+- **Citation** : si vous utilisez Muscle Map dans une publication, merci de citer ce dépôt (bouton *Cite this repository*, voir [CITATION.cff](CITATION.cff)) **et** Mitsuhashi N. et al. (2009), *Nucleic Acids Research*, 37, D782–D785, [doi:10.1093/nar/gkn613](https://doi.org/10.1093/nar/gkn613).
