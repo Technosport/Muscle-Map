@@ -9,6 +9,7 @@ authors:
 repository-code: "https://github.com/Technosport/Muscle-Map"
 url: "https://technosport.github.io/Muscle-Map/"
 license: MIT
+doi: "10.5281/zenodo.24146735"
 date-released: "2026-11-11"
 abstract: "Cartographie anatomique vectorielle 2D pour l'illustration de protocoles sEMG et la visualisation des niveaux d'activation (% CMV)."
 references:

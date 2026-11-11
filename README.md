@@ -3,6 +3,7 @@
 [![Technosport amU](https://img.shields.io/badge/Technosport-amU%20%7C%20ISM-002D62?style=flat-square)](https://github.com/Technosport)
 [![Type](https://img.shields.io/badge/Type-Application%20Web%20autonome-009EE2?style=flat-square)](#)
 [![Pages](https://img.shields.io/badge/GitHub%20Pages-D%C3%A9ploy%C3%A9-26A669?style=flat-square)](https://technosport.github.io/Muscle-Map/)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.24146735-blue?style=flat-square)](https://doi.org/10.5281/zenodo.24146735)
 
 > **Cartographie anatomique vectorielle 2D pour l'illustration de protocoles d'électromyographie de surface (sEMG) et la visualisation des niveaux d'activation (% CMV).**  
 > *Développé au sein du **Technosport / ISM** (UMR 7287 CNRS — Aix-Marseille Université) • [**Application en ligne**](https://technosport.github.io/Muscle-Map/)*
@@ -92,3 +93,4 @@ L'application accepte indifféremment les identifiants anatomiques complets ou l
 - **Code** : MIT (voir [LICENSE](LICENSE)).
 - **Atlas anatomique et images exportées** : CC BY-SA 2.1 JP, d'après [BodyParts3D](https://lifesciencedb.jp/bp3d/) (DBCLS). Détails et règles de réutilisation : [NOTICE.md](NOTICE.md).
 - **Citation** : si vous utilisez Muscle Map dans une publication, merci de citer ce dépôt (bouton *Cite this repository*, voir [CITATION.cff](CITATION.cff)) **et** Mitsuhashi N. et al. (2009), *Nucleic Acids Research*, 37, D782–D785, [doi:10.1093/nar/gkn613](https://doi.org/10.1093/nar/gkn613).
+- **DOI** : [10.5281/zenodo.24146735](https://doi.org/10.5281/zenodo.24146735) (Zenodo, v1.0.0).
