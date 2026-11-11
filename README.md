@@ -1,63 +1,65 @@
-# Muscle Map - Visualisation de protocoles EMG
+# Muscle Map
 
 [![Technosport amU](https://img.shields.io/badge/Technosport-amU%20%7C%20ISM-002D62?style=flat-square)](https://github.com/Technosport)
-[![Type](https://img.shields.io/badge/Type-Application%20Web%20autonome-009EE2?style=flat-square)](#)
-[![Pages](https://img.shields.io/badge/GitHub%20Pages-D%C3%A9ploy%C3%A9-26A669?style=flat-square)](https://technosport.github.io/Muscle-Map/)
-[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.24146735-blue?style=flat-square)](https://doi.org/10.5281/zenodo.24146735)
+[![Type](https://img.shields.io/badge/Type-Standalone%20Web%20App-009EE2?style=flat-square)](#)
+[![Pages](https://img.shields.io/badge/GitHub%20Pages-Live-26A669?style=flat-square)](https://technosport.github.io/Muscle-Map/)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.24146734-blue?style=flat-square)](https://doi.org/10.5281/zenodo.24146734)
+[![License: MIT](https://img.shields.io/badge/Code%20License-MIT-yellow?style=flat-square)](LICENSE)
+[![Data License: CC BY-SA 2.1 JP](https://img.shields.io/badge/Atlas%20License-CC%20BY--SA%202.1%20JP-lightgrey?style=flat-square)](NOTICE.md)
 
-> **Cartographie anatomique vectorielle 2D pour l'illustration de protocoles d'électromyographie de surface (sEMG) et la visualisation des niveaux d'activation (% CMV).**  
-> *Développé au sein du **Technosport / ISM** (UMR 7287 CNRS — Aix-Marseille Université) • [**Application en ligne**](https://technosport.github.io/Muscle-Map/)*
+> **Interactive 2D vector anatomical atlas for surface electromyography (sEMG) protocol illustration and muscle activation level visualization (% MVC).**  
+> *Developed at **Technosport / ISM** (UMR 7287 CNRS — Aix-Marseille Université) • [**Launch Web Application**](https://technosport.github.io/Muscle-Map/)*
 
 <p align="center">
-  <img src="docs/screenshots/muscle-map-heatmap.png" alt="Muscle Map — Visualisation thermique d'activation musculaire sEMG" width="100%">
+  <img src="docs/screenshots/muscle-map-heatmap.png" alt="Muscle Map — Surface EMG muscle activation heatmap visualization" width="100%">
 </p>
 
 ---
 
-## 🚀 Démarrage
+## 🚀 Getting Started
 
-### Accès en ligne (GitHub Pages)
-- **Accès direct (Web)** : **[technosport.github.io/Muscle-Map](https://technosport.github.io/Muscle-Map/)**
+### Online Access (GitHub Pages)
+- **Direct Web Access**: **[technosport.github.io/Muscle-Map](https://technosport.github.io/Muscle-Map/)**
 
-### Utilisation locale
-1. Télécharger ou cloner ce dépôt sur la machine.
-2. Double-cliquer sur le fichier **`index.html`** dans un navigateur (Chrome, Edge, Firefox, Safari).
+### Offline / Local Usage
+1. Clone or download this repository.
+2. Double-click the standalone **`index.html`** file in any modern web browser (Chrome, Edge, Firefox, Safari).
 
 > [!NOTE]
-> L'application est 100% autonome (~1.5 Mo) : elle fonctionne intégralement hors-ligne, sans dépendance externe, sans appel CDN et sans serveur web local requis.
+> The application is **100% standalone and monolithic (~1.5 MB)**: it runs completely offline with zero external dependencies, no CDN calls, no npm build step, and no local web server required.
 
 ---
 
-## 🛠️ Fonctionnalités & Contenu
+## 🛠️ Features & Highlights
 
 <p align="center">
-  <img src="docs/screenshots/muscle-map-protocole.png" alt="Muscle Map — Mode protocole et sélection anatomique" width="100%">
+  <img src="docs/screenshots/muscle-map-protocole.png" alt="Muscle Map — Protocol mode and anatomical muscle selection" width="100%">
 </p>
 
-| Module / Fonctionnalité | Description |
+| Module / Feature | Description |
 | :--- | :--- |
-| **Mode Protocole (Classique)** | Sélection interactive parmi 63 muscles anatomiques, coloration par famille ou unicolore, et repères visuels (N°, Noms ou N° + Noms). |
-| **Mode Résultats (Heatmap % CMV)** | Cartographie thermique dynamique continue (0 à 100 % CMV / % MVC) avec échelle chromatique paramétrable et jauges d'activation en direct. |
-| **Vues & Cadrages** | Angles anatomiques (Duo Face + Dos, Face seule, Dos seul) et cadrages adaptatifs (Corps entier, Haut du corps, Membres inférieurs). |
-| **Formats & Ratios** | Rendu automatique sans marges (Auto-Fit) ou ratios prédéfinis pour publications scientifiques et présentations (16:9, 4:3, 9:16, 3:4, 1:1). |
-| **Export Vectoriel & 4K** | Export direct en **SVG vectoriel** (jusqu'à 2048 px) pour Illustrator / PowerPoint / LaTeX et en **PNG haute résolution** (jusqu'à 4096 px). |
-| **Import / Export JSON** | Importation et exportation de jeux de données d'activation avec reconnaissance des abréviations sEMG standards (VL, VM, RF, BF, MG, LG, TA, GM, etc.). |
-| **Bilingue FR / EN** | Interface complète et légendes exportées commutables instantanément en Français ou en Anglais. |
+| **Protocol Mode (Classic)** | Interactive selection of 63 anatomical muscles, customizable color families or monochrome, and flexible visual callouts (Numbers, Names, or Numbers + Names). |
+| **Results Mode (% MVC Heatmap)** | Continuous dynamic thermal heatmap (0 to 100% MVC / % CMV) with adjustable color scales and real-time live activation gauges. |
+| **Views & Framings** | Anatomical angles (Dual Anterior + Posterior, Anterior only, Posterior only) and adaptive framings (Full body, Upper body, Lower limbs). |
+| **Publication Aspect Ratios** | Auto-Fit (tight bounding box without wasted margins) or standardized publication ratios (16:9, 4:3, 9:16, 3:4, 1:1). |
+| **Vector & High-Res Export** | Direct export to **vector SVG** (up to 2048 px) for Adobe Illustrator / PowerPoint / LaTeX and **high-definition PNG** (up to 4096 px) with embedded citation metadata. |
+| **JSON Import / Export** | Batch import and export of muscle activation values with automatic recognition of standard sEMG abbreviations (VL, VM, RF, BF, MG, LG, TA, GM, etc.). |
+| **Bilingual Interface (EN / FR)** | Switch the entire user interface and exported legends between English and French with a single click. |
 
 <details>
-<summary><b>Voir les raccourcis clavier et contrôles interactifs</b></summary>
+<summary><b>Keyboard Shortcuts & Navigation Controls</b></summary>
 
-- `P` : Afficher ou masquer le volet de configuration (gauche).
-- `M` : Afficher ou masquer le volet des muscles et activations (droite).
-- `Molette souris` ou touches `+` / `-` : Zoom continu sur la planche anatomique.
-- `Double-clic` ou bouton `↺` : Réinitialiser la vue et le centrage.
+- `P` : Toggle settings configuration drawer (left).
+- `M` : Toggle muscle and activation drawer (right).
+- `Mouse Wheel` or `+` / `-` keys : Smooth continuous zoom on the anatomical board.
+- `Double-click` or `↺` button : Reset zoom level and center view.
 
 </details>
 
 <details>
-<summary><b>Voir le format JSON pour l'import d'activations (% CMV)</b></summary>
+<summary><b>JSON Format for % MVC Activation Import</b></summary>
 
-L'application accepte indifféremment les identifiants anatomiques complets ou les abréviations sEMG usuelles :
+The application accepts full anatomical identifiers or standard sEMG acronyms interchangeably:
 
 ```json
 {
@@ -74,23 +76,48 @@ L'application accepte indifféremment les identifiants anatomiques complets ou l
 }
 ```
 
+*(You can also use `"mvc"` instead of `"cmv"` in key names).*
+
 </details>
 
 ---
 
-## 🔧 Structure du dépôt
+## 🔧 Repository Structure
 
-| Fichier / Dossier | Rôle dans le projet |
+| File / Folder | Purpose |
 | :--- | :--- |
-| **`index.html`** | Application web 100% autonome et monolithique (styles, logique, favicons et atlas vectoriel inlinés). |
-| **`docs/screenshots/`** | Captures d'écran officielles illustrant les fonctionnalités dans la documentation. |
-| **`.github/workflows/deploy.yml`** | Workflow d'intégration et déploiement continu automatique sur GitHub Pages. |
+| **`index.html`** | Standalone production web application (styles, logic, vector atlas, and brand assets inlined). |
+| **`CITATION.cff`** | Citation File Format specification for automated academic citations on GitHub and Zenodo. |
+| **`LICENSE`** | MIT License for application source code. |
+| **`NOTICE.md`** | Comprehensive attribution notice, BodyParts3D origins, and figure reuse guidelines. |
+| **`docs/screenshots/`** | Official screenshots for documentation and scientific presentations. |
+| **`.github/workflows/deploy.yml`** | Automated continuous deployment workflow to GitHub Pages. |
 
 ---
 
-## 📜 Licence et citation
+## 📜 How to Cite & Academic License
 
-- **Code** : MIT (voir [LICENSE](LICENSE)).
-- **Atlas anatomique et images exportées** : CC BY-SA 2.1 JP, d'après [BodyParts3D](https://lifesciencedb.jp/bp3d/) (DBCLS). Détails et règles de réutilisation : [NOTICE.md](NOTICE.md).
-- **Citation** : si vous utilisez Muscle Map dans une publication, merci de citer ce dépôt (bouton *Cite this repository*, voir [CITATION.cff](CITATION.cff)) **et** Mitsuhashi N. et al. (2009), *Nucleic Acids Research*, 37, D782–D785, [doi:10.1093/nar/gkn613](https://doi.org/10.1093/nar/gkn613).
-- **DOI** : [10.5281/zenodo.24146735](https://doi.org/10.5281/zenodo.24146735) (Zenodo, v1.0.0).
+If you use Muscle Map figures or activation maps in a scientific publication, thesis, or report, please cite both this repository and the underlying anatomical database:
+
+### APA Style
+> Panchairi, J. (2026). *Muscle Map: Interactive 2D vector anatomical atlas for surface electromyography (sEMG)* (Version 1.0.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.24146734
+
+### BibTeX
+```bibtex
+@software{panchairi2026musclemap,
+  author       = {Panchairi, Jean},
+  title        = {{Muscle Map: Interactive 2D vector anatomical atlas for surface electromyography (sEMG)}},
+  year         = {2026},
+  publisher    = {Zenodo},
+  version      = {v1.0.0},
+  doi          = {10.5281/zenodo.24146734},
+  url          = {https://technosport.github.io/Muscle-Map/}
+}
+```
+
+### Anatomical Database Citation
+> Mitsuhashi, N., Fujieda, K., Tamura, T., Kawamoto, S., Takagi, T., & Okubo, K. (2009). *BodyParts3D: 3D structure database for anatomical concepts*. **Nucleic Acids Research**, 37(suppl_1), D782–D785. https://doi.org/10.1093/nar/gkn613
+
+### License Summary
+- **Source Code**: Released under the **[MIT License](LICENSE)**.
+- **Anatomical Vector Data & Exported Figures**: Released under **[CC BY-SA 2.1 JP](https://creativecommons.org/licenses/by-sa/2.1/jp/)**, derived from [BodyParts3D](https://lifesciencedb.jp/bp3d/) (DBCLS). Full details and commercial / publication rules in **[NOTICE.md](NOTICE.md)**.
