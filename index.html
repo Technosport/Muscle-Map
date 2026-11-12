@@ -2523,7 +2523,7 @@ function buildSVG(interactive) {
   // Mode % CMV : distance pieds->titre (24) + titre (16) + barre/ticks/chiffres (28) + chiffres->licence (28) + licence (16) + licence->fond (26) = 138
   // Mode Classique : distance pieds->licence (28) + licence (16) + licence->fond (26) = 70
   // + 20 px : seconde ligne de crédit (Muscle Map / DOI puis BodyParts3D / licence)
-  const FOOTER_H = isHeat ? 158 : 90;
+  const FOOTER_H = isHeat ? 136 : 68;
   const TOP_MARGIN = 22;
   const requiredLabelH = (maxCandidates * gap) + 30;
   const totalFigureH = Math.max(TOP_MARGIN + bodyH + FOOTER_H, TOP_MARGIN + requiredLabelH + FOOTER_H);
@@ -2603,7 +2603,7 @@ function buildSVG(interactive) {
 
   // Barre d'échelle heatmap sEMG % CMV / % MVC (position sous les pieds harmonieuse et aérée)
   let barSvg = '';
-  let licenseY;
+  let minLicenseY;
 
   if (isHeat) {
     const barW = Math.min(260, targetW - pad * 4);
@@ -2622,18 +2622,21 @@ function buildSVG(interactive) {
       barSvg += `<line x1="${f1(tx)}" x2="${f1(tx)}" y1="${f1(barY + barH)}" y2="${f1(barY + barH + tickH)}" stroke="${t.textColor}" stroke-width="0.8" stroke-opacity="0.6"/>`;
       barSvg += `<text x="${f1(tx)}" y="${f1(numY)}" font-size="${size}" font-family='${FONT}' text-anchor="middle" fill="${t.textColor}" fill-opacity="0.85">${v}</text>`;
     });
-    licenseY = numY + 28;
+    minLicenseY = numY + 22;
   } else {
     const contentBottomY = Math.max(feetY, ...panels.flatMap(p => p.labels.map(l => (l.y + p.dy) || 0)));
-    licenseY = contentBottomY + 24;
+    minLicenseY = contentBottomY + 18;
   }
 
-  // S'assurer que le cadre intègre toujours une marge d'au moins 22px sous la licence
+  // Positionner la citation au bord bas de l'image / écran
   const LICENSE_LINE_H = Math.round(size * 1.35);
-  targetH = Math.max(targetH, licenseY + LICENSE_LINE_H + 22);
+  const bottomMargin = Math.max(8, Math.round(size * 0.75));
+  targetH = Math.max(targetH, minLicenseY + LICENSE_LINE_H + bottomMargin);
   currentSvgH = targetH;
 
-  // LICENCE EN SEMI-TRANSPARENCE POSITIONNÉE DE FAÇON HARMONIEUSE SOUS LE CONTENU
+  const licenseY = Math.max(minLicenseY, targetH - bottomMargin - LICENSE_LINE_H);
+
+  // LICENCE EN SEMI-TRANSPARENCE POSITIONNÉE AU BORD INFÉRIEUR
   const licAttrs = ` font-size="${size}" text-anchor="middle" fill="${t.textColor}" fill-opacity="0.45" font-family='${FONT}' letter-spacing="0.02em"`;
   const licenseSvg =
     `<text x="${f1(targetW / 2)}" y="${f1(licenseY)}"${licAttrs}>${esc(CITE_CREDIT)}</text>` +
