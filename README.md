@@ -76,7 +76,7 @@ The application accepts full anatomical identifiers or standard sEMG acronyms in
 If you use MyoPlate figures or activation maps in a scientific publication, thesis, or report, please cite both this tool and the underlying anatomical database:
 
 ### Recommended Citation (APA)
-> Panchairi, J. (2026). *MyoPlate — Interactive sEMG Mapping & Figure Builder* (Version 1.0.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.24146734
+> Panchairi, J. (2026). *MyoPlate — Interactive sEMG Mapping & Figure Builder* (Version 1.1.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.24146734
 
 ### BibTeX
 ```bibtex
@@ -85,7 +85,7 @@ If you use MyoPlate figures or activation maps in a scientific publication, thes
   title        = {{MyoPlate: Interactive sEMG Mapping & Figure Builder}},
   year         = {2026},
   publisher    = {Zenodo},
-  version      = {v1.0.0},
+  version      = {v1.1.0},
   doi          = {10.5281/zenodo.24146734},
   url          = {https://technosport.github.io/MyoPlate/}
 }
