@@ -2629,15 +2629,16 @@ function buildSVG(interactive) {
   }
 
   // Positionner la citation au bord bas de l'image / écran
-  const LICENSE_LINE_H = Math.round(size * 1.35);
-  const bottomMargin = Math.max(16, Math.round(size * 1.35)); // mini marge esthétique d'environ 20px
+  const citeSize = Math.max(7, size - 2);
+  const LICENSE_LINE_H = Math.round(citeSize * 1.35);
+  const bottomMargin = Math.max(16, Math.round(citeSize * 1.35)); // mini marge esthétique d'environ 20px
   targetH = Math.max(targetH, minLicenseY + LICENSE_LINE_H + bottomMargin);
   currentSvgH = targetH;
 
   const licenseY = Math.max(minLicenseY, targetH - bottomMargin - LICENSE_LINE_H);
 
-  // LICENCE EN SEMI-TRANSPARENCE POSITIONNÉE AU BORD INFÉRIEUR
-  const licAttrs = ` font-size="${size}" text-anchor="middle" fill="${t.textColor}" fill-opacity="0.45" font-family='${FONT}' letter-spacing="0.02em"`;
+  // LICENCE EN SEMI-TRANSPARENCE POSITIONNÉE AU BORD INFÉRIEUR (-2 pts par rapport au texte principal)
+  const licAttrs = ` font-size="${citeSize}" text-anchor="middle" fill="${t.textColor}" fill-opacity="0.45" font-family='${FONT}' letter-spacing="0.02em"`;
   const licenseSvg =
     `<text x="${f1(targetW / 2)}" y="${f1(licenseY)}"${licAttrs}>${esc(CITE_CREDIT)}</text>` +
     `<text x="${f1(targetW / 2)}" y="${f1(licenseY + LICENSE_LINE_H)}"${licAttrs}>${esc(dict.imageLicense)}</text>`;
