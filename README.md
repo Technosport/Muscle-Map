@@ -1,17 +1,22 @@
-# Muscle Map
+# MyoPlate
+
+**Interactive sEMG Mapping & Figure Builder**
 
 [![Technosport amU](https://img.shields.io/badge/Technosport-amU%20%7C%20ISM-002D62?style=flat-square)](https://github.com/Technosport)
 [![Type](https://img.shields.io/badge/Type-Standalone%20Web%20App-009EE2?style=flat-square)](#)
-[![Pages](https://img.shields.io/badge/GitHub%20Pages-Live-26A669?style=flat-square)](https://technosport.github.io/Muscle-Map/)
+[![Pages](https://img.shields.io/badge/GitHub%20Pages-Live-26A669?style=flat-square)](https://technosport.github.io/MyoPlate/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.24146734-blue?style=flat-square)](https://doi.org/10.5281/zenodo.24146734)
 [![License: MIT](https://img.shields.io/badge/Code%20License-MIT-yellow?style=flat-square)](LICENSE)
 [![Data License: CC BY-SA 2.1 JP](https://img.shields.io/badge/Atlas%20License-CC%20BY--SA%202.1%20JP-lightgrey?style=flat-square)](NOTICE.md)
 
-> **Interactive 2D vector anatomical atlas for surface electromyography (sEMG) protocol illustration and muscle activation level visualization (% MVC).**  
-> *Developed at **Technosport / ISM** (UMR 7287 CNRS — Aix-Marseille Université) • [**Launch Web Application**](https://technosport.github.io/Muscle-Map/)*
+> **MyoPlate — Interactive sEMG Mapping & Figure Builder.**
+>
+> *A 2D vector tool for surface electromyography (sEMG) protocol illustration and muscle activation visualization (% MVC).*
+>
+> *Developed at **Technosport / ISM** (UMR 7287 CNRS — Aix-Marseille Université) • [**Launch Web Application**](https://technosport.github.io/MyoPlate/)*
 
 <p align="center">
-  <img src="docs/screenshots/muscle-map-heatmap.png" alt="Muscle Map — Surface EMG muscle activation heatmap visualization" width="100%">
+  <img src="docs/screenshots/myoplate-heatmap.png" alt="MyoPlate — Surface EMG muscle activation heatmap visualization" width="100%">
 </p>
 
 ---
@@ -19,7 +24,7 @@
 ## 🚀 Getting Started
 
 ### Online Access (GitHub Pages)
-- **Direct Web Access**: **[technosport.github.io/Muscle-Map](https://technosport.github.io/Muscle-Map/)**
+- **Direct Web Access**: **[technosport.github.io/MyoPlate](https://technosport.github.io/MyoPlate/)**
 
 ### Offline / Local Usage
 1. Clone or download this repository.
@@ -30,7 +35,7 @@
 ## 🛠️ Features & Highlights
 
 <p align="center">
-  <img src="docs/screenshots/muscle-map-protocole.png" alt="Muscle Map — Protocol mode and anatomical muscle selection" width="100%">
+  <img src="docs/screenshots/myoplate-protocol.png" alt="MyoPlate — Protocol mode and anatomical muscle selection" width="100%">
 </p>
 
 | Module / Feature | Description |
@@ -68,26 +73,26 @@ The application accepts full anatomical identifiers or standard sEMG acronyms in
 
 ## 📜 How to Cite & Academic License
 
-If you use Muscle Map figures or activation maps in a scientific publication, thesis, or report, please cite both this tool and the underlying anatomical database:
+If you use MyoPlate figures or activation maps in a scientific publication, thesis, or report, please cite both this tool and the underlying anatomical database:
 
 ### Recommended Citation (APA)
-> Panchairi, J. (2026). *Muscle Map: Interactive 2D vector anatomical atlas for surface electromyography (sEMG)* (Version 1.0.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.24146734
+> Panchairi, J. (2026). *MyoPlate — Interactive sEMG Mapping & Figure Builder* (Version 1.0.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.24146734
 
 ### BibTeX
 ```bibtex
-@software{panchairi2026musclemap,
+@software{panchairi2026myoplate,
   author       = {Panchairi, Jean},
-  title        = {{Muscle Map: Interactive 2D vector anatomical atlas for surface electromyography (sEMG)}},
+  title        = {{MyoPlate: Interactive sEMG Mapping & Figure Builder}},
   year         = {2026},
   publisher    = {Zenodo},
   version      = {v1.0.0},
   doi          = {10.5281/zenodo.24146734},
-  url          = {https://technosport.github.io/Muscle-Map/}
+  url          = {https://technosport.github.io/MyoPlate/}
 }
 ```
 
 ### In Figure Captions
-> *Figure X. Muscle activation map generated using Muscle Map (Technosport amU, ISM UMR 7287 CNRS / Aix-Marseille Université; doi:10.5281/zenodo.24146734), based on BodyParts3D (DBCLS, CC BY-SA 2.1 JP).*
+> *Figure X. Muscle activation map generated using MyoPlate (Technosport amU, ISM UMR 7287 CNRS / Aix-Marseille Université; doi:10.5281/zenodo.24146734), based on BodyParts3D (DBCLS, CC BY-SA 2.1 JP).*
 
 ### Anatomical Database Citation
 > Mitsuhashi, N., Fujieda, K., Tamura, T., Kawamoto, S., Takagi, T., & Okubo, K. (2009). *BodyParts3D: 3D structure database for anatomical concepts*. **Nucleic Acids Research**, 37(suppl_1), D782–D785. https://doi.org/10.1093/nar/gkn613

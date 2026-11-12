@@ -1,5 +1,5 @@
 {
-  "description": "Muscle Map reference dictionary and full sample dataset covering all 69 anatomical muscles.",
+  "description": "MyoPlate reference dictionary and full sample dataset covering all 69 anatomical muscles.",
   "unit": "% MVC",
   "total_muscles": 69,
   "measures": [

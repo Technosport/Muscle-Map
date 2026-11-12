@@ -1,17 +1,17 @@
 cff-version: 1.2.0
-message: "If you use Muscle Map in scientific research or publications, please cite it as below, along with BodyParts3D (Mitsuhashi et al., 2009)."
-title: "Muscle Map"
+message: "If you use MyoPlate in scientific research or publications, please cite it as below, along with BodyParts3D (Mitsuhashi et al., 2009)."
+title: "MyoPlate — Interactive sEMG Mapping & Figure Builder"
 type: software
 authors:
   - family-names: "PANCHAIRI"
     given-names: "Jean"
     affiliation: "Technosport, Institut des Sciences du Mouvement (UMR 7287 CNRS — Aix-Marseille Université)"
-repository-code: "https://github.com/Technosport/Muscle-Map"
-url: "https://technosport.github.io/Muscle-Map/"
+repository-code: "https://github.com/Technosport/MyoPlate"
+url: "https://technosport.github.io/MyoPlate/"
 license: MIT
 doi: "10.5281/zenodo.24146734"
 date-released: "2026-11-11"
-abstract: "Interactive 2D vector anatomical atlas for surface electromyography (sEMG) protocol illustration and muscle activation level visualization (% MVC)."
+abstract: "Interactive sEMG mapping and figure builder for surface electromyography protocol illustration and muscle activation visualization (% MVC)."
 keywords:
   - "surface electromyography"
   - "sEMG"
