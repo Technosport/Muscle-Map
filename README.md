@@ -23,10 +23,7 @@
 
 ### Offline / Local Usage
 1. Clone or download this repository.
-2. Double-click the standalone **`index.html`** file in any modern web browser (Chrome, Edge, Firefox, Safari).
-
-> [!NOTE]
-> The application is **100% standalone and monolithic (~1.5 MB)**: it runs completely offline with zero external dependencies, no CDN calls, no npm build step, and no local web server required.
+2. Double-click the standalone **`index.html`** file in any web browser.
 
 ---
 
@@ -39,22 +36,12 @@
 | Module / Feature | Description |
 | :--- | :--- |
 | **Protocol Mode (Classic)** | Interactive selection of 63 anatomical muscles, customizable color families or monochrome, and flexible visual callouts (Numbers, Names, or Numbers + Names). |
-| **Results Mode (% MVC Heatmap)** | Continuous dynamic thermal heatmap (0 to 100% MVC / % CMV) with adjustable color scales and real-time live activation gauges. |
+| **Results Mode (% MVC Heatmap)** | Continuous dynamic thermal heatmap (0 to 100% MVC) with adjustable color scales and real-time live activation gauges. |
 | **Views & Framings** | Anatomical angles (Dual Anterior + Posterior, Anterior only, Posterior only) and adaptive framings (Full body, Upper body, Lower limbs). |
 | **Publication Aspect Ratios** | Auto-Fit (tight bounding box without wasted margins) or standardized publication ratios (16:9, 4:3, 9:16, 3:4, 1:1). |
 | **Vector & High-Res Export** | Direct export to **vector SVG** (up to 2048 px) for Adobe Illustrator / PowerPoint / LaTeX and **high-definition PNG** (up to 4096 px) with embedded citation metadata. |
 | **JSON Import / Export** | Batch import and export of muscle activation values with automatic recognition of standard sEMG abbreviations (VL, VM, RF, BF, MG, LG, TA, GM, etc.). |
 | **Bilingual Interface (EN / FR)** | Switch the entire user interface and exported legends between English and French with a single click. |
-
-<details>
-<summary><b>Keyboard Shortcuts & Navigation Controls</b></summary>
-
-- `P` : Toggle settings configuration drawer (left).
-- `M` : Toggle muscle and activation drawer (right).
-- `Mouse Wheel` or `+` / `-` keys : Smooth continuous zoom on the anatomical board.
-- `Double-click` or `↺` button : Reset zoom level and center view.
-
-</details>
 
 <details>
 <summary><b>JSON Format for % MVC Activation Import</b></summary>
@@ -63,43 +50,30 @@ The application accepts full anatomical identifiers or standard sEMG acronyms in
 
 ```json
 {
-  "mesures": [
-    { "muscle": "vastus-lateralis", "cmv": 78.5 },
-    { "muscle": "VM", "cmv": 65.0 },
-    { "muscle": "RF", "cmv": 52.0 },
-    { "muscle": "gastrocnemius-medial", "cmv": 46.0 },
-    { "muscle": "BF", "cmv": 42.5 },
-    { "muscle": "SOL", "cmv": 38.0 },
-    { "muscle": "ST", "cmv": 37.0 },
-    { "muscle": "TA", "cmv": 29.0 }
+  "measures": [
+    { "muscle": "vastus-lateralis", "mvc": 78.5 },
+    { "muscle": "VM", "mvc": 65.0 },
+    { "muscle": "RF", "mvc": 52.0 },
+    { "muscle": "gastrocnemius-medial", "mvc": 46.0 },
+    { "muscle": "BF", "mvc": 42.5 },
+    { "muscle": "SOL", "mvc": 38.0 },
+    { "muscle": "ST", "mvc": 37.0 },
+    { "muscle": "TA", "mvc": 29.0 }
   ]
 }
 ```
 
-*(You can also use `"mvc"` instead of `"cmv"` in key names).*
+*(French keys `"mesures"` and `"cmv"` are also supported).*
 
 </details>
 
 ---
 
-## 🔧 Repository Structure
-
-| File / Folder | Purpose |
-| :--- | :--- |
-| **`index.html`** | Standalone production web application (styles, logic, vector atlas, and brand assets inlined). |
-| **`CITATION.cff`** | Citation File Format specification for automated academic citations on GitHub and Zenodo. |
-| **`LICENSE`** | MIT License for application source code. |
-| **`NOTICE.md`** | Comprehensive attribution notice, BodyParts3D origins, and figure reuse guidelines. |
-| **`docs/screenshots/`** | Official screenshots for documentation and scientific presentations. |
-| **`.github/workflows/deploy.yml`** | Automated continuous deployment workflow to GitHub Pages. |
-
----
-
 ## 📜 How to Cite & Academic License
 
-If you use Muscle Map figures or activation maps in a scientific publication, thesis, or report, please cite both this repository and the underlying anatomical database:
+If you use Muscle Map figures or activation maps in a scientific publication, thesis, or report, please cite both this tool and the underlying anatomical database:
 
-### APA Style
+### Recommended Citation (APA)
 > Panchairi, J. (2026). *Muscle Map: Interactive 2D vector anatomical atlas for surface electromyography (sEMG)* (Version 1.0.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.24146734
 
 ### BibTeX
@@ -114,6 +88,9 @@ If you use Muscle Map figures or activation maps in a scientific publication, th
   url          = {https://technosport.github.io/Muscle-Map/}
 }
 ```
+
+### In Figure Captions
+> *Figure X. Muscle activation map generated using Muscle Map (Technosport amU, ISM UMR 7287 CNRS / Aix-Marseille Université; doi:10.5281/zenodo.24146734), based on BodyParts3D (DBCLS, CC BY-SA 2.1 JP).*
 
 ### Anatomical Database Citation
 > Mitsuhashi, N., Fujieda, K., Tamura, T., Kawamoto, S., Takagi, T., & Okubo, K. (2009). *BodyParts3D: 3D structure database for anatomical concepts*. **Nucleic Acids Research**, 37(suppl_1), D782–D785. https://doi.org/10.1093/nar/gkn613
