@@ -2523,7 +2523,7 @@ function buildSVG(interactive) {
   // Mode % CMV : distance pieds->titre (24) + titre (16) + barre/ticks/chiffres (28) + chiffres->licence (28) + licence (16) + licence->fond (26) = 138
   // Mode Classique : distance pieds->licence (28) + licence (16) + licence->fond (26) = 70
   // + 20 px : seconde ligne de crédit (Muscle Map / DOI puis BodyParts3D / licence)
-  const FOOTER_H = isHeat ? 136 : 68;
+  const FOOTER_H = isHeat ? 146 : 78;
   const TOP_MARGIN = 22;
   const requiredLabelH = (maxCandidates * gap) + 30;
   const totalFigureH = Math.max(TOP_MARGIN + bodyH + FOOTER_H, TOP_MARGIN + requiredLabelH + FOOTER_H);
@@ -2630,7 +2630,7 @@ function buildSVG(interactive) {
 
   // Positionner la citation au bord bas de l'image / écran
   const LICENSE_LINE_H = Math.round(size * 1.35);
-  const bottomMargin = Math.max(8, Math.round(size * 0.75));
+  const bottomMargin = Math.max(16, Math.round(size * 1.35)); // mini marge esthétique d'environ 20px
   targetH = Math.max(targetH, minLicenseY + LICENSE_LINE_H + bottomMargin);
   currentSvgH = targetH;
 
