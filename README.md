@@ -35,7 +35,7 @@
 
 | Module / Feature | Description |
 | :--- | :--- |
-| **Protocol Mode (Classic)** | Interactive selection of 63 anatomical muscles, customizable color families or monochrome, and flexible visual callouts (Numbers, Names, or Numbers + Names). |
+| **Protocol Mode (Classic)** | Interactive selection of 69 anatomical muscles, customizable color families or monochrome, and flexible visual callouts (Numbers, Names, or Numbers + Names). |
 | **Results Mode (% MVC Heatmap)** | Continuous dynamic thermal heatmap (0 to 100% MVC) with adjustable color scales and real-time live activation gauges. |
 | **Views & Framings** | Anatomical angles (Dual Anterior + Posterior, Anterior only, Posterior only) and adaptive framings (Full body, Upper body, Lower limbs). |
 | **Publication Aspect Ratios** | Auto-Fit (tight bounding box without wasted margins) or standardized publication ratios (16:9, 4:3, 9:16, 3:4, 1:1). |
@@ -63,6 +63,8 @@ The application accepts full anatomical identifiers or standard sEMG acronyms in
 ```
 
 *(French keys `"mesures"` and `"cmv"` are also supported).*
+
+> 💡 **Reference Dictionary**: A complete dataset and dictionary covering all 69 anatomical muscles (with standardized IDs, sEMG abbreviations, bilingual names, and sample values) is provided in **[`example_all_muscles.json`](example_all_muscles.json)** and can be imported directly into the application.
 
 ---
 

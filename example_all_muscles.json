@@ -1,0 +1,628 @@
+{
+  "description": "Muscle Map reference dictionary and full sample dataset covering all 69 anatomical muscles.",
+  "unit": "% MVC",
+  "total_muscles": 69,
+  "measures": [
+    {
+      "muscle": "frontalis",
+      "mvc": 75.0,
+      "abbr": "FRO",
+      "name_en": "Frontalis",
+      "name_fr": "Frontal",
+      "section": "Tête et cou",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "temporalis",
+      "mvc": 60.0,
+      "abbr": "TEMP",
+      "name_en": "Temporalis",
+      "name_fr": "Temporal",
+      "section": "Tête et cou",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "masseter",
+      "mvc": 65.0,
+      "abbr": "MASS",
+      "name_en": "Masseter",
+      "name_fr": "Masséter",
+      "section": "Tête et cou",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "orbicularis-oculi",
+      "mvc": 45.0,
+      "abbr": "OO",
+      "name_en": "Orbicularis oculi",
+      "name_fr": "Orbiculaire de l’œil",
+      "section": "Tête et cou",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "orbicularis-oris",
+      "mvc": 50.0,
+      "abbr": "OOR",
+      "name_en": "Orbicularis oris",
+      "name_fr": "Orbiculaire de la bouche",
+      "section": "Tête et cou",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "zygomaticus-major",
+      "mvc": 55.0,
+      "abbr": "ZYG",
+      "name_en": "Zygomaticus major",
+      "name_fr": "Grand zygomatique",
+      "section": "Tête et cou",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "platysma",
+      "mvc": 30.0,
+      "abbr": "PLA",
+      "name_en": "Platysma",
+      "name_fr": "Platysma",
+      "section": "Tête et cou",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "sternocleidomastoid",
+      "mvc": 70.0,
+      "abbr": "SCM",
+      "name_en": "Sternocleidomastoid",
+      "name_fr": "Sterno-cléido-mastoïdien",
+      "section": "Tête et cou",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "splenius-capitis",
+      "mvc": 40.0,
+      "abbr": "SPL",
+      "name_en": "Splenius capitis",
+      "name_fr": "Splénius de la tête",
+      "section": "Tête et cou",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "pectoralis-major",
+      "mvc": 85.0,
+      "abbr": "PM",
+      "name_en": "Pectoralis major",
+      "name_fr": "Grand pectoral",
+      "section": "Tronc",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "serratus-anterior",
+      "mvc": 55.0,
+      "abbr": "SA",
+      "name_en": "Serratus anterior",
+      "name_fr": "Dentelé antérieur",
+      "section": "Tronc",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "rectus-abdominis",
+      "mvc": 70.0,
+      "abbr": "RA",
+      "name_en": "Rectus abdominis",
+      "name_fr": "Grand droit de l’abdomen",
+      "section": "Tronc",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "external-oblique",
+      "mvc": 60.0,
+      "abbr": "EO",
+      "name_en": "External oblique",
+      "name_fr": "Oblique externe",
+      "section": "Tronc",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "internal-oblique",
+      "mvc": 50.0,
+      "abbr": "IO",
+      "name_en": "Internal oblique",
+      "name_fr": "Oblique interne",
+      "section": "Tronc",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "trapezius-upper",
+      "mvc": 80.0,
+      "abbr": "UT",
+      "name_en": "Upper trapezius",
+      "name_fr": "Trapèze supérieur",
+      "section": "Tronc",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "trapezius-middle",
+      "mvc": 65.0,
+      "abbr": "MT",
+      "name_en": "Middle trapezius",
+      "name_fr": "Trapèze moyen",
+      "section": "Tronc",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "trapezius-lower",
+      "mvc": 55.0,
+      "abbr": "LT",
+      "name_en": "Lower trapezius",
+      "name_fr": "Trapèze inférieur",
+      "section": "Tronc",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "latissimus-dorsi",
+      "mvc": 75.0,
+      "abbr": "LD",
+      "name_en": "Latissimus dorsi",
+      "name_fr": "Grand dorsal",
+      "section": "Tronc",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "rhomboid-major",
+      "mvc": 60.0,
+      "abbr": "RHOM",
+      "name_en": "Rhomboid major",
+      "name_fr": "Rhomboïde majeur",
+      "section": "Tronc",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "levator-scapulae",
+      "mvc": 45.0,
+      "abbr": "LS",
+      "name_en": "Levator scapulae",
+      "name_fr": "Élévateur de la scapula",
+      "section": "Tronc",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "iliocostalis",
+      "mvc": 35.0,
+      "abbr": "IL",
+      "name_en": "Iliocostalis",
+      "name_fr": "Ilio-costal",
+      "section": "Tronc",
+      "layer": "deep"
+    },
+    {
+      "muscle": "longissimus",
+      "mvc": 40.0,
+      "abbr": "LONG",
+      "name_en": "Longissimus",
+      "name_fr": "Longissimus",
+      "section": "Tronc",
+      "layer": "deep"
+    },
+    {
+      "muscle": "multifidus",
+      "mvc": 30.0,
+      "abbr": "MULT",
+      "name_en": "Multifidus",
+      "name_fr": "Multifide",
+      "section": "Tronc",
+      "layer": "deep"
+    },
+    {
+      "muscle": "deltoid-anterior",
+      "mvc": 80.0,
+      "abbr": "AD",
+      "name_en": "Anterior deltoid",
+      "name_fr": "Deltoïde antérieur",
+      "section": "Épaule et bras",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "deltoid-middle",
+      "mvc": 75.0,
+      "abbr": "MD",
+      "name_en": "Middle deltoid",
+      "name_fr": "Deltoïde moyen",
+      "section": "Épaule et bras",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "deltoid-posterior",
+      "mvc": 65.0,
+      "abbr": "PD",
+      "name_en": "Posterior deltoid",
+      "name_fr": "Deltoïde postérieur",
+      "section": "Épaule et bras",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "biceps-brachii-long",
+      "mvc": 85.0,
+      "abbr": "BBL",
+      "name_en": "Biceps brachii (long head)",
+      "name_fr": "Biceps brachial (chef long)",
+      "section": "Épaule et bras",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "biceps-brachii-short",
+      "mvc": 80.0,
+      "abbr": "BBS",
+      "name_en": "Biceps brachii (short head)",
+      "name_fr": "Biceps brachial (chef court)",
+      "section": "Épaule et bras",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "infraspinatus",
+      "mvc": 55.0,
+      "abbr": "INF",
+      "name_en": "Infraspinatus",
+      "name_fr": "Infra-épineux",
+      "section": "Épaule et bras",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "teres-major",
+      "mvc": 50.0,
+      "abbr": "TMAJ",
+      "name_en": "Teres major",
+      "name_fr": "Grand rond",
+      "section": "Épaule et bras",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "triceps-brachii-long",
+      "mvc": 70.0,
+      "abbr": "TBL",
+      "name_en": "Triceps brachii (long head)",
+      "name_fr": "Triceps brachial (chef long)",
+      "section": "Épaule et bras",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "triceps-brachii-lateral",
+      "mvc": 65.0,
+      "abbr": "TBLat",
+      "name_en": "Triceps brachii (lateral head)",
+      "name_fr": "Triceps brachial (chef latéral)",
+      "section": "Épaule et bras",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "triceps-brachii-medial",
+      "mvc": 60.0,
+      "abbr": "TBM",
+      "name_en": "Triceps brachii (medial head)",
+      "name_fr": "Triceps brachial (chef médial)",
+      "section": "Épaule et bras",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "brachioradialis",
+      "mvc": 75.0,
+      "abbr": "BR",
+      "name_en": "Brachioradialis",
+      "name_fr": "Brachio-radial",
+      "section": "Avant-bras et main",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "pronator-teres",
+      "mvc": 60.0,
+      "abbr": "PT",
+      "name_en": "Pronator teres",
+      "name_fr": "Rond pronateur",
+      "section": "Avant-bras et main",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "flexor-carpi-radialis",
+      "mvc": 65.0,
+      "abbr": "FCR",
+      "name_en": "Flexor carpi radialis",
+      "name_fr": "Fléchisseur radial du carpe",
+      "section": "Avant-bras et main",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "palmaris-longus",
+      "mvc": 45.0,
+      "abbr": "PL",
+      "name_en": "Palmaris longus",
+      "name_fr": "Long palmaire",
+      "section": "Avant-bras et main",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "flexor-carpi-ulnaris",
+      "mvc": 55.0,
+      "abbr": "FCU",
+      "name_en": "Flexor carpi ulnaris",
+      "name_fr": "Fléchisseur ulnaire du carpe",
+      "section": "Avant-bras et main",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "flexor-digitorum-superficialis",
+      "mvc": 60.0,
+      "abbr": "FDS",
+      "name_en": "Flexor digitorum superficialis",
+      "name_fr": "Fléchisseur superficiel des doigts",
+      "section": "Avant-bras et main",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "abductor-pollicis-brevis",
+      "mvc": 50.0,
+      "abbr": "APB",
+      "name_en": "Abductor pollicis brevis",
+      "name_fr": "Court abducteur du pouce",
+      "section": "Avant-bras et main",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "abductor-digiti-minimi-hand",
+      "mvc": 45.0,
+      "abbr": "ADMh",
+      "name_en": "Abductor digiti minimi (hand)",
+      "name_fr": "Abducteur du petit doigt",
+      "section": "Avant-bras et main",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "extensor-carpi-radialis-longus",
+      "mvc": 70.0,
+      "abbr": "ECRL",
+      "name_en": "Extensor carpi radialis longus",
+      "name_fr": "Long extenseur radial du carpe",
+      "section": "Avant-bras et main",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "extensor-carpi-radialis-brevis",
+      "mvc": 65.0,
+      "abbr": "ECRB",
+      "name_en": "Extensor carpi radialis brevis",
+      "name_fr": "Court extenseur radial du carpe",
+      "section": "Avant-bras et main",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "extensor-digitorum",
+      "mvc": 60.0,
+      "abbr": "ED",
+      "name_en": "Extensor digitorum",
+      "name_fr": "Extenseur des doigts",
+      "section": "Avant-bras et main",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "extensor-carpi-ulnaris",
+      "mvc": 55.0,
+      "abbr": "ECU",
+      "name_en": "Extensor carpi ulnaris",
+      "name_fr": "Extenseur ulnaire du carpe",
+      "section": "Avant-bras et main",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "dorsal-interossei-hand",
+      "mvc": 40.0,
+      "abbr": "DI",
+      "name_en": "Dorsal interossei (hand)",
+      "name_fr": "Interosseux dorsaux (main)",
+      "section": "Avant-bras et main",
+      "layer": "deep"
+    },
+    {
+      "muscle": "tensor-fasciae-latae",
+      "mvc": 65.0,
+      "abbr": "TFL",
+      "name_en": "Tensor fasciae latae",
+      "name_fr": "Tenseur du fascia lata",
+      "section": "Hanche et cuisse",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "sartorius",
+      "mvc": 55.0,
+      "abbr": "SAR",
+      "name_en": "Sartorius",
+      "name_fr": "Sartorius",
+      "section": "Hanche et cuisse",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "rectus-femoris",
+      "mvc": 80.0,
+      "abbr": "RF",
+      "name_en": "Rectus femoris",
+      "name_fr": "Droit fémoral",
+      "section": "Hanche et cuisse",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "vastus-lateralis",
+      "mvc": 90.0,
+      "abbr": "VL",
+      "name_en": "Vastus lateralis",
+      "name_fr": "Vaste latéral",
+      "section": "Hanche et cuisse",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "vastus-medialis",
+      "mvc": 85.0,
+      "abbr": "VM",
+      "name_en": "Vastus medialis",
+      "name_fr": "Vaste médial",
+      "section": "Hanche et cuisse",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "gracilis",
+      "mvc": 50.0,
+      "abbr": "GRA",
+      "name_en": "Gracilis",
+      "name_fr": "Gracile",
+      "section": "Hanche et cuisse",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "adductor-longus",
+      "mvc": 55.0,
+      "abbr": "ADL",
+      "name_en": "Adductor longus",
+      "name_fr": "Long adducteur",
+      "section": "Hanche et cuisse",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "gluteus-maximus",
+      "mvc": 80.0,
+      "abbr": "GMAX",
+      "name_en": "Gluteus maximus",
+      "name_fr": "Grand fessier",
+      "section": "Hanche et cuisse",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "gluteus-medius",
+      "mvc": 70.0,
+      "abbr": "GMED",
+      "name_en": "Gluteus medius",
+      "name_fr": "Moyen fessier",
+      "section": "Hanche et cuisse",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "gluteus-minimus",
+      "mvc": 45.0,
+      "abbr": "GMIN",
+      "name_en": "Gluteus minimus",
+      "name_fr": "Petit fessier",
+      "section": "Hanche et cuisse",
+      "layer": "deep"
+    },
+    {
+      "muscle": "biceps-femoris-long",
+      "mvc": 75.0,
+      "abbr": "BFL",
+      "name_en": "Biceps femoris (long head)",
+      "name_fr": "Biceps fémoral (chef long)",
+      "section": "Hanche et cuisse",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "biceps-femoris-short",
+      "mvc": 65.0,
+      "abbr": "BFS",
+      "name_en": "Biceps femoris (short head)",
+      "name_fr": "Biceps fémoral (chef court)",
+      "section": "Hanche et cuisse",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "semitendinosus",
+      "mvc": 70.0,
+      "abbr": "ST",
+      "name_en": "Semitendinosus",
+      "name_fr": "Semi-tendineux",
+      "section": "Hanche et cuisse",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "semimembranosus",
+      "mvc": 60.0,
+      "abbr": "SM",
+      "name_en": "Semimembranosus",
+      "name_fr": "Semi-membraneux",
+      "section": "Hanche et cuisse",
+      "layer": "deep"
+    },
+    {
+      "muscle": "adductor-magnus",
+      "mvc": 55.0,
+      "abbr": "ADM",
+      "name_en": "Adductor magnus",
+      "name_fr": "Grand adducteur",
+      "section": "Hanche et cuisse",
+      "layer": "deep"
+    },
+    {
+      "muscle": "tibialis-anterior",
+      "mvc": 65.0,
+      "abbr": "TA",
+      "name_en": "Tibialis anterior",
+      "name_fr": "Tibial antérieur",
+      "section": "Jambe et pied",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "fibularis-longus",
+      "mvc": 55.0,
+      "abbr": "PL",
+      "name_en": "Fibularis longus",
+      "name_fr": "Long fibulaire",
+      "section": "Jambe et pied",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "extensor-digitorum-longus",
+      "mvc": 50.0,
+      "abbr": "EDL",
+      "name_en": "Extensor digitorum longus",
+      "name_fr": "Long extenseur des orteils",
+      "section": "Jambe et pied",
+      "layer": "intermediate"
+    },
+    {
+      "muscle": "extensor-digitorum-brevis",
+      "mvc": 40.0,
+      "abbr": "EDB",
+      "name_en": "Extensor digitorum brevis",
+      "name_fr": "Court extenseur des orteils",
+      "section": "Jambe et pied",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "abductor-hallucis",
+      "mvc": 35.0,
+      "abbr": "AH",
+      "name_en": "Abductor hallucis",
+      "name_fr": "Abducteur de l’hallux",
+      "section": "Jambe et pied",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "gastrocnemius-medial",
+      "mvc": 80.0,
+      "abbr": "MG",
+      "name_en": "Gastrocnemius medialis",
+      "name_fr": "Gastrocnémien médial",
+      "section": "Jambe et pied",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "gastrocnemius-lateral",
+      "mvc": 75.0,
+      "abbr": "LG",
+      "name_en": "Gastrocnemius lateralis",
+      "name_fr": "Gastrocnémien latéral",
+      "section": "Jambe et pied",
+      "layer": "superficial"
+    },
+    {
+      "muscle": "soleus",
+      "mvc": 70.0,
+      "abbr": "SOL",
+      "name_en": "Soleus",
+      "name_fr": "Soléaire",
+      "section": "Jambe et pied",
+      "layer": "intermediate"
+    }
+  ]
+}

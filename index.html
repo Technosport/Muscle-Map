@@ -3636,6 +3636,8 @@ function applyClmvJson(jsonString) {
     let items = [];
     if (Array.isArray(parsed)) {
       items = parsed;
+    } else if (parsed && Array.isArray(parsed.measures)) {
+      items = parsed.measures;
     } else if (parsed && Array.isArray(parsed.mesures)) {
       items = parsed.mesures;
     } else if (parsed && Array.isArray(parsed.measurements)) {
