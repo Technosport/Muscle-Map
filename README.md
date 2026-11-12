@@ -43,8 +43,7 @@
 | **JSON Import / Export** | Batch import and export of muscle activation values with automatic recognition of standard sEMG abbreviations (VL, VM, RF, BF, MG, LG, TA, GM, etc.). |
 | **Bilingual Interface (EN / FR)** | Switch the entire user interface and exported legends between English and French with a single click. |
 
-<details>
-<summary><b>JSON Format for % MVC Activation Import</b></summary>
+### JSON Format for % MVC Activation Import
 
 The application accepts full anatomical identifiers or standard sEMG acronyms interchangeably:
 
@@ -64,8 +63,6 @@ The application accepts full anatomical identifiers or standard sEMG acronyms in
 ```
 
 *(French keys `"mesures"` and `"cmv"` are also supported).*
-
-</details>
 
 ---
 
