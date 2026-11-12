@@ -1612,7 +1612,7 @@
         <button type="button" class="btn-link" id="btnCopyJsonSchema" data-i18n="clmvCopy" onclick="event.stopPropagation();">Copier modèle</button>
       </summary>
       <div class="mvc-details-body">
-        <p class="mvc-format-hint" data-i18n="mvcFormatHint">Format : <code>{"mesures": [{"muscle": "vastus-lateralis", "cmv": 75}]}</code></p>
+        <p class="mvc-format-hint" data-i18n="mvcFormatHint">Format : <code>{"measures": [{"muscle": "vastus-lateralis", "mvc": 75}]}</code></p>
         <textarea id="jsonClmvInput" spellcheck="false" placeholder="Collez votre JSON d'activations % CMV / % MVC ici..."></textarea>
         <div id="jsonClmvStatus" class="json-status"></div>
         <button type="button" class="btn sm primary" id="btnApplyJson" style="width:100%" data-i18n="clmvApply">Appliquer les données JSON</button>
@@ -3599,32 +3599,17 @@ stage.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
 
 // --- MODULE DONNÉES % CMV / % MVC (JSON PRÉCIS ET FORMAT EXEMPLE) ---
 function getExampleObject() {
-  if (state.lang === 'en') {
-    return {
-      unit: "% MVC",
-      measurements: [
-        { muscle: "vastus-lateralis", mvc: 78.5 },
-        { muscle: "vastus-medialis", mvc: 65.0 },
-        { muscle: "rectus-femoris", mvc: 52.0 },
-        { muscle: "biceps-femoris-long", mvc: 42.5 },
-        { muscle: "semitendinosus", mvc: 37.0 },
-        { muscle: "gastrocnemius-medial", mvc: 46.0 },
-        { muscle: "soleus", mvc: 38.0 },
-        { muscle: "tibialis-anterior", mvc: 29.0 }
-      ]
-    };
-  }
   return {
-    unite: "% CMV",
-    mesures: [
-      { muscle: "vastus-lateralis", cmv: 78.5 },
-      { muscle: "vastus-medialis", cmv: 65.0 },
-      { muscle: "rectus-femoris", cmv: 52.0 },
-      { muscle: "biceps-femoris-long", cmv: 42.5 },
-      { muscle: "semitendinosus", cmv: 37.0 },
-      { muscle: "gastrocnemius-medial", cmv: 46.0 },
-      { muscle: "soleus", cmv: 38.0 },
-      { muscle: "tibialis-anterior", cmv: 29.0 }
+    unit: "% MVC",
+    measures: [
+      { muscle: "vastus-lateralis", mvc: 78.5 },
+      { muscle: "vastus-medialis", mvc: 65.0 },
+      { muscle: "rectus-femoris", mvc: 52.0 },
+      { muscle: "biceps-femoris-long", mvc: 42.5 },
+      { muscle: "semitendinosus", mvc: 37.0 },
+      { muscle: "gastrocnemius-medial", mvc: 46.0 },
+      { muscle: "soleus", mvc: 38.0 },
+      { muscle: "tibialis-anterior", mvc: 29.0 }
     ]
   };
 }
@@ -3638,14 +3623,14 @@ function applyClmvJson(jsonString) {
       items = parsed;
     } else if (parsed && Array.isArray(parsed.measures)) {
       items = parsed.measures;
-    } else if (parsed && Array.isArray(parsed.mesures)) {
-      items = parsed.mesures;
     } else if (parsed && Array.isArray(parsed.measurements)) {
       items = parsed.measurements;
+    } else if (parsed && Array.isArray(parsed.mesures)) {
+      items = parsed.mesures;
     } else if (parsed && Array.isArray(parsed.data)) {
       items = parsed.data;
     } else if (parsed && typeof parsed === 'object') {
-      items = Object.entries(parsed).map(([k, v]) => ({ muscle: k, clmv: v }));
+      items = Object.entries(parsed).map(([k, v]) => ({ muscle: k, mvc: v }));
     }
 
     if (!items.length) {
@@ -3658,7 +3643,7 @@ function applyClmvJson(jsonString) {
     let recognized = 0;
     items.forEach(it => {
       const rawName = String(it.muscle || it.id || it.name || it.nom || '');
-      const rawVal = it.cmv ?? it.clmv ?? it.mvc ?? it.valeur ?? it.value ?? it.pct;
+      const rawVal = it.mvc ?? it.cmv ?? it.clmv ?? it.value ?? it.valeur ?? it.pct;
       const key = norm(rawName);
       const id = NAME_INDEX.get(key) || fuzzyMatch(key);
       if (id && rawVal !== undefined && rawVal !== null && !isNaN(Number(rawVal))) {

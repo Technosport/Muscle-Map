@@ -62,8 +62,6 @@ The application accepts full anatomical identifiers or standard sEMG acronyms in
 }
 ```
 
-*(French keys `"mesures"` and `"cmv"` are also supported).*
-
 > 💡 **Reference Dictionary**: A complete dataset and dictionary covering all 69 anatomical muscles (with standardized IDs, sEMG abbreviations, bilingual names, and sample values) is provided in **[`example_all_muscles.json`](example_all_muscles.json)** and can be imported directly into the application.
 
 ---
