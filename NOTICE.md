@@ -14,7 +14,7 @@ The 2D anatomical vector atlas is derived from **BodyParts3D**, © The Database 
 The original 3D models were **modified and adapted** (2D orthographic projections, vector tracing, simplification, custom muscle contours, and color zoning) to produce the MyoPlate standalone atlas.
 
 * **Primary Scientific Reference**:  
-  Mitsuhashi N. et al. (2009). *BodyParts3D: 3D structure database for anatomical concepts*. **Nucleic Acids Research**, 37(suppl_1), D782–D785.  
+  Mitsuhashi N. et al. (2009). *BodyParts3D: 3D structure database for anatomical concepts*. **Nucleic Acids Research**, 37(suppl_1), D782-D785.  
   [https://doi.org/10.1093/nar/gkn613](https://doi.org/10.1093/nar/gkn613)
 
 ---

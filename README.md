@@ -9,14 +9,14 @@
 [![License: MIT](https://img.shields.io/badge/Code%20License-MIT-yellow?style=flat-square)](LICENSE)
 [![Data License: CC BY-SA 2.1 JP](https://img.shields.io/badge/Atlas%20License-CC%20BY--SA%202.1%20JP-lightgrey?style=flat-square)](NOTICE.md)
 
-> **MyoPlate — Interactive sEMG Mapping & Figure Builder.**
+> **MyoPlate - Interactive sEMG Mapping & Figure Builder.**
 >
 > *A 2D vector tool for surface electromyography (sEMG) protocol illustration and muscle activation visualization (% MVC).*
 >
-> *Developed at **Technosport / ISM** (UMR 7287 CNRS — Aix-Marseille Université) • [**Launch Web Application**](https://technosport.github.io/MyoPlate/)*
+> *Developed at **Technosport / ISM** (UMR 7287 CNRS - Aix-Marseille Université) • [**Launch Web Application**](https://technosport.github.io/MyoPlate/)*
 
 <p align="center">
-  <img src="docs/screenshots/myoplate-heatmap.png" alt="MyoPlate — Surface EMG muscle activation heatmap visualization" width="100%">
+  <img src="docs/screenshots/myoplate-heatmap.png" alt="MyoPlate - Surface EMG muscle activation heatmap visualization" width="100%">
 </p>
 
 ---
@@ -35,7 +35,7 @@
 ## 🛠️ Features & Highlights
 
 <p align="center">
-  <img src="docs/screenshots/myoplate-protocol.png" alt="MyoPlate — Protocol mode and anatomical muscle selection" width="100%">
+  <img src="docs/screenshots/myoplate-protocol.png" alt="MyoPlate - Protocol mode and anatomical muscle selection" width="100%">
 </p>
 
 | Module / Feature | Description |
@@ -76,7 +76,7 @@ The application accepts full anatomical identifiers or standard sEMG acronyms in
 If you use MyoPlate figures or activation maps in a scientific publication, thesis, or report, please cite both this tool and the underlying anatomical database:
 
 ### Recommended Citation (APA)
-> Panchairi, J. (2026). *MyoPlate — Interactive sEMG Mapping & Figure Builder* (Version 1.1.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.24146734
+> Panchairi, J. (2026). *MyoPlate - Interactive sEMG Mapping & Figure Builder* (Version 1.1.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.24146734
 
 ### BibTeX
 ```bibtex
@@ -95,7 +95,7 @@ If you use MyoPlate figures or activation maps in a scientific publication, thes
 > *Figure X. Muscle activation map generated using MyoPlate (Technosport amU, ISM UMR 7287 CNRS / Aix-Marseille Université; doi:10.5281/zenodo.24146734), based on BodyParts3D (DBCLS, CC BY-SA 2.1 JP).*
 
 ### Anatomical Database Citation
-> Mitsuhashi, N., Fujieda, K., Tamura, T., Kawamoto, S., Takagi, T., & Okubo, K. (2009). *BodyParts3D: 3D structure database for anatomical concepts*. **Nucleic Acids Research**, 37(suppl_1), D782–D785. https://doi.org/10.1093/nar/gkn613
+> Mitsuhashi, N., Fujieda, K., Tamura, T., Kawamoto, S., Takagi, T., & Okubo, K. (2009). *BodyParts3D: 3D structure database for anatomical concepts*. **Nucleic Acids Research**, 37(suppl_1), D782-D785. https://doi.org/10.1093/nar/gkn613
 
 ### License Summary
 - **Source Code**: Released under the **[MIT License](LICENSE)**.
